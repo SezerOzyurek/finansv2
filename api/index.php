@@ -66,7 +66,8 @@ switch ($path)
 				responseCode(404, "Kullanici bilgileri hatali.");
 			}
 
-			if (!verifyAndUpgradeUserPassword($db, $giris, (string)$user_password)) {
+			$storedPassword = (string)($giris["Password"] ?? "");
+			if ($storedPassword === "" || !password_verify((string)$user_password, $storedPassword)) {
 				responseCode(404, "Kullanici bilgileri hatali.");
 			}
 
@@ -141,7 +142,7 @@ switch ($path)
 			// Base FROM/WHERE (used for counts + sums).
 			$fromSql = "
 FROM assets
-INNER JOIN category ON assets.CategoryId = category.CategoryId
+LEFT JOIN category ON assets.CategoryId = category.CategoryId
 LEFT JOIN (
 	SELECT MovementId, COUNT(*) AS cnt
 	FROM movement_files
@@ -377,7 +378,7 @@ ORDER BY $orderCol $orderDir";
 
 	$fromSql = "
 FROM bills
-INNER JOIN category ON bills.CategoryId = category.CategoryId
+LEFT JOIN category ON bills.CategoryId = category.CategoryId
 LEFT JOIN (
 	SELECT MovementId, COUNT(*) AS cnt
 	FROM movement_files
@@ -777,8 +778,8 @@ ORDER BY $orderCol $orderDir";
 			// Largest single income
 			$stmt = $db->prepare("
 				SELECT assets.AssetsId, assets.Title, assets.Amount, assets.Date, category.CategoryId, category.CategoryName
-				FROM assets
-				INNER JOIN category ON assets.CategoryId = category.CategoryId
+FROM assets
+LEFT JOIN category ON assets.CategoryId = category.CategoryId
 				WHERE $whereAssets
 				ORDER BY assets.Amount DESC
 				LIMIT 1
@@ -789,8 +790,8 @@ ORDER BY $orderCol $orderDir";
 			// Largest single expense
 			$stmt = $db->prepare("
 				SELECT bills.BillsId, bills.Title, bills.Amount, bills.Date, category.CategoryId, category.CategoryName
-				FROM bills
-				INNER JOIN category ON bills.CategoryId = category.CategoryId
+FROM bills
+LEFT JOIN category ON bills.CategoryId = category.CategoryId
 				WHERE $whereBills
 				ORDER BY bills.Amount DESC
 				LIMIT 1
@@ -1452,35 +1453,6 @@ function floodControl($limit = 5, $timeWindow = 10) {
     }
 
     return true;
-}
-
-function verifyAndUpgradeUserPassword(PDO $db, array $user, string $plainPassword): bool
-{
-	$storedPassword = (string)($user["Password"] ?? "");
-	if ($storedPassword === "" || $plainPassword === "") { return false; }
-
-	$isModernHash = (password_get_info($storedPassword)["algo"] ?? 0) !== 0;
-	if ($isModernHash) {
-		if (!password_verify($plainPassword, $storedPassword)) { return false; }
-		if (password_needs_rehash($storedPassword, PASSWORD_DEFAULT)) {
-			$newHash = password_hash($plainPassword, PASSWORD_DEFAULT);
-			if (is_string($newHash) && isset($user["UserId"])) {
-				$upd = $db->prepare("UPDATE user SET Password = :p WHERE UserId = :id LIMIT 1");
-				$upd->execute([":p" => $newHash, ":id" => (int)$user["UserId"]]);
-			}
-		}
-		return true;
-	}
-
-	$legacyMatches = hash_equals($storedPassword, (string)encrypt($plainPassword));
-	if (!$legacyMatches) { return false; }
-
-	$newHash = password_hash($plainPassword, PASSWORD_DEFAULT);
-	if (is_string($newHash) && isset($user["UserId"])) {
-		$upd = $db->prepare("UPDATE user SET Password = :p WHERE UserId = :id LIMIT 1");
-		$upd->execute([":p" => $newHash, ":id" => (int)$user["UserId"]]);
-	}
-	return true;
 }
 
 function encrypt($data) 
