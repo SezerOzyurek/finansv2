@@ -15,9 +15,6 @@ if(isset($_POST['girisFormu']))
 		$_SESSION['FirstName'] = $payload['FirstName'] ?? "";
 		$_SESSION['LastName'] = $payload['LastName'] ?? "";
 		$_SESSION['rakamlar'] = 1;
-		$_SESSION['grafikler'] = 1;
-		$_SESSION['filtreBaslangic'] = "2000-01-01";
-		$_SESSION['filtreBitis'] = date("Y-m-d");
 	}
 	echo json_encode($yanit, JSON_UNESCAPED_UNICODE);
 	exit;

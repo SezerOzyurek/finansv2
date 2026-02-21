@@ -60,8 +60,7 @@ function h($s): string { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'
                     <div>
                         <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Tek Sayfa</div>
                         <div class="mt-1 text-2xl font-extrabold tracking-tight">Yaşam Özeti</div>
-                        <div class="mt-1 text-sm text-slate-600">Seçili tarih filtresine göre hayatının fişi.</div>
-                        <div class="mt-2 text-xs text-slate-500 tabular-nums">Filtre: <?php echo h($_SESSION['filtreBaslangic'] ?? ''); ?> - <?php echo h($_SESSION['filtreBitis'] ?? ''); ?></div>
+                        <div class="mt-1 text-sm text-slate-600">Hayatının fişi.</div>
                     </div>
 
                     <div class="flex flex-wrap gap-3">

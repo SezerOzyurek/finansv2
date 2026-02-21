@@ -133,8 +133,8 @@ switch ($path)
 			$CategoryId = $_GET['CategoryId'] ?? false;
 			$orderkey = $_GET['orderkey'] ?? false;
 			$ordertype = $_GET['ordertype'] ?? false;
-			$baslangictarihi = !empty($_GET['baslangictarihi']) ? $_GET['baslangictarihi'] : ($_SESSION['filtreBaslangic'] ?? null);
-			$bitistarihi = !empty($_GET['bitistarihi']) ? $_GET['bitistarihi'] : ($_SESSION['filtreBitis'] ?? null);
+			$baslangictarihi = !empty($_GET['baslangictarihi']) ? $_GET['baslangictarihi'] : null;
+			$bitistarihi = !empty($_GET['bitistarihi']) ? $_GET['bitistarihi'] : null;
 			$limit = $_GET['limit'] ?? false; // legacy
 			$start = isset($_GET['start']) ? (int)$_GET['start'] : null;
 			$length = isset($_GET['length']) ? (int)$_GET['length'] : null;
@@ -262,7 +262,7 @@ ORDER BY $orderCol $orderDir";
 			{
 				$input = json_decode(file_get_contents("php://input"), true);
 				
-				$Title = !empty($input['Title']) ? $input['Title'] : responseCode(400, "BaÅŸlÄ±k eksik");
+				$Title = !empty($input['Title']) ? $input['Title'] : responseCode(400, "BaÃ…Å¸lÃ„Â±k eksik");
 				$Date = !empty($input['Date']) ? $input['Date'] : responseCode(400, "Tarih eksik");
 				$CategoryId = !empty($input['CategoryId']) ? $input['CategoryId'] : responseCode(400, "Kategori ID'si eksik");
 				$Amount = !empty($input['Amount']) ? $input['Amount'] : responseCode(400, "Tutar eksik");
@@ -286,7 +286,7 @@ ORDER BY $orderCol $orderDir";
 				));
 
 				if ($kategoriler) { responseCode(200, NULL, ["AssetsId" => $db->lastInsertId()]); } 
-				else { responseCode(400, "Yeni gelir eklenirken hata oluÅŸtu"); }
+				else { responseCode(400, "Yeni gelir eklenirken hata oluÃ…Å¸tu"); }
 			}
 			catch(Exception $e) 
 			{
@@ -307,7 +307,7 @@ ORDER BY $orderCol $orderDir";
 				$Description = $input['Description'] ?? null;
 
 				if (!$Title && !$CategoryId && !$Date && !$Amount && !$Description) { 
-					responseCode(400, "GÃ¼ncelleme iÃ§in en az bir alan saÄŸlamalÄ±sÄ±nÄ±z.");
+					responseCode(400, "GÃƒÂ¼ncelleme iÃƒÂ§in en az bir alan saÃ„Å¸lamalÃ„Â±sÃ„Â±nÃ„Â±z.");
 				}
 					
 				$fields = [];
@@ -323,14 +323,14 @@ ORDER BY $orderCol $orderDir";
 				$assetsGuncelle = $db->prepare($assetsGuncelle);
 
 				if ($assetsGuncelle->execute($params)) { 
-					responseCode(200, NULL, ["message" => "Gelir baÅŸarÄ±yla gÃ¼ncellendi."]); 
+					responseCode(200, NULL, ["message" => "Gelir baÃ…Å¸arÃ„Â±yla gÃƒÂ¼ncellendi."]); 
 				} 
 				else { 
-					responseCode(400, "Gelir gÃ¼ncellenemedi.");
+					responseCode(400, "Gelir gÃƒÂ¼ncellenemedi.");
 				}
 			}
 			catch (Exception $e) {
-				responseCode(500, "Sunucu hatasÄ±: " . $e->getMessage());
+				responseCode(500, "Sunucu hatasÃ„Â±: " . $e->getMessage());
 			}
 		}
 		elseif ($requestMethod === 'DELETE') 
@@ -346,14 +346,14 @@ ORDER BY $orderCol $orderDir";
 				$sorgu->execute([":AssetsId" => $AssetsId]);
 
 				if ($sorgu->rowCount()) { 
-					responseCode(200, "Gelir baÅŸarÄ±yla silindi."); 
+					responseCode(200, "Gelir baÃ…Å¸arÃ„Â±yla silindi."); 
 				} 
 				else { 
-					responseCode(404, "Belirtilen ID'ye sahip bir gelir bulunamadÄ±.");
+					responseCode(404, "Belirtilen ID'ye sahip bir gelir bulunamadÃ„Â±.");
 				}
 			}
 			catch (Exception $e) {
-				responseCode(500, "Sunucu hatasÄ±: " . $e->getMessage());
+				responseCode(500, "Sunucu hatasÃ„Â±: " . $e->getMessage());
 			}
 		}
 		else {
@@ -370,8 +370,8 @@ ORDER BY $orderCol $orderDir";
 			$CategoryId = $_GET['CategoryId'] ?? false;
 			$orderkey = $_GET['orderkey'] ?? false;
 			$ordertype = $_GET['ordertype'] ?? false;
-			$baslangictarihi = !empty($_GET['baslangictarihi']) ? $_GET['baslangictarihi'] : ($_SESSION['filtreBaslangic'] ?? null);
-			$bitistarihi = !empty($_GET['bitistarihi']) ? $_GET['bitistarihi'] : ($_SESSION['filtreBitis'] ?? null);
+			$baslangictarihi = !empty($_GET['baslangictarihi']) ? $_GET['baslangictarihi'] : null;
+			$bitistarihi = !empty($_GET['bitistarihi']) ? $_GET['bitistarihi'] : null;
 			$limit = $_GET['limit'] ?? false; // legacy
 			$start = isset($_GET['start']) ? (int)$_GET['start'] : null;
 			$length = isset($_GET['length']) ? (int)$_GET['length'] : null;
@@ -497,7 +497,7 @@ ORDER BY $orderCol $orderDir";
 			{
 				$input = json_decode(file_get_contents("php://input"), true);
 				
-				$Title = !empty($input['Title']) ? $input['Title'] : responseCode(400, "BaÅŸlÄ±k eksik");
+				$Title = !empty($input['Title']) ? $input['Title'] : responseCode(400, "BaÃ…Å¸lÃ„Â±k eksik");
 				$Date = !empty($input['Date']) ? $input['Date'] : responseCode(400, "Tarih eksik");
 				$CategoryId = !empty($input['CategoryId']) ? $input['CategoryId'] : responseCode(400, "Kategori ID'si eksik");
 				$Amount = !empty($input['Amount']) ? $input['Amount'] : responseCode(400, "Tutar eksik");
@@ -521,7 +521,7 @@ ORDER BY $orderCol $orderDir";
 				));
 
 				if ($kategoriler) { responseCode(200, NULL, ["BillsId" => $db->lastInsertId()]); } 
-				else { responseCode(400, "Yeni gelir eklenirken hata oluÅŸtu"); }
+				else { responseCode(400, "Yeni gelir eklenirken hata oluÃ…Å¸tu"); }
 			}
 			catch(Exception $e) 
 			{
@@ -543,7 +543,7 @@ ORDER BY $orderCol $orderDir";
 				$Description = $input['Description'] ?? null;
 
 				if (!$Title && !$CategoryId && !$Date && !$Amount && !$Description) { 
-					responseCode(400, "GÃ¼ncelleme iÃ§in en az bir alan saÄŸlamalÄ±sÄ±nÄ±z.");
+					responseCode(400, "GÃƒÂ¼ncelleme iÃƒÂ§in en az bir alan saÃ„Å¸lamalÃ„Â±sÃ„Â±nÃ„Â±z.");
 				}
 
 				$fields = [];
@@ -559,14 +559,14 @@ ORDER BY $orderCol $orderDir";
 				$stmt = $db->prepare($updateQuery);
 
 				if ($stmt->execute($params)) { 
-					responseCode(200, NULL, ["message" => "Gider baÅŸarÄ±yla gÃ¼ncellendi."]); 
+					responseCode(200, NULL, ["message" => "Gider baÃ…Å¸arÃ„Â±yla gÃƒÂ¼ncellendi."]); 
 				} 
 				else { 
-					responseCode(400, "Gider gÃ¼ncellenemedi.");
+					responseCode(400, "Gider gÃƒÂ¼ncellenemedi.");
 				}
 			}
 			catch (Exception $e) {
-				responseCode(500, "Sunucu hatasÄ±: " . $e->getMessage());
+				responseCode(500, "Sunucu hatasÃ„Â±: " . $e->getMessage());
 			}
 		}
 		elseif ($requestMethod === 'DELETE') 
@@ -582,14 +582,14 @@ ORDER BY $orderCol $orderDir";
 				$sorgu->execute([":BillsId" => $BillsId]);
 
 				if ($sorgu->rowCount()) { 
-					responseCode(200, "Gider baÅŸarÄ±yla silindi."); 
+					responseCode(200, "Gider baÃ…Å¸arÃ„Â±yla silindi."); 
 				} 
 				else { 
-					responseCode(404, "Belirtilen ID'ye sahip bir gider bulunamadÄ±.");
+					responseCode(404, "Belirtilen ID'ye sahip bir gider bulunamadÃ„Â±.");
 				}
 			}
 			catch (Exception $e) {
-				responseCode(500, "Sunucu hatasÄ±: " . $e->getMessage());
+				responseCode(500, "Sunucu hatasÃ„Â±: " . $e->getMessage());
 			}
 		}
 		else 
@@ -651,8 +651,8 @@ ORDER BY $orderCol $orderDir";
 			{
 				$input = json_decode(file_get_contents("php://input"), true);
 				
-				$CategoryName = !empty($input['CategoryName']) ? $input['CategoryName'] : responseCode(400, "Kategori adÄ± eksik");
-				$Type = $input['Type'] ?? responseCode(400, "Kategori tÃ¼rÃ¼ seÃ§in.");
+				$CategoryName = !empty($input['CategoryName']) ? $input['CategoryName'] : responseCode(400, "Kategori adÃ„Â± eksik");
+				$Type = $input['Type'] ?? responseCode(400, "Kategori tÃƒÂ¼rÃƒÂ¼ seÃƒÂ§in.");
 				
 				$kategoriler = $db->prepare("INSERT INTO category SET CategoryName = :CategoryName, Type = :Type");
 				$kategoriler->execute(array("CategoryName" => $CategoryName, "Type" => $Type));
@@ -661,7 +661,7 @@ ORDER BY $orderCol $orderDir";
 				{
 					 responseCode(200, NULL, ["CategoryId" => $db->lastInsertId()]);
 				} else {
-					responseCode(400, "Yeni kategori eklenirken hata oluÅŸtu");
+					responseCode(400, "Yeni kategori eklenirken hata oluÃ…Å¸tu");
 				}
 			}
 			catch(Exception $e) 
@@ -680,7 +680,7 @@ ORDER BY $orderCol $orderDir";
 				$CategoryName = $input['CategoryName'] ?? null;
 				$Type = $input['Type'] ?? null;
 
-				if (!$CategoryName && !$Type) { responseCode(400, "GÃ¼ncelleme iÃ§in en az bir alan saÄŸlamalÄ±sÄ±nÄ±z."); }
+				if (!$CategoryName && !$Type) { responseCode(400, "GÃƒÂ¼ncelleme iÃƒÂ§in en az bir alan saÃ„Å¸lamalÃ„Â±sÃ„Â±nÃ„Â±z."); }
 
 				$fields = [];
 				$params = [":CategoryId" => decrypt($CategoryId)];
@@ -691,11 +691,11 @@ ORDER BY $orderCol $orderDir";
 				$kategoriGuncelle = "UPDATE category SET " . implode(", ", $fields) . " WHERE CategoryId = :CategoryId";
 				$kategoriGuncelle = $db->prepare($kategoriGuncelle);
 
-				if($kategoriGuncelle->execute($params)) { responseCode(200, NULL, ["message" => "Kategori baÅŸarÄ±yla gÃ¼ncellendi."]); } 
-				else { responseCode(400, "Kategori gÃ¼ncellenemedi."); }
+				if($kategoriGuncelle->execute($params)) { responseCode(200, NULL, ["message" => "Kategori baÃ…Å¸arÃ„Â±yla gÃƒÂ¼ncellendi."]); } 
+				else { responseCode(400, "Kategori gÃƒÂ¼ncellenemedi."); }
 			}
 			catch (Exception $e) {
-				responseCode(500, "Sunucu hatasÄ±: " . $e->getMessage());
+				responseCode(500, "Sunucu hatasÃ„Â±: " . $e->getMessage());
 			}
 		}
 		
@@ -730,12 +730,12 @@ ORDER BY $orderCol $orderDir";
 			$giderSorgu->execute($parametre);
 			$genelGiderSonucu = $giderSorgu->fetch(PDO::FETCH_ASSOC);
 
-			// Kategori BazlÄ± Gider Sorgusu
+			// Kategori BazlÃ„Â± Gider Sorgusu
 			$kategoriBazliSorguGiderler = $db->prepare("SELECT bills.CategoryId, SUM(Amount) AS ToplamGider, category.CategoryName as CategoryName FROM bills INNER JOIN category ON bills.CategoryId = category.CategoryId WHERE $tarihKosulu GROUP BY CategoryId ORDER BY CategoryName ASC");
 			$kategoriBazliSorguGiderler->execute($parametre);
 			$giderKategorileri = $kategoriBazliSorguGiderler->fetchAll(PDO::FETCH_ASSOC);
 
-			// Kategori BazlÄ± Gelir Sorgusu
+			// Kategori BazlÃ„Â± Gelir Sorgusu
 			$kategoriBazliSorguGelirler = $db->prepare("SELECT assets.CategoryId, SUM(Amount) AS ToplamGelir, category.CategoryName as CategoryName FROM assets INNER JOIN category ON assets.CategoryId = category.CategoryId WHERE $tarihKosulu GROUP BY CategoryId ORDER BY CategoryName ASC");
 			$kategoriBazliSorguGelirler->execute($parametre);
 			$gelirKategorileri = $kategoriBazliSorguGelirler->fetchAll(PDO::FETCH_ASSOC);
@@ -762,8 +762,8 @@ ORDER BY $orderCol $orderDir";
 		validateToken();
 		if ($requestMethod === 'GET')
 		{
-			$baslangictarihi = !empty($_GET['baslangictarihi']) ? $_GET['baslangictarihi'] : ($_SESSION['filtreBaslangic'] ?? null);
-			$bitistarihi = !empty($_GET['bitistarihi']) ? $_GET['bitistarihi'] : ($_SESSION['filtreBitis'] ?? null);
+			$baslangictarihi = !empty($_GET['baslangictarihi']) ? $_GET['baslangictarihi'] : null;
+			$bitistarihi = !empty($_GET['bitistarihi']) ? $_GET['bitistarihi'] : null;
 
 			$params = [];
 			$whereAssets = "1=1";
@@ -916,7 +916,7 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 			$stmt->execute($params);
 			$zenDay = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 
-			// \"Bu neydi ÅŸimdi?\" - big expenses with missing/short description
+			// \"Bu neydi Ã…Å¸imdi?\" - big expenses with missing/short description
 			$stmt = $db->prepare("
 				SELECT bills.BillsId, bills.Title, bills.Amount, bills.Date, category.CategoryId, category.CategoryName
 				FROM bills
@@ -942,7 +942,7 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 			$stmt->execute($params);
 			$impulseExpenses = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-			// \"Sessiz dÃ¼ÅŸman\" - frequent category
+			// \"Sessiz dÃƒÂ¼Ã…Å¸man\" - frequent category
 			$stmt = $db->prepare("
 				SELECT category.CategoryId, category.CategoryName, COUNT(*) AS Cnt, COALESCE(SUM(bills.Amount),0) AS Total
 				FROM bills
@@ -1006,11 +1006,11 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 				$topExpenseShare = (float)$topExpenseCats[0]["Total"] / $totalExpense;
 			}
 			$character = "Dengeli";
-			$psych = "SaÄŸlÄ±klÄ±";
+			$psych = "SaÃ„Å¸lÃ„Â±klÃ„Â±";
 			if ($savingsRate >= 0.25) { $character = "Disiplinli"; }
-			elseif ($savingsRate <= 0.05) { $character = "DaÄŸÄ±nÄ±k"; }
-			if ($topExpenseShare >= 0.55) { $psych = "TakÄ±ntÄ±lÄ±"; }
-			elseif ($topExpenseShare >= 0.35) { $psych = "OdaklÄ±"; }
+			elseif ($savingsRate <= 0.05) { $character = "DaÃ„Å¸Ã„Â±nÃ„Â±k"; }
+			if ($topExpenseShare >= 0.55) { $psych = "TakÃ„Â±ntÃ„Â±lÃ„Â±"; }
+			elseif ($topExpenseShare >= 0.35) { $psych = "OdaklÃ„Â±"; }
 
 			responseCode(200, NULL, [
 				"range" => ["baslangic" => $baslangictarihi, "bitis" => $bitistarihi],
@@ -1083,7 +1083,7 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 			}
 			catch (Exception $e)
 			{
-				responseCode(500, "Sunucu hatasÄ±: " . $e->getMessage());
+				responseCode(500, "Sunucu hatasÃ„Â±: " . $e->getMessage());
 			}
 		}
 		elseif ($requestMethod === 'POST')
@@ -1103,7 +1103,7 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 
 				$maxTotal = 5;
 				$canAdd = max(0, $maxTotal - $existing);
-				if ($canAdd <= 0) { responseCode(400, "Bu harekete en fazla 5 fotoÄŸraf eklenebilir."); }
+				if ($canAdd <= 0) { responseCode(400, "Bu harekete en fazla 5 fotoÃ„Å¸raf eklenebilir."); }
 
 				// Normalize files from Photos[] (UI) or Photo (single)
 				$files = [];
@@ -1129,7 +1129,7 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 				$relDir = "uploads/movements/" . date("Y") . "/" . date("m") . "/";
 				$absDir = rtrim($baseDir, "\\/") . DIRECTORY_SEPARATOR . str_replace("/", DIRECTORY_SEPARATOR, $relDir);
 
-				// User requested "dÃ¼z" uploads: just ensure the folder exists and is writable.
+				// User requested "dÃƒÂ¼z" uploads: just ensure the folder exists and is writable.
 				// On Linux hosting this also prevents Apache/PHP user mismatch issues.
 				if (!is_dir($absDir)) { @mkdir($absDir, 0777, true); }
 				@chmod($absDir, 0777);
@@ -1181,7 +1181,7 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 			}
 			catch (Exception $e)
 			{
-				responseCode(500, "Sunucu hatasÄ±: " . $e->getMessage());
+				responseCode(500, "Sunucu hatasÃ„Â±: " . $e->getMessage());
 			}
 		}
 		elseif ($requestMethod === 'DELETE')
@@ -1190,14 +1190,14 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 			{
 				$input = json_decode(file_get_contents("php://input"), true);
 				$PhotoId = $input['PhotoId'] ?? null;
-				if (!$PhotoId) { responseCode(400, "FotoÄŸraf ID'si eksik"); }
+				if (!$PhotoId) { responseCode(400, "FotoÃ„Å¸raf ID'si eksik"); }
 				$photoIdInt = (int)decrypt($PhotoId);
-				if ($photoIdInt <= 0) { responseCode(400, "GeÃ§ersiz fotoÄŸraf ID"); }
+				if ($photoIdInt <= 0) { responseCode(400, "GeÃƒÂ§ersiz fotoÃ„Å¸raf ID"); }
 
 				$stmt = $db->prepare("SELECT PhotoId, FilePath FROM movement_files WHERE PhotoId = :pid LIMIT 1");
 				$stmt->execute([":pid" => $photoIdInt]);
 				$row = $stmt->fetch(PDO::FETCH_ASSOC);
-				if (!$row) { responseCode(404, "FotoÄŸraf bulunamadÄ±"); }
+				if (!$row) { responseCode(404, "FotoÃ„Å¸raf bulunamadÃ„Â±"); }
 
 				$path = (string)($row["FilePath"] ?? "");
 				$abs = rtrim(apiUploadsDir(), "\\/") . DIRECTORY_SEPARATOR . str_replace("/", DIRECTORY_SEPARATOR, ltrim($path, "/"));
@@ -1206,11 +1206,11 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 				$stmt = $db->prepare("DELETE FROM movement_files WHERE PhotoId = :pid LIMIT 1");
 				$stmt->execute([":pid" => $photoIdInt]);
 
-				responseCode(200, "FotoÄŸraf silindi.");
+				responseCode(200, "FotoÃ„Å¸raf silindi.");
 			}
 			catch (Exception $e)
 			{
-				responseCode(500, "Sunucu hatasÄ±: " . $e->getMessage());
+				responseCode(500, "Sunucu hatasÃ„Â±: " . $e->getMessage());
 			}
 		}
 		else
@@ -1223,10 +1223,10 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 		validateToken();
 		if($requestMethod === "GET") 
 		{
-			$baslangicTarihi = $_GET['baslangictarihi'] ?? '2000-01-01'; // VarsayÄ±lan bir tarih
-			$bitisTarihi = $_GET['bitistarihi'] ?? date('Y-m-d'); // VarsayÄ±lan olarak bugÃ¼nÃ¼n tarihi
+			$baslangicTarihi = $_GET['baslangictarihi'] ?? '2000-01-01'; // VarsayÃ„Â±lan bir tarih
+			$bitisTarihi = $_GET['bitistarihi'] ?? date('Y-m-d'); // VarsayÃ„Â±lan olarak bugÃƒÂ¼nÃƒÂ¼n tarihi
 
-			// Belirlenen baÅŸlangÄ±Ã§ tarihinden Ã¶nceki toplam bakiye
+			// Belirlenen baÃ…Å¸langÃ„Â±ÃƒÂ§ tarihinden ÃƒÂ¶nceki toplam bakiye
 			$sqlBakiyeOnce = "
 				SELECT 
 					(COALESCE((SELECT SUM(Amount) FROM assets WHERE Date < :baslangic), 0) 
@@ -1234,9 +1234,9 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 			";
 			$stmt = $db->prepare($sqlBakiyeOnce);
 			$stmt->execute([':baslangic' => $baslangicTarihi]);
-			$oncekiBakiye = $stmt->fetchColumn(); // BaÅŸlangÄ±Ã§ tarihine kadar olan bakiye
+			$oncekiBakiye = $stmt->fetchColumn(); // BaÃ…Å¸langÃ„Â±ÃƒÂ§ tarihine kadar olan bakiye
 
-			// SeÃ§ilen tarih aralÄ±ÄŸÄ±nda gelir ve giderleri getir
+			// SeÃƒÂ§ilen tarih aralÃ„Â±Ã„Å¸Ã„Â±nda gelir ve giderleri getir
 			$sql = "
 				SELECT tarih, 
 					   COALESCE(gelir, 0) AS gelir, 
@@ -1259,7 +1259,7 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 			$stmt->execute([':baslangic' => $baslangicTarihi, ':bitis' => $bitisTarihi]);
 			$rows = $stmt->fetchAll();
 
-			$toplam_bakiye = $oncekiBakiye; // Ã–nceki bakiyeyi hesaba kat
+			$toplam_bakiye = $oncekiBakiye; // Ãƒâ€“nceki bakiyeyi hesaba kat
 			$bakiye_listesi = [];
 
 			foreach ($rows as $row) {
@@ -1279,17 +1279,17 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 
 	break;
 	
+	
 	case "gorunurluk":
 		if($requestMethod === "POST") 
 		{
 			if (!isset($_POST['tur'])) { responseCode(400); }
+			$tur = (string)$_POST['tur'];
+			if ($tur !== "rakamlar") { responseCode(400); }
 
-			$tur = $_POST['tur']; 
-			$mevcutDeger = isset($_SESSION[$tur]) ? intval($_SESSION[$tur]) : 0;
-			$yeniDeger = ($mevcutDeger == 1) ? 0 : 1;
-			$_SESSION[$tur] = $yeniDeger;
-			
-			responseCode(200, "GÃ¼ncelleme baÅŸarÄ±lÄ±.");
+			$mevcutDeger = isset($_SESSION[$tur]) ? intval($_SESSION[$tur]) : 1;
+			$_SESSION[$tur] = ($mevcutDeger === 1) ? 0 : 1;
+			responseCode(200, "Guncelleme basarili.");
 		}
 		else 
 		{
@@ -1297,21 +1297,8 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 		}
 	break;
 	
-	case "tarihfiltre":
-		if($requestMethod === "POST") 
-		{
-			$_SESSION["filtreBaslangic"] = $_POST['baslangictarihifiltre'];
-			$_SESSION["filtreBitis"] = $_POST['bitistarihifiltre'];
-			
-			responseCode(200, "GÃ¼ncelleme baÅŸarÄ±lÄ±.");
-		}
-		else {
-			responseCode(400);
-		}
-	break;
-	
     default:
-        responseCode(404, "HatalÄ± uÃ§ nokta.");
+        responseCode(404, "HatalÃ„Â± uÃƒÂ§ nokta.");
     break;
 }
 
@@ -1490,7 +1477,7 @@ function validateToken()
 	return true;
 }
 
-////////// HATA AYIKLAMA FONKSÄ°YONU //////////
+////////// HATA AYIKLAMA FONKSÃ„Â°YONU //////////
 function hataAyikla($metin)
 {
 	$ch = curl_init();
@@ -1510,7 +1497,7 @@ function hataAyikla($metin)
 	curl_close($ch);
 
 }
-////////// HATA AYIKLAMA FONKSÄ°YONU //////////
+////////// HATA AYIKLAMA FONKSÃ„Â°YONU //////////
 
 function apiBaseUrl(): string
 {

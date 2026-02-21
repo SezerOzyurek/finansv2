@@ -192,9 +192,8 @@ function sortByFieldDesc(array &$rows, string $field): void
                 <?php } ?>
             </div>
 
-            <?php if(!grafiklerGizli()) { ?>
-                <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
-                    <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
+            <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
+                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Grafik</div>
@@ -211,9 +210,9 @@ function sortByFieldDesc(array &$rows, string $field): void
                                 <canvas id="giderBarGrafigi" height="320"></canvas>
                             <?php } ?>
                         </div>
-                    </section>
+                </section>
 
-                    <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
+                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Anlık Durum</div>
@@ -226,9 +225,8 @@ function sortByFieldDesc(array &$rows, string $field): void
                         <div class="mt-4">
                             <canvas id="anlikDurumGrafigi" width="400" height="200"></canvas>
                         </div>
-                    </section>
-                </div>
-            <?php } ?>
+                </section>
+            </div>
         </main>
 
         <?php include("footer.php"); ?>
@@ -236,7 +234,6 @@ function sortByFieldDesc(array &$rows, string $field): void
 
     <?php include("scripts.php"); ?>
 
-    <?php if(!grafiklerGizli()) { ?>
     <script>
     function rastgeleRenk() { return `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`; }
 
@@ -330,7 +327,6 @@ function sortByFieldDesc(array &$rows, string $field): void
             }
         });
     </script>
-    <?php } ?>
 </body>
 </html>
 

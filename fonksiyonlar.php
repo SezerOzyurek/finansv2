@@ -88,6 +88,14 @@ function apiRequest($endpoint, $method = 'GET', $data = [], $token = NULL)
         }
     };
 
+    $forceLogoutRedirect = function() use ($endpoint): void {
+        unset($_SESSION["Api_Token"], $_SESSION["Refresh_Token"]);
+        if (PHP_SAPI !== "cli" && !isset($_GET["loginbypass"]) && $endpoint !== "/login" && $endpoint !== "/token-refresh") {
+            if (!headers_sent()) { header("Location: " . APP_SITE_URL . "/login.php"); }
+            exit;
+        }
+    };
+
     $url = APP_API_BASE_URL . $endpoint;
     if ($method === 'GET' && !empty($data)) { $url .= '?' . http_build_query($data); }
 
@@ -115,10 +123,15 @@ function apiRequest($endpoint, $method = 'GET', $data = [], $token = NULL)
             $response = $requestFn($url, $method, $data, $retryToken);
             if (isset($response["error"])) { return $response; }
             $applyTokens($response);
+            if (($response["code"] ?? 0) === 401) { $forceLogoutRedirect(); }
             return $response;
         }
 
-        unset($_SESSION["Api_Token"], $_SESSION["Refresh_Token"]);
+        $forceLogoutRedirect();
+    }
+
+    if (($response["code"] ?? 0) === 401 && $endpoint !== "/login" && $endpoint !== "/token-refresh") {
+        $forceLogoutRedirect();
     }
 
     return $response;
@@ -140,7 +153,7 @@ function decrypt($data)
     return $decrypted !== false ? $decrypted : false;
 }
 
-////////// HATA AYIKLAMA FONKSİYONU //////////
+////////// HATA AYIKLAMA FONKSÄ°YONU //////////
 function hataAyikla($metin)
 {
 	$ch = curl_init();
@@ -160,30 +173,24 @@ function hataAyikla($metin)
 	curl_close($ch);
 
 }
-////////// HATA AYIKLAMA FONKSİYONU //////////
-function rakamlarGizli() 
+////////// HATA AYIKLAMA FONKSÄ°YONU //////////
+
+function rakamlarGizli()
 {
-	if($_SESSION['rakamlar'] == 1) { return true; }
-	else { return false; }
-}
-function grafiklerGizli() 
-{
-	if($_SESSION['grafikler'] == 1) { return true; }
-	else { return false; }
+    return ((int)($_SESSION['rakamlar'] ?? 1) === 1);
 }
 
-function para($miktar, $birim = "₺", $ondalik = 2) 
+function para($miktar, $birim = "TL", $ondalik = 2)
 {
-    if (!is_numeric($miktar)) { return "Geçersiz miktar"; }
+    if (!is_numeric($miktar)) { return "Gecersiz miktar"; }
 
-    if (rakamlarGizli()) 
-	{
-        $miktarStr = (string)floor($miktar);
-        $yildizSayisi = strlen($miktarStr);
+    if (rakamlarGizli())
+    {
+        $miktarStr = (string)floor((float)$miktar);
+        $yildizSayisi = max(1, strlen(str_replace("-", "", $miktarStr)));
         $yildizli = str_repeat("*", $yildizSayisi);
         $yildizliFormatli = implode('.', str_split(strrev($yildizli), 3));
-        $yildizliFormatli = strrev($yildizliFormatli);
-        return $yildizliFormatli;
+        return strrev($yildizliFormatli);
     }
 
     return number_format($miktar, $ondalik, ',', '.');

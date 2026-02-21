@@ -13,6 +13,29 @@ function navLink(string $href, string $icon, string $label, bool $active = false
         : $base." text-slate-200 hover:bg-white/10 hover:text-white";
     return '<a class="'.$cls.'" href="'.$href.'"><i class="'.$icon.' text-[15px] opacity-90 group-hover:opacity-100"></i><span class="truncate">'.$label.'</span></a>';
 }
+
+function sessionRemainingSeconds(): ?int
+{
+    $token = $_SESSION['Api_Token'] ?? '';
+    if (!is_string($token) || $token === '') { return null; }
+
+    $parts = explode('.', $token);
+    if (count($parts) !== 3) { return null; }
+
+    $payload = strtr($parts[1], '-_', '+/');
+    $pad = strlen($payload) % 4;
+    if ($pad > 0) { $payload .= str_repeat('=', 4 - $pad); }
+
+    $decoded = base64_decode($payload, true);
+    if (!is_string($decoded)) { return null; }
+
+    $data = json_decode($decoded, true);
+    if (!is_array($data) || !isset($data['exp'])) { return null; }
+
+    return max(0, (int)$data['exp'] - time());
+}
+
+$remainingSeconds = sessionRemainingSeconds();
 ?>
 
 <div id="sidebarOverlay" class="fixed inset-0 z-40 hidden bg-slate-950/60 backdrop-blur-sm lg:hidden"></div>
@@ -28,40 +51,42 @@ function navLink(string $href, string $icon, string $label, bool $active = false
                 <div class="text-xs text-slate-300">Finans</div>
             </div>
         </a>
-        <button type="button" class="lg:hidden rounded-xl p-2 hover:bg-white/10" data-sidebar-close aria-label="Menü kapat">
+        <button type="button" class="lg:hidden rounded-xl p-2 hover:bg-white/10" data-sidebar-close aria-label="Menüyü kapat">
             <i class="ti ti-x"></i>
         </button>
     </div>
 
-    <nav class="px-3 pb-6">
-        <div class="mt-2">
-            <?= navLink('index.php', 'ti ti-home', 'Anasayfa', isActive('index.php')) ?>
+    <nav class="flex min-h-[calc(100vh-4rem)] flex-col px-3 pb-4">
+        <div>
+            <div class="mt-2">
+                <?= navLink('index.php', 'ti ti-home', 'Anasayfa', isActive('index.php')) ?>
+            </div>
+
+            <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">İşlemler</div>
+            <div class="mt-2 space-y-1">
+                <?= navLink('hareket.php', 'ti ti-plus', 'Yeni Hareket', isActive('hareket.php')) ?>
+                <?= navLink('hareketler.php?type=1', 'ti ti-wallet', 'Gelirler', isActive('hareketler.php')) ?>
+                <?= navLink('hareketler.php?type=2', 'ti ti-cash-banknote', 'Giderler', isActive('hareketler.php')) ?>
+            </div>
+
+            <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Kategoriler</div>
+            <div class="mt-2 space-y-1">
+                <?= navLink('kategoriler.php?type=1', 'ti ti-folder-plus', 'Gelir Kategorileri', isActive('kategoriler.php')) ?>
+                <?= navLink('kategoriler.php?type=2', 'ti ti-folder-minus', 'Gider Kategorileri', isActive('kategoriler.php')) ?>
+            </div>
+
+            <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Raporlar</div>
+            <div class="mt-2 space-y-1">
+                <?= navLink('yasam_ozeti.php', 'ti ti-receipt', 'Yaşam Özeti', isActive('yasam_ozeti.php')) ?>
+                <?= navLink('para_davranislari.php', 'ti ti-activity', 'Para Davranışları', isActive('para_davranislari.php')) ?>
+                <?= navLink('enler.php', 'ti ti-sparkles', "En'ler ve Şaşırtanlar", isActive('enler.php')) ?>
+                <?= navLink('rapor.php?type=1', 'ti ti-chart-line', 'Gelir Raporları', isActive('rapor.php')) ?>
+                <?= navLink('rapor.php?type=2', 'ti ti-chart-pie', 'Gider Raporları', isActive('rapor.php')) ?>
+                <?= navLink('analiz.php', 'ti ti-wave-sine', 'Finans Nabzı', isActive('analiz.php')) ?>
+            </div>
         </div>
 
-        <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">İşlemler</div>
-        <div class="mt-2 space-y-1">
-            <?= navLink('hareket.php', 'ti ti-plus', 'Yeni Hareket', isActive('hareket.php')) ?>
-            <?= navLink('hareketler.php?type=1', 'ti ti-wallet', 'Gelirler', isActive('hareketler.php')) ?>
-            <?= navLink('hareketler.php?type=2', 'ti ti-cash-banknote', 'Giderler', isActive('hareketler.php')) ?>
-        </div>
-
-        <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Kategoriler</div>
-        <div class="mt-2 space-y-1">
-            <?= navLink('kategoriler.php?type=1', 'ti ti-folder-plus', 'Gelir Kategorileri', isActive('kategoriler.php')) ?>
-            <?= navLink('kategoriler.php?type=2', 'ti ti-folder-minus', 'Gider Kategorileri', isActive('kategoriler.php')) ?>
-        </div>
-
-        <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Raporlar</div>
-        <div class="mt-2 space-y-1">
-            <?= navLink('yasam_ozeti.php', 'ti ti-receipt', 'Yaşam Özeti', isActive('yasam_ozeti.php')) ?>
-            <?= navLink('para_davranislari.php', 'ti ti-activity', 'Para Davranışları', isActive('para_davranislari.php')) ?>
-            <?= navLink('enler.php', 'ti ti-sparkles', 'En\'ler ve Şaşırtanlar', isActive('enler.php')) ?>
-            <?= navLink('rapor.php?type=1', 'ti ti-chart-line', 'Gelir Raporları', isActive('rapor.php')) ?>
-            <?= navLink('rapor.php?type=2', 'ti ti-chart-pie', 'Gider Raporları', isActive('rapor.php')) ?>
-            <?= navLink('analiz.php', 'ti ti-wave-sine', 'Finans Nabzı', isActive('analiz.php')) ?>
-        </div>
-
-        <div class="mt-6">
+        <div class="mt-auto">
             <div class="h-px bg-white/10"></div>
             <div class="mt-4 px-2">
                 <a href="logout.php" class="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-slate-100 hover:bg-white/10">
@@ -69,6 +94,40 @@ function navLink(string $href, string $icon, string $label, bool $active = false
                     <i class="ti ti-chevron-right text-slate-300"></i>
                 </a>
             </div>
+            <div class="mt-3 px-2">
+                <div class="rounded-xl border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-[11px] leading-relaxed text-amber-100">
+                    <span class="inline-flex items-center gap-2 font-semibold text-amber-200"><i class="ti ti-hourglass-low text-[13px]"></i>Oturum Bilgisi</span>
+                    <div class="mt-1">
+                        Oturumunuzun sonlanmasına kalan süre:
+                        <span id="sessionCountdown" class="font-bold text-amber-200" data-remaining="<?php echo is_int($remainingSeconds) ? $remainingSeconds : ''; ?>">
+                            <?php echo is_int($remainingSeconds) ? $remainingSeconds . ' saniye' : 'Bilinmiyor'; ?>
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 </aside>
+
+<script>
+(function () {
+    var el = document.getElementById("sessionCountdown");
+    if (!el) { return; }
+
+    var remaining = parseInt(el.getAttribute("data-remaining"), 10);
+    if (isNaN(remaining)) { return; }
+
+    function tick() {
+        if (remaining <= 0) {
+            el.textContent = "0 saniye";
+            window.location.href = "login.php";
+            return;
+        }
+        el.textContent = remaining + " saniye";
+        remaining -= 1;
+    }
+
+    tick();
+    setInterval(tick, 1000);
+})();
+</script>

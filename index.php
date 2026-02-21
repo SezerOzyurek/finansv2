@@ -76,7 +76,6 @@ $giderCount = count($giderList);
                             <div class="mt-2 text-3xl font-extrabold tracking-tight <?php echo $positive ? 'text-emerald-700' : 'text-rose-700'; ?>">
                                 <?php echo para($rapor["data"]["mevcut_durum"]); ?> ₺
                             </div>
-                            <div class="mt-1 text-sm text-slate-500">Filtre: <?php echo $_SESSION['filtreBaslangic']; ?> - <?php echo $_SESSION['filtreBitis']; ?></div>
                         </div>
                         <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">
                             <i class="ti ti-currency-lira text-slate-400"></i>
@@ -98,8 +97,8 @@ $giderCount = count($giderList);
                             </a>
                         </div>
 
-                        <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                            <table class="min-w-full table-fixed divide-y divide-slate-200 text-sm">
+                        <div class="mt-4 -mx-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white sm:mx-0">
+                            <table class="w-full min-w-[680px] md:min-w-0 md:table-fixed divide-y divide-slate-200 text-sm">
                                 <thead class="bg-slate-50">
                                     <tr>
                                         <th class="w-28 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Tarih</th>
@@ -159,8 +158,8 @@ $giderCount = count($giderList);
                             </a>
                         </div>
 
-                        <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                            <table class="min-w-full table-fixed divide-y divide-slate-200 text-sm">
+                        <div class="mt-4 -mx-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white sm:mx-0">
+                            <table class="w-full min-w-[680px] md:min-w-0 md:table-fixed divide-y divide-slate-200 text-sm">
                                 <thead class="bg-slate-50">
                                     <tr>
                                         <th class="w-28 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Tarih</th>

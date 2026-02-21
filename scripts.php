@@ -270,7 +270,7 @@
     if (ov && e.target === ov) closeSidebar();
   });
 
-  // Keep existing behaviors (visibility toggles + date filter) intact.
+  // Keep shared global behaviors (toastr + sweetalert) intact.
   $(document).ready(function () {
     // Global Toastr defaults (theme is CSS-driven above).
     if (window.toastr) {
@@ -300,50 +300,18 @@
       });
     }
 
-    $(".gizle").click(function (e) {
+    $(".gizle").on("click", function (e) {
       e.preventDefault();
       var tur = $(this).data("gizletur");
       $.post("/api/gorunurluk", { tur: tur }, function (response) {
-        if (response.code === 200) location.reload();
-      });
-    });
-
-    var maxTarih = new Date().toISOString().split("T")[0];
-    $("#baslangicTarihi, #bitisTarihi").attr("max", maxTarih);
-
-    $("#baslangicTarihi").on("change", function () {
-      var baslangic = $(this).val();
-      if (!baslangic) return;
-      $("#bitisTarihi").attr("min", baslangic);
-      var mevcutBitis = $("#bitisTarihi").val();
-      if (mevcutBitis && mevcutBitis < baslangic) $("#bitisTarihi").val(baslangic);
-    });
-
-    $("#filtreUygula").on("click", function () {
-      var baslangic = $("#baslangicTarihi").val();
-      var bitis = $("#bitisTarihi").val();
-
-      if (!baslangic || !bitis) {
-        toastr.warning("Lütfen başlangıç ve bitiş tarihlerini seçin.");
-        return;
-      }
-      if (bitis < baslangic) {
-        toastr.error("Bitiş tarihi, başlangıç tarihinden önce olamaz.");
-        return;
-      }
-
-      $.post("/api/tarihfiltre", {
-        baslangictarihifiltre: baslangic,
-        bitistarihifiltre: bitis
-      }, function (response) {
         if (response && response.code === 200) {
-          toastr.success("Tarih filtresi uygulandı.");
           location.reload();
-        } else {
-          toastr.error("Tarih filtresi uygulanamadı.");
+        } else if (window.toastr) {
+          toastr.error("Islem basarisiz.");
         }
       });
     });
+
   });
 })();
 </script>
