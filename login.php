@@ -10,6 +10,7 @@ if(isset($_POST['girisFormu']))
 	if($yanit["code"] == 200) 
 	{
 		$payload = $yanit["data"] ?? [];
+		$_SESSION['UserId'] = $payload['UserId'] ?? null;
 		$_SESSION['Api_Token'] = $payload['AccessToken'] ?? ($payload['Api_Token'] ?? null);
 		$_SESSION['Refresh_Token'] = $payload['RefreshToken'] ?? null;
 		$_SESSION['FirstName'] = $payload['FirstName'] ?? "";
@@ -26,7 +27,7 @@ if(isset($_POST['girisFormu']))
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Giriş Yap</title>
+    <title>Giri&#351; Yap</title>
     <link href="https://fonts.googleapis.com/css?family=Manrope:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -61,10 +62,11 @@ if(isset($_POST['girisFormu']))
 
                 <div class="mt-10">
                     <div class="text-3xl font-extrabold leading-tight">
-                        Finans akışını tek ekrandan yönet.
+                        Finans ak&#305;&#351;&#305;na tek yerden hakim ol.
                     </div>
                     <div class="mt-3 max-w-sm text-sm text-white/70">
-                        Gelir, gider, kategori ve rapor ekranları API üzerinden çalışır. Giriş yaptıktan sonra tüm hareketler filtrelenebilir.
+                        Gelir ve gider hareketlerini d&#252;zenli tut, kategorilerini y&#246;net,
+                        raporlar&#305;n&#305; anl&#305;k izle ve b&#252;t&#252;n s&#252;reci tek panelden kolayca takip et.
                     </div>
                 </div>
 
@@ -75,8 +77,8 @@ if(isset($_POST['girisFormu']))
 
             <div class="p-8 sm:p-10">
                 <div class="mb-6">
-                    <div class="text-2xl font-extrabold">Giriş</div>
-                    <div class="mt-1 text-sm text-white/70">Devam etmek için bilgilerini gir.</div>
+                    <div class="text-2xl font-extrabold">Giri&#351;</div>
+                    <div class="mt-1 text-sm text-white/70">Devam etmek i&#231;in bilgilerini gir.</div>
                 </div>
 
                 <form id="girisFormu" class="space-y-4">
@@ -87,21 +89,22 @@ if(isset($_POST['girisFormu']))
                                placeholder="ornek@mail.com">
                     </div>
                     <div>
-                        <label class="text-xs font-semibold uppercase tracking-widest text-white/60">Şifre</label>
+                        <label class="text-xs font-semibold uppercase tracking-widest text-white/60">&#350;ifre</label>
                         <input type="password" name="Password" autocomplete="current-password"
                                class="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-white/20 focus:bg-white/10"
-                               placeholder="••••••••">
+                               placeholder="********">
                     </div>
                     <button type="submit"
                             class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-extrabold text-slate-900 shadow-xl hover:bg-slate-100">
                         <i class="ti ti-login"></i>
-                        Giriş Yap
+                        Giri&#351; Yap
                     </button>
                 </form>
 
-                <div class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-white/70">
-                    Ultra Software Group &bull; Finance Management Software &bull; I love Open Source
-                    <span class="font-extrabold text-rose-300">&hearts;</span>
+                <div class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-center text-xs text-white/70">
+                    <div>Ultra Software Group</div>
+                    <div>Finance Management Software</div>
+                    <div class="font-semibold">I love Open Source <span class="font-extrabold text-rose-300">&hearts;</span></div>
                 </div>
             </div>
         </div>
@@ -130,7 +133,7 @@ if(isset($_POST['girisFormu']))
 						}
 					},
 					error: function(xhr, status, error) {
-						toastr.error('API isteği sırasında bir hata oluştu: ' + error);
+                        toastr.error('API iste&#287;i s&#305;ras&#305;nda bir hata olu&#351;tu: ' + error);
 					}
 				});
 			});

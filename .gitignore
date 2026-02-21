@@ -2,3 +2,4 @@ uploads/
 install.lock
 .FINANS
 api/sessions.json
+api/telegram_recent_chats.json

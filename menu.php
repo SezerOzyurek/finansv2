@@ -84,6 +84,10 @@ $remainingSeconds = sessionRemainingSeconds();
                 <?= navLink('rapor.php?type=2', 'ti ti-chart-pie', 'Gider Raporları', isActive('rapor.php')) ?>
                 <?= navLink('analiz.php', 'ti ti-wave-sine', 'Finans Nabzı', isActive('analiz.php')) ?>
             </div>
+            <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Ayarlar</div>
+            <div class="mt-2 space-y-1">
+                <?= navLink('telegram_ayar.php', 'ti ti-brand-telegram', 'Telegram Ayarları', isActive('telegram_ayar.php')) ?>
+            </div>
         </div>
 
         <div class="mt-auto">
