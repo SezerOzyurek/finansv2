@@ -48,7 +48,6 @@ if (!$user || empty($user["TelegramBotToken"])) {
 
 $botToken = (string)$user["TelegramBotToken"];
 $telegramApiUrl = "https://api.telegram.org/bot" . $botToken . "/";
-$sessionFile = __DIR__ . "/sessions.json";
 $recentChatsFile = __DIR__ . "/telegram_recent_chats.json";
 
 $update = json_decode((string)file_get_contents("php://input"), true);
@@ -90,7 +89,7 @@ if (strpos($text, "/start") === 0) {
         $upd = $db->prepare("UPDATE `user` SET TelegramChatId = :cid, TelegramUpdatedAt = NOW() WHERE UserId = :uid LIMIT 1");
         $upd->execute([":cid" => (string)$chatId, ":uid" => (int)$user["UserId"]]);
         sendMessage($telegramApiUrl, $chatId, "Telegram bağlantısı tamamlandı. Artık bu hesaptan işlemler yapabilirsiniz.", [["Yeni Hareket"]]);
-        resetChatSession($sessionFile, (string)$chatId);
+        saveUserFlow($db, (int)$user["UserId"], ["step" => "idle"]);
         echo json_encode(["code" => 200, "message" => "OK"], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -116,18 +115,15 @@ if ((string)$chatId !== $storedChatId) {
     exit;
 }
 
-$sessions = loadSessions($sessionFile);
-$chatKey = (string)$chatId;
-if (!isset($sessions[$chatKey]) || !is_array($sessions[$chatKey])) {
-    $sessions[$chatKey] = ["step" => "idle"];
+$ctx = loadUserFlow($db, (int)$user["UserId"]);
+if (!isset($ctx["step"]) || !is_string($ctx["step"])) {
+    $ctx = ["step" => "idle"];
 }
-$ctx = $sessions[$chatKey];
 
 if ($text === "Akışı Sıfırla" || $text === "/reset") {
     $ctx = ["step" => "idle"];
     sendMessage($telegramApiUrl, $chatId, "Akış sıfırlandı.", [["Yeni Hareket"]]);
-    $sessions[$chatKey] = $ctx;
-    saveSessions($sessionFile, $sessions);
+    saveUserFlow($db, (int)$user["UserId"], $ctx);
     echo json_encode(["code" => 200, "message" => "OK"], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -135,8 +131,7 @@ if ($text === "Akışı Sıfırla" || $text === "/reset") {
 if ($text === "Yeni Hareket") {
     $ctx = ["step" => "select_type"];
     sendMessage($telegramApiUrl, $chatId, "Lütfen işlem türünü seçin:", [["Gelir", "Gider"], ["Akışı Sıfırla"]]);
-    $sessions[$chatKey] = $ctx;
-    saveSessions($sessionFile, $sessions);
+    saveUserFlow($db, (int)$user["UserId"], $ctx);
     echo json_encode(["code" => 200, "message" => "OK"], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -246,8 +241,7 @@ else {
     $ctx = ["step" => "idle"];
 }
 
-$sessions[$chatKey] = $ctx;
-saveSessions($sessionFile, $sessions);
+saveUserFlow($db, (int)$user["UserId"], $ctx);
 
 echo json_encode(["code" => 200, "message" => "OK"], JSON_UNESCAPED_UNICODE);
 exit;
@@ -260,6 +254,7 @@ function ensureTelegramColumns(PDO $db): void
         "TelegramChatId" => "ALTER TABLE `user` ADD COLUMN TelegramChatId VARCHAR(64) NULL",
         "TelegramLinkCode" => "ALTER TABLE `user` ADD COLUMN TelegramLinkCode VARCHAR(80) NULL",
         "TelegramWebhookSecret" => "ALTER TABLE `user` ADD COLUMN TelegramWebhookSecret VARCHAR(120) NULL",
+        "TelegramFlowState" => "ALTER TABLE `user` ADD COLUMN TelegramFlowState TEXT NULL",
         "TelegramUpdatedAt" => "ALTER TABLE `user` ADD COLUMN TelegramUpdatedAt DATETIME NULL",
     ];
 
@@ -297,24 +292,26 @@ function getHeaderValue(string $name): string
     return "";
 }
 
-function loadSessions(string $path): array
+function loadUserFlow(PDO $db, int $userId): array
 {
-    if (!is_file($path)) { return []; }
-    $raw = @file_get_contents($path);
-    $arr = json_decode((string)$raw, true);
+    $st = $db->prepare("SELECT TelegramFlowState FROM `user` WHERE UserId = :id LIMIT 1");
+    $st->execute([":id" => $userId]);
+    $row = $st->fetch(PDO::FETCH_ASSOC);
+    $arr = json_decode((string)($row["TelegramFlowState"] ?? ""), true);
     return is_array($arr) ? $arr : [];
 }
 
-function saveSessions(string $path, array $data): void
+function saveUserFlow(PDO $db, int $userId, array $ctx): void
 {
-    @file_put_contents($path, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-}
-
-function resetChatSession(string $path, string $chatId): void
-{
-    $all = loadSessions($path);
-    $all[$chatId] = ["step" => "idle"];
-    saveSessions($path, $all);
+    $json = json_encode($ctx, JSON_UNESCAPED_UNICODE);
+    if (!is_string($json)) {
+        $json = '{"step":"idle"}';
+    }
+    $st = $db->prepare("UPDATE `user` SET TelegramFlowState = :s WHERE UserId = :id LIMIT 1");
+    $st->execute([
+        ":s" => $json,
+        ":id" => $userId,
+    ]);
 }
 
 function extractChatMeta(array $update, array $user, $chatId, string $text): array
