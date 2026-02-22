@@ -74,7 +74,7 @@ $giderCount = count($giderList);
                         <div>
                             <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Mevcut Durum</div>
                             <div class="mt-2 text-3xl font-extrabold tracking-tight <?php echo $positive ? 'text-emerald-700' : 'text-rose-700'; ?>">
-                                <?php echo para($rapor["data"]["mevcut_durum"]); ?> ₺
+                                <span class="inline-flex items-center gap-1 whitespace-nowrap"><?php echo para($rapor["data"]["mevcut_durum"]); ?><span>₺</span></span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">
@@ -127,7 +127,9 @@ $giderCount = count($giderList);
                                                     <?php } ?>
                                                 </div>
                                             </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-right font-extrabold text-slate-900"><?php echo para($gelir["Amount"]); ?> ₺</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-right font-extrabold text-slate-900">
+                                                <span class="inline-flex items-center justify-end gap-1 whitespace-nowrap"><?php echo para($gelir["Amount"]); ?><span>₺</span></span>
+                                            </td>
                                         </tr>
                                     <?php } ?>
                                     <?php if (empty($gelirList)) { ?>
@@ -139,7 +141,9 @@ $giderCount = count($giderList);
                                 <tfoot class="bg-slate-50">
                                     <tr>
                                         <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500" colspan="2">Toplam</th>
-                                        <th class="px-4 py-3 text-right text-sm font-extrabold text-slate-900"><?php echo para($gelirler["data"]["total"]); ?> ₺</th>
+                                        <th class="px-4 py-3 text-right text-sm font-extrabold text-slate-900">
+                                            <span class="inline-flex items-center justify-end gap-1 whitespace-nowrap"><?php echo para($gelirler["data"]["total"]); ?><span>₺</span></span>
+                                        </th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -188,7 +192,9 @@ $giderCount = count($giderList);
                                                     <?php } ?>
                                                 </div>
                                             </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-right font-extrabold text-slate-900"><?php echo para($gider["Amount"]); ?> ₺</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-right font-extrabold text-slate-900">
+                                                <span class="inline-flex items-center justify-end gap-1 whitespace-nowrap"><?php echo para($gider["Amount"]); ?><span>₺</span></span>
+                                            </td>
                                         </tr>
                                     <?php } ?>
                                     <?php if (empty($giderList)) { ?>
@@ -200,7 +206,9 @@ $giderCount = count($giderList);
                                 <tfoot class="bg-slate-50">
                                     <tr>
                                         <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500" colspan="2">Toplam</th>
-                                        <th class="px-4 py-3 text-right text-sm font-extrabold text-slate-900"><?php echo para($giderler["data"]["total"]); ?> ₺</th>
+                                        <th class="px-4 py-3 text-right text-sm font-extrabold text-slate-900">
+                                            <span class="inline-flex items-center justify-end gap-1 whitespace-nowrap"><?php echo para($giderler["data"]["total"]); ?><span>₺</span></span>
+                                        </th>
                                     </tr>
                                 </tfoot>
                             </table>
