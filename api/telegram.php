@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 header("Content-Type: application/json; charset=UTF-8");
 
 $ENV = parse_ini_file(__DIR__ . "/../../.FINANS", false, INI_SCANNER_RAW) ?: [];

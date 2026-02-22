@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include("fonksiyonlar.php");
 
 $stats = apiRequest('/istatistikler', 'GET', [], $_SESSION['Api_Token']);

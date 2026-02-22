@@ -120,11 +120,16 @@ $remainingSeconds = sessionRemainingSeconds();
 
     var remaining = parseInt(el.getAttribute("data-remaining"), 10);
     if (isNaN(remaining)) { return; }
+    var redirected = false;
+    var timerId = null;
 
     function tick() {
+        if (redirected) { return; }
         if (remaining <= 0) {
             el.textContent = "0 saniye";
-            window.location.href = "login.php";
+            redirected = true;
+            if (timerId) { clearInterval(timerId); }
+            window.location.replace("logout.php");
             return;
         }
         el.textContent = remaining + " saniye";
@@ -132,6 +137,6 @@ $remainingSeconds = sessionRemainingSeconds();
     }
 
     tick();
-    setInterval(tick, 1000);
+    timerId = setInterval(tick, 1000);
 })();
 </script>

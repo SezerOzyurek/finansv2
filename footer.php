@@ -1,4 +1,4 @@
-﻿<footer class="border-t border-slate-200/70 bg-white/70 backdrop-blur">
+<footer class="border-t border-slate-200/70 bg-white/70 backdrop-blur">
     <div class="flex w-full flex-col items-center gap-3 px-4 py-6 text-sm text-slate-600 lg:px-8">
         <div class="space-y-1 text-center leading-tight">
             <div class="font-semibold text-slate-700">Ultra Software Group</div>

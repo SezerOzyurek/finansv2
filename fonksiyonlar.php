@@ -76,7 +76,7 @@ function apiRequest($endpoint, $method = 'GET', $data = [], $token = NULL)
 
         if ($error) { return ["error" => "cURL error: " . $error]; }
         $decoded = json_decode((string)$raw, true);
-        return is_array($decoded) ? $decoded : ["code" => 500, "message" => "API yaniti gecersiz."];
+        return is_array($decoded) ? $decoded : ["code" => 500, "message" => "API yanıtı geçersiz."];
     };
 
     $applyTokens = function(array $resp): void {
@@ -153,7 +153,7 @@ function decrypt($data)
     return $decrypted !== false ? $decrypted : false;
 }
 
-////////// HATA AYIKLAMA FONKSÄ°YONU //////////
+////////// HATA AYIKLAMA FONKSİYONU //////////
 function hataAyikla($metin)
 {
 	$ch = curl_init();
@@ -173,7 +173,7 @@ function hataAyikla($metin)
 	curl_close($ch);
 
 }
-////////// HATA AYIKLAMA FONKSÄ°YONU //////////
+////////// HATA AYIKLAMA FONKSİYONU //////////
 
 function rakamlarGizli()
 {
@@ -182,7 +182,7 @@ function rakamlarGizli()
 
 function para($miktar, $birim = "TL", $ondalik = 2)
 {
-    if (!is_numeric($miktar)) { return "Gecersiz miktar"; }
+    if (!is_numeric($miktar)) { return "Geçersiz miktar"; }
 
     if (rakamlarGizli())
     {
@@ -198,3 +198,4 @@ function para($miktar, $birim = "TL", $ondalik = 2)
 
 
 ?>
+

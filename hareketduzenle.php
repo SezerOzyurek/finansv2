@@ -1,4 +1,4 @@
-﻿<?php 
+<?php 
 include("fonksiyonlar.php");
 
 $gelirKategorileri = apiRequest('/kategoriler', 'GET', ["Type" => 1, "orderkey" => "CategoryName", "ordertype" => "ASC"], $_SESSION['Api_Token']);

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include("fonksiyonlar.php");
 
 $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);

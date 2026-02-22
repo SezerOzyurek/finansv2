@@ -1,4 +1,4 @@
-﻿<?php 
+<?php 
 include("fonksiyonlar.php");
 
 if(empty($_POST)) 

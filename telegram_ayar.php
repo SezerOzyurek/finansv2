@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include("fonksiyonlar.php");
 
 $envPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . ".FINANS";

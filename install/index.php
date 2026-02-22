@@ -140,9 +140,9 @@ function testDbConnection(array $in): array
     try {
         $pdo = openDb($in);
         $pdo->query("SELECT 1");
-        return ["ok" => true, "message" => "DB baglantisi basarili."];
+        return ["ok" => true, "message" => "DB bağlantısı başarılı."];
     } catch (Throwable $e) {
-        return ["ok" => false, "message" => "DB baglantisi basarisiz: " . $e->getMessage()];
+        return ["ok" => false, "message" => "DB bağlantısı başarısız: " . $e->getMessage()];
     }
 }
 
@@ -280,7 +280,7 @@ function seedAsgariUcret(PDO $pdo): void
 function createOrUpdateInitialUser(PDO $pdo, string $email, string $plainPassword): void
 {
     if ($email === "" || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        throw new RuntimeException("Gecerli bir e-posta girin.");
+        throw new RuntimeException("Geçerli bir e-posta girin.");
     }
     if ($plainPassword === "") {
         throw new RuntimeException("Sifre zorunlu.");
@@ -288,7 +288,7 @@ function createOrUpdateInitialUser(PDO $pdo, string $email, string $plainPasswor
 
     $passwordHash = password_hash($plainPassword, PASSWORD_DEFAULT);
     if (!is_string($passwordHash) || $passwordHash === "") {
-        throw new RuntimeException("Sifre hash olusturulamadi.");
+        throw new RuntimeException("Şifre hash oluşturulamadı.");
     }
 
     $stmt = $pdo->prepare("SELECT UserId FROM user WHERE Email = :email LIMIT 1");
@@ -339,7 +339,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_GET["action"])) {
         if (!$dbCheck["ok"]) { jsonOut($dbCheck, 400); }
 
         if ($input["admin_email"] === "" || $input["admin_password"] === "") {
-            jsonOut(["ok" => false, "message" => "Admin e-posta ve sifre zorunlu."], 400);
+            jsonOut(["ok" => false, "message" => "Admin e-posta ve şifre zorunlu."], 400);
         }
 
         try {
@@ -368,14 +368,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_GET["action"])) {
 
             jsonOut([
                 "ok" => true,
-                "message" => "Kurulum tamamlandi. Tablolar olusturuldu, ilk kullanici eklendi, sistem kilitlendi."
+                "message" => "Kurulum tamamlandı. Tablolar oluşturuldu, ilk kullanıcı eklendi, sistem kilitlendi."
             ]);
         } catch (Throwable $e) {
-            jsonOut(["ok" => false, "message" => "Kurulum basarisiz: " . $e->getMessage()], 400);
+            jsonOut(["ok" => false, "message" => "Kurulum başarısız: " . $e->getMessage()], 400);
         }
     }
 
-    jsonOut(["ok" => false, "message" => "Gecersiz islem."], 404);
+    jsonOut(["ok" => false, "message" => "Geçersiz işlem."], 404);
 }
 ?>
 <!doctype html>
@@ -431,7 +431,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_GET["action"])) {
 <body>
 <div class="wrap">
     <h1>Ultra Finans Kurulum</h1>
-    <div class="muted">Sadece DB bilgilerini ve admin hesabi gir. Sistem tabloyu olusturur, kullaniciyi ekler, .FINANS olusturur ve kurulumu kilitler.</div>
+    <div class="muted">Sadece DB bilgilerini ve admin hesabı gir. Sistem tabloyu oluşturur, kullanıcıyı ekler, .FINANS oluşturur ve kurulumu kilitler.</div>
 
     <div class="card">
         <h3>Kurulum Bilgileri</h3>
@@ -446,11 +446,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_GET["action"])) {
         </div>
         <div class="grid">
             <div><label>Admin E-Posta</label><input id="admin_email" type="email" value=""></div>
-            <div><label>Admin Sifre</label><input id="admin_password" type="password" value=""></div>
+            <div><label>Admin Şifre</label><input id="admin_password" type="password" value=""></div>
         </div>
 
         <div class="row">
-            <button id="btnDbTest" type="button">DB Baglantisini Test Et</button>
+            <button id="btnDbTest" type="button">DB Bağlantısını Test Et</button>
             <button id="btnFinalize" class="secondary" type="button">Kurulumu Tamamla</button>
         </div>
         <div id="status" class="status muted"></div>
@@ -494,9 +494,9 @@ document.getElementById("btnDbTest").addEventListener("click", async function() 
     setStatus(true, "DB test ediliyor...");
     const out = await postJson("check-db", collect());
     if (out.ok && out.json && out.json.ok) {
-        setStatus(true, out.json.message || "DB baglantisi basarili.");
+        setStatus(true, out.json.message || "DB bağlantısı başarılı.");
     } else {
-        setStatus(false, (out.json && out.json.message) ? out.json.message : "DB testi basarisiz.");
+        setStatus(false, (out.json && out.json.message) ? out.json.message : "DB testi başarısız.");
     }
 });
 
@@ -507,7 +507,7 @@ document.getElementById("btnFinalize").addEventListener("click", async function(
         setStatus(true, out.json.message || "Kurulum tamamlandi.");
         setTimeout(function() { window.location.href = "../login.php"; }, 900);
     } else {
-        setStatus(false, (out.json && out.json.message) ? out.json.message : "Kurulum basarisiz.");
+        setStatus(false, (out.json && out.json.message) ? out.json.message : "Kurulum başarısız.");
     }
 });
 </script>

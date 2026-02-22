@@ -1,4 +1,4 @@
-﻿<?php 
+<?php 
 include("fonksiyonlar.php");
 
 $gelirKategorileri = apiRequest('/kategoriler', 'GET', ["Type" => 1, "orderkey" => "CategoryName", "ordertype" => "ASC"], $_SESSION['Api_Token']);
@@ -165,8 +165,8 @@ if(isset($_POST['yeniGider']))
                                 <i class="ti ti-info-circle"></i>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="text-sm font-bold text-emerald-800">Gelir kategorisi bulunamadi</div>
-                                <div class="mt-1 text-xs text-emerald-700">Yeni gelir eklemek icin once en az bir gelir kategorisi olusturun.</div>
+                                <div class="text-sm font-bold text-emerald-800">Gelir kategorisi bulunamadı</div>
+                                <div class="mt-1 text-xs text-emerald-700">Yeni gelir eklemek için önce en az bir gelir kategorisi oluşturun.</div>
                                 <a href="kategoriler.php?type=1" class="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-3 py-2 text-xs font-extrabold text-white hover:bg-emerald-800">
                                     <i class="ti ti-plus"></i>Kategoriye Git
                                 </a>
@@ -247,8 +247,8 @@ if(isset($_POST['yeniGider']))
                                 <i class="ti ti-info-circle"></i>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="text-sm font-bold text-rose-800">Gider kategorisi bulunamadi</div>
-                                <div class="mt-1 text-xs text-rose-700">Yeni gider eklemek icin once en az bir gider kategorisi olusturun.</div>
+                                <div class="text-sm font-bold text-rose-800">Gider kategorisi bulunamadı</div>
+                                <div class="mt-1 text-xs text-rose-700">Yeni gider eklemek için önce en az bir gider kategorisi oluşturun.</div>
                                 <a href="kategoriler.php?type=2" class="mt-3 inline-flex items-center gap-2 rounded-xl bg-rose-700 px-3 py-2 text-xs font-extrabold text-white hover:bg-rose-800">
                                     <i class="ti ti-plus"></i>Kategoriye Git
                                 </a>
