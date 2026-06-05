@@ -805,10 +805,23 @@ ORDER BY $orderCol $orderDir";
 				];
 			};
 
-			$currentAsgari = $getAsgariByDate(date('Y-m-d'));
-			$asgariValue = number_format($amount, 2, ',', '.') . " TL";
+			$getRatesByDate = function(string $targetDate) use ($db) {
+				$stmt = $db->prepare("
+					SELECT usd_forex_buying, eur_forex_buying
+					FROM tcmb_fx_rates
+					WHERE rate_date <= :targetDate
+					ORDER BY rate_date DESC
+					LIMIT 1
+				");
+				$stmt->execute([":targetDate" => $targetDate]);
+				return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+			};
 
-			if ($context === 'movement' && $date) {
+			$isMovement = ($context === 'movement' && !empty($date));
+			$currentAsgari = $getAsgariByDate(date('Y-m-d'));
+			$asgariValue = "-";
+
+			if ($isMovement) {
 				$historicalAsgari = $getAsgariByDate($date);
 				if ($historicalAsgari && !empty($historicalAsgari["amount"]) && $currentAsgari && !empty($currentAsgari["amount"])) {
 					$currentEquivalent = ($amount / (float)$historicalAsgari["amount"]) * (float)$currentAsgari["amount"];
@@ -816,30 +829,82 @@ ORDER BY $orderCol $orderDir";
 				}
 			}
 
-			$payload = [
-				"title" => "Karsiliklar",
-				"items" => [
-					[
-						"label" => "Tutar",
-						"value" => number_format($amount, 2, ',', '.') . " TL",
-					],
-					[
-						"label" => "Asgari Ucret",
-						"value" => $asgariValue,
-					],
-					[
-						"label" => "EUR",
-						"value" => "-",
-					],
-					[
-						"label" => "USD",
-						"value" => "-",
-					],
-					[
-						"label" => "ALTIN",
-						"value" => "-",
-					],
+			$usdValue = "-";
+			$eurValue = "-";
+
+			$currentRates = $getRatesByDate(date('Y-m-d'));
+			if ($currentRates) {
+				$usdToday = (float)($currentRates["usd_forex_buying"] ?? 0);
+				$eurToday = (float)($currentRates["eur_forex_buying"] ?? 0);
+
+				if ($isMovement) {
+					$historicalRates = $getRatesByDate($date);
+					if ($historicalRates) {
+						$usdHist = (float)($historicalRates["usd_forex_buying"] ?? 0);
+						$eurHist = (float)($historicalRates["eur_forex_buying"] ?? 0);
+
+						if ($usdHist > 0 && $usdToday > 0) {
+							$usdAmount = $amount / $usdHist;
+							$usdTodayEquivalent = $usdAmount * $usdToday;
+							$usdValue = number_format($usdTodayEquivalent, 2, ',', '.') . " TL";
+						}
+						if ($eurHist > 0 && $eurToday > 0) {
+							$eurAmount = $amount / $eurHist;
+							$eurTodayEquivalent = $eurAmount * $eurToday;
+							$eurValue = number_format($eurTodayEquivalent, 2, ',', '.') . " TL";
+						}
+					}
+					if (isset($usdTodayEquivalent) && $usdToday > 0) {
+						$usdValue = number_format($usdTodayEquivalent, 2, ',', '.') . " TL";
+					}
+					if (isset($eurTodayEquivalent) && $eurToday > 0) {
+						$eurValue = number_format($eurTodayEquivalent, 2, ',', '.') . " TL";
+					}
+				} else {
+					if ($usdToday > 0) {
+						$usdAmount = $amount / $usdToday;
+						$usdValue = number_format($usdAmount, 2, ',', '.') . " USD";
+					}
+					if ($eurToday > 0) {
+						$eurAmount = $amount / $eurToday;
+						$eurValue = number_format($eurAmount, 2, ',', '.') . " EUR";
+					}
+				}
+			}
+
+			if ($isMovement && isset($usdTodayEquivalent) && $usdToday > 0) {
+				$usdValue = number_format($usdTodayEquivalent, 2, ',', '.') . " TL";
+			}
+			if ($isMovement && isset($eurTodayEquivalent) && $eurToday > 0) {
+				$eurValue = number_format($eurTodayEquivalent, 2, ',', '.') . " TL";
+			}
+
+			$items = [
+				[
+					"label" => "Tutar",
+					"value" => number_format($amount, 2, ',', '.') . " TL",
 				],
+			];
+
+			if ($isMovement) {
+				$items[] = [
+					"label" => "Asgari Ücret",
+					"value" => $asgariValue,
+				];
+			}
+
+			$items[] = [
+				"label" => "EUR",
+				"value" => $eurValue,
+			];
+			$items[] = [
+				"label" => "USD",
+				"value" => $usdValue,
+			];
+
+			$payload = [
+				"title" => "Karşılıklar",
+				"items" => $items,
 				"footer" => "",
 			];
 

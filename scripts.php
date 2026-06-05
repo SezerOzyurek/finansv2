@@ -132,6 +132,13 @@
     color: #fff;
     white-space: nowrap;
   }
+  .money-tip__meta {
+    margin-top: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(148, 163, 184, .95);
+    text-align: right;
+  }
   .money-tip__footer {
     margin-top: 10px;
     padding-top: 10px;
@@ -368,11 +375,11 @@
     moneyTooltipEl.innerHTML =
       '<div class="money-tip-box">' +
       '  <div class="money-tip">' +
-      '    <div class="money-tip__title">Hesaplaniyor</div>' +
+      '    <div class="money-tip__title">Hesaplanıyor</div>' +
       '    <div class="money-tip__rows">' +
       '      <div class="money-tip__row">' +
       '        <div class="money-tip__label">Durum</div>' +
-      '        <div class="money-tip__value">Yukleniyor...</div>' +
+      '        <div class="money-tip__value">Yükleniyor...</div>' +
       '      </div>' +
       '    </div>' +
       '  </div>' +
@@ -392,7 +399,7 @@
 
   function buildMoneyTooltipHtml(payload) {
     if (!payload || !Array.isArray(payload.items)) {
-      return '<div class="money-tip"><div class="money-tip__title">Detay</div><div class="money-tip__rows"><div class="money-tip__row"><div class="money-tip__label">Durum</div><div class="money-tip__value">Veri alinamadi</div></div></div></div>';
+      return '<div class="money-tip"><div class="money-tip__title">Detay</div><div class="money-tip__rows"><div class="money-tip__row"><div class="money-tip__label">Durum</div><div class="money-tip__value">Veri alınamadı</div></div></div></div>';
     }
 
     var html = '<div class="money-tip">';
@@ -403,7 +410,11 @@
     payload.items.forEach(function (item) {
       html += '<div class="money-tip__row">';
       html += '<div class="money-tip__label">' + escapeHtml(item.label || "") + '</div>';
-      html += '<div class="money-tip__value">' + escapeHtml(item.value || "") + '</div>';
+      html += '<div class="money-tip__value">' + escapeHtml(item.value || "");
+      if (item.meta) {
+        html += '<div class="money-tip__meta">' + escapeHtml(item.meta) + '</div>';
+      }
+      html += '</div>';
       html += '</div>';
     });
     html += '</div>';
@@ -420,11 +431,11 @@
     var el = ensureMoneyTooltipElement();
     el.querySelector(".money-tip-box").innerHTML =
       '<div class="money-tip">' +
-      '  <div class="money-tip__title">Hesaplaniyor</div>' +
+      '  <div class="money-tip__title">Hesaplanıyor</div>' +
       '  <div class="money-tip__rows">' +
       '    <div class="money-tip__row">' +
       '      <div class="money-tip__label">Durum</div>' +
-      '      <div class="money-tip__value">Yukleniyor...</div>' +
+      '      <div class="money-tip__value">Yükleniyor...</div>' +
       '    </div>' +
       '  </div>' +
       '</div>';
@@ -517,7 +528,7 @@
         if (!payload) {
           payload = {
             title: "Detay",
-            items: [{ label: "Durum", value: "Veri alinamadi" }]
+            items: [{ label: "Durum", value: "Veri alınamadı" }]
           };
         }
         if (key) moneyTooltipCache[key] = payload;
@@ -531,7 +542,7 @@
         if (moneyTooltipActiveNode === node) {
           setMoneyTooltipContent({
             title: "Detay",
-            items: [{ label: "Durum", value: "Baglanti hatasi" }]
+            items: [{ label: "Durum", value: "Bağlantı hatası" }]
           });
           positionMoneyTooltip(node);
         }

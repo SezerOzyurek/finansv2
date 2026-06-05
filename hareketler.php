@@ -53,8 +53,6 @@ if (isset($_GET["datatable"])) {
 		$photoCount = (int)($row["PhotoCount"] ?? 0);
 		$isPending = (int)($row["Gerceklesmemis"] ?? 0) === 1;
 		$desc = $row["Description"] ?? "";
-		$amount = isset($row["Amount"]) ? (string)para($row["Amount"]) . " ₺" : "";
-
 		$rowDate = !empty($row["Date"]) ? date("Y-m-d", strtotime((string)$row["Date"])) : null;
 		$amount = isset($row["Amount"]) ? paraSpan($row["Amount"], ["date" => $rowDate, "context" => "movement"]) : "";
 
@@ -228,7 +226,7 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
             </div>
 
             <?php if($type == 1) { ?>
-                <div class="grid grid-cols-1 gap-6">
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
                         <div class="flex items-center justify-between gap-3">
                             <div>
@@ -237,6 +235,17 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                             </div>
                             <div class="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-700">
                                 <i class="ti ti-currency-lira"></i>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <div class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Toplam Gelir (Enflasyon)</div>
+                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo paraSpan($gelirler["data"]["enflasyon_total"]); ?></div>
+                            </div>
+                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-sky-50 text-sky-700">
+                                <i class="ti ti-chart-line"></i>
                             </div>
                         </div>
                     </section>
@@ -272,7 +281,7 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                     </div>
                 </section>
             <?php } else { ?>
-                <div class="grid grid-cols-1 gap-6">
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
                         <div class="flex items-center justify-between gap-3">
                             <div>
@@ -281,6 +290,17 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                             </div>
                             <div class="grid h-12 w-12 place-items-center rounded-2xl bg-rose-50 text-rose-700">
                                 <i class="ti ti-currency-lira"></i>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <div class="text-xs font-semibold uppercase tracking-widest text-rose-700">Toplam Gider (Enflasyon)</div>
+                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo paraSpan($giderler["data"]["enflasyon_total"]); ?></div>
+                            </div>
+                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-sky-50 text-sky-700">
+                                <i class="ti ti-chart-line"></i>
                             </div>
                         </div>
                     </section>

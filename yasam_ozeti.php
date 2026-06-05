@@ -66,15 +66,15 @@ function h($s): string { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'
                     <div class="flex flex-wrap gap-3">
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Gelir</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums text-emerald-700"><?php echo para($totalIncome); ?> ₺</div>
+                            <div class="mt-1 text-xl font-extrabold tabular-nums text-emerald-700"><?php echo paraSpan($totalIncome); ?></div>
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Gider</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums text-rose-700"><?php echo para($totalExpense); ?> ₺</div>
+                            <div class="mt-1 text-xl font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($totalExpense); ?></div>
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Net</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo ($net >= 0) ? 'text-emerald-700' : 'text-rose-700'; ?>"><?php echo para($net); ?> ₺</div>
+                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo ($net >= 0) ? 'text-emerald-700' : 'text-rose-700'; ?>"><?php echo paraSpan($net); ?></div>
                         </div>
                     </div>
                 </div>
@@ -95,7 +95,7 @@ function h($s): string { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'
                             <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
                                 <div class="flex items-center justify-between gap-3">
                                     <a class="truncate text-sm font-semibold text-slate-900 hover:underline" href="hareketler.php?type=1&CategoryId=<?php echo (int)($c['CategoryId'] ?? 0); ?>" title="<?php echo h($name); ?>"><?php echo h($name); ?></a>
-                                    <div class="whitespace-nowrap text-sm font-extrabold tabular-nums text-emerald-700"><?php echo para($val); ?> ₺</div>
+                                    <div class="whitespace-nowrap text-sm font-extrabold tabular-nums text-emerald-700"><?php echo paraSpan($val); ?></div>
                                 </div>
                                 <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100"><div class="h-1.5 rounded-full bg-emerald-600" style="width: <?php echo number_format($pct,2,'.',''); ?>%"></div></div>
                             </div>
@@ -118,7 +118,7 @@ function h($s): string { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'
                             <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
                                 <div class="flex items-center justify-between gap-3">
                                     <a class="truncate text-sm font-semibold text-slate-900 hover:underline" href="hareketler.php?type=2&CategoryId=<?php echo (int)($c['CategoryId'] ?? 0); ?>" title="<?php echo h($name); ?>"><?php echo h($name); ?></a>
-                                    <div class="whitespace-nowrap text-sm font-extrabold tabular-nums text-rose-700"><?php echo para($val); ?> ₺</div>
+                                    <div class="whitespace-nowrap text-sm font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($val); ?></div>
                                 </div>
                                 <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100"><div class="h-1.5 rounded-full bg-rose-600" style="width: <?php echo number_format($pct,2,'.',''); ?>%"></div></div>
                             </div>

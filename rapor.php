@@ -76,7 +76,7 @@ function renderReportCard(array $reportConfig, array $reportResponse, string $to
 
         <div class="mt-5">
             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Toplam</div>
-            <div class="mt-1 text-3xl font-extrabold tabular-nums <?php echo $accentText; ?>"><?php echo para($total); ?> ₺</div>
+            <div class="mt-1 text-3xl font-extrabold tabular-nums <?php echo $accentText; ?>"><?php echo paraSpan($total); ?></div>
         </div>
 
         <div class="mt-4">
@@ -107,7 +107,7 @@ function renderReportCard(array $reportConfig, array $reportResponse, string $to
                                     <?php echo htmlspecialchars($name, ENT_QUOTES, "UTF-8"); ?>
                                 </a>
                             </div>
-                            <div class="whitespace-nowrap text-sm font-extrabold tabular-nums text-slate-900"><?php echo para($val); ?> ₺</div>
+                            <div class="whitespace-nowrap text-sm font-extrabold tabular-nums text-slate-900"><?php echo paraSpan($val); ?></div>
                         </div>
                         <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
                             <div class="h-1.5 rounded-full <?php echo $accentBg; ?>" style="width: <?php echo number_format($pct, 2, '.', ''); ?>%"></div>
@@ -205,7 +205,7 @@ function renderReportCard(array $reportConfig, array $reportResponse, string $to
                     <div class="flex flex-wrap gap-3">
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Toplam</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo $accentText; ?>"><?php echo para($grandTotal); ?> ₺</div>
+                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo $accentText; ?>"><?php echo paraSpan($grandTotal); ?></div>
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Kategori</div>
@@ -213,7 +213,7 @@ function renderReportCard(array $reportConfig, array $reportResponse, string $to
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Mevcut Durum</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo (($rapor["data"]["mevcut_durum"] ?? 0) >= 0) ? "text-emerald-700" : "text-rose-700"; ?>"><?php echo para($rapor["data"]["mevcut_durum"] ?? 0); ?> ₺</div>
+                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo (($rapor["data"]["mevcut_durum"] ?? 0) >= 0) ? "text-emerald-700" : "text-rose-700"; ?>"><?php echo paraSpan($rapor["data"]["mevcut_durum"] ?? 0); ?></div>
                         </div>
                     </div>
                 </div>

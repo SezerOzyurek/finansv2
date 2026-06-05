@@ -85,15 +85,15 @@ if (is_array($monthly) && count($monthly) > 0) {
                     <div class="flex flex-wrap gap-3">
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Gelir</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums text-emerald-700"><?php echo para($totalIncome); ?> ₺</div>
+                            <div class="mt-1 text-xl font-extrabold tabular-nums text-emerald-700"><?php echo paraSpan($totalIncome); ?></div>
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Gider</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums text-rose-700"><?php echo para($totalExpense); ?> ₺</div>
+                            <div class="mt-1 text-xl font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($totalExpense); ?></div>
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Net</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo ($net >= 0) ? 'text-emerald-700' : 'text-rose-700'; ?>"><?php echo para($net); ?> ₺</div>
+                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo ($net >= 0) ? 'text-emerald-700' : 'text-rose-700'; ?>"><?php echo paraSpan($net); ?></div>
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Tasarruf Oranı</div>
@@ -122,7 +122,7 @@ if (is_array($monthly) && count($monthly) > 0) {
                                 <i class="ti ti-arrow-up-right text-emerald-700"></i>
                             </div>
                             <?php if ($maxIncome) { ?>
-                                <div class="mt-2 text-sm font-extrabold tabular-nums text-slate-900"><?php echo para($maxIncome['Amount'] ?? 0); ?> ₺</div>
+                                <div class="mt-2 text-sm font-extrabold tabular-nums text-slate-900"><?php echo paraSpan($maxIncome['Amount'] ?? 0, ["date" => !empty($maxIncome['Date']) ? date("Y-m-d", strtotime((string)$maxIncome['Date'])) : null, "context" => "movement"]); ?></div>
                                 <div class="mt-1 text-sm font-semibold text-slate-900 truncate" title="<?php echo htmlspecialchars($maxIncome['Title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($maxIncome['Title'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
                                 <div class="mt-1 text-xs text-slate-500 tabular-nums"><?php echo htmlspecialchars($maxIncome['Date'] ?? '', ENT_QUOTES, 'UTF-8'); ?> | <?php echo htmlspecialchars($maxIncome['CategoryName'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
                             <?php } else { ?>
@@ -137,8 +137,8 @@ if (is_array($monthly) && count($monthly) > 0) {
                             </div>
                             <?php if ($bestMonth) { ?>
                                 <div class="mt-2 text-sm font-extrabold tabular-nums text-slate-900"><?php echo htmlspecialchars($bestMonth['ym'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
-                                <div class="mt-1 text-2xl font-extrabold tabular-nums <?php echo ((float)($bestMonth['net'] ?? 0) >= 0) ? 'text-emerald-700' : 'text-rose-700'; ?>"><?php echo para($bestMonth['net'] ?? 0); ?> ₺</div>
-                                <div class="mt-2 text-xs text-slate-500 tabular-nums">Gelir: <?php echo para($bestMonth['income'] ?? 0); ?> ₺ | Gider: <?php echo para($bestMonth['expense'] ?? 0); ?> ₺</div>
+                                <div class="mt-1 text-2xl font-extrabold tabular-nums <?php echo ((float)($bestMonth['net'] ?? 0) >= 0) ? 'text-emerald-700' : 'text-rose-700'; ?>"><?php echo paraSpan($bestMonth['net'] ?? 0); ?></div>
+                                <div class="mt-2 text-xs text-slate-500 tabular-nums">Gelir: <?php echo paraSpan($bestMonth['income'] ?? 0); ?> | Gider: <?php echo paraSpan($bestMonth['expense'] ?? 0); ?></div>
                             <?php } else { ?>
                                 <div class="mt-2 text-sm text-slate-600">Veri yok.</div>
                             <?php } ?>
@@ -165,7 +165,7 @@ if (is_array($monthly) && count($monthly) > 0) {
                         <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
                             <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">En pahalı gün</div>
                             <div class="mt-1 text-2xl font-extrabold tabular-nums text-slate-900"><?php echo dowName($worstDay['dow'] ?? 0); ?></div>
-                            <div class="mt-1 text-sm text-slate-600">Toplam: <span class="font-extrabold tabular-nums text-rose-700"><?php echo para($worstDay['Total'] ?? 0); ?> ₺</span></div>
+                            <div class="mt-1 text-sm text-slate-600">Toplam: <span class="font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($worstDay['Total'] ?? 0); ?></span></div>
                         </div>
                     <?php } else { ?>
                         <div class="mt-4 text-sm text-slate-600">Veri yok.</div>
@@ -184,7 +184,7 @@ if (is_array($monthly) && count($monthly) > 0) {
                                         <div class="h-1.5 rounded-full bg-rose-600" style="width: <?php echo number_format($pctw, 2, '.', ''); ?>%"></div>
                                     </div>
                                 </div>
-                                <div class="w-28 text-right text-xs font-extrabold tabular-nums text-slate-900"><?php echo para($val); ?> ₺</div>
+                                <div class="w-28 text-right text-xs font-extrabold tabular-nums text-slate-900"><?php echo paraSpan($val); ?></div>
                             </div>
                         <?php } ?>
                     </div>

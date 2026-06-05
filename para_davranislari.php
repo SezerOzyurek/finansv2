@@ -66,11 +66,11 @@ function hourRangeLabel(int $h): string {
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Net</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo ($net >= 0) ? 'text-emerald-700' : 'text-rose-700'; ?>"><?php echo para($net); ?> ₺</div>
+                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo ($net >= 0) ? 'text-emerald-700' : 'text-rose-700'; ?>"><?php echo paraSpan($net); ?></div>
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Gider</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums text-rose-700"><?php echo para($totalExpense); ?> ₺</div>
+                            <div class="mt-1 text-xl font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($totalExpense); ?></div>
                         </div>
                     </div>
                 </div>
@@ -110,7 +110,7 @@ function hourRangeLabel(int $h): string {
                             <?php $hour = (int)($h['h'] ?? 0); $val = (float)($h['Total'] ?? 0); ?>
                             <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
                                 <div class="text-sm font-extrabold tabular-nums text-slate-900"><?php echo hourRangeLabel($hour); ?></div>
-                                <div class="text-sm font-extrabold tabular-nums text-rose-700"><?php echo para($val); ?> ₺</div>
+                                <div class="text-sm font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($val); ?></div>
                             </div>
                         <?php } ?>
                         <?php if (count($goldenHours) === 0) { ?>
@@ -134,7 +134,7 @@ function hourRangeLabel(int $h): string {
                         <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div class="rounded-2xl border border-slate-200 bg-white p-4">
                                 <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Gelir</div>
-                                <div class="mt-1 text-xl font-extrabold tabular-nums text-slate-900"><?php echo para($salary['income_amount'] ?? 0); ?> ₺</div>
+                                <div class="mt-1 text-xl font-extrabold tabular-nums text-slate-900"><?php echo paraSpan($salary['income_amount'] ?? 0, ["date" => !empty($salary['income_date']) ? date("Y-m-d", strtotime((string)$salary['income_date'])) : null, "context" => "movement"]); ?></div>
                                 <div class="mt-1 text-xs text-slate-500 tabular-nums"><?php echo htmlspecialchars($salary['income_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
                             </div>
                             <div class="rounded-2xl border border-slate-200 bg-white p-4">
@@ -144,7 +144,7 @@ function hourRangeLabel(int $h): string {
                                     <div class="mt-1 text-xs text-slate-500 tabular-nums"><?php echo htmlspecialchars($salary['burn_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
                                 <?php } else { ?>
                                     <div class="mt-1 text-xl font-extrabold tabular-nums text-emerald-700">Dayanıyor</div>
-                                    <div class="mt-1 text-xs text-slate-500">Harcanan: <?php echo para($salary['spent_since'] ?? 0); ?> ₺</div>
+                                    <div class="mt-1 text-xs text-slate-500">Harcanan: <?php echo paraSpan($salary['spent_since'] ?? 0); ?></div>
                                 <?php } ?>
                             </div>
                         </div>
@@ -174,7 +174,7 @@ function hourRangeLabel(int $h): string {
                         <?php $name = (string)($c['CategoryName'] ?? '-'); $val = (float)($c['Total'] ?? 0); $pctVal = ($totalExpense > 0) ? min(100.0, ($val / $totalExpense) * 100.0) : 0.0; ?>
                         <div class="rounded-3xl border border-slate-200 bg-white p-5">
                             <div class="truncate text-sm font-semibold text-slate-900" title="<?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?></div>
-                            <div class="mt-2 text-lg font-extrabold tabular-nums text-rose-700"><?php echo para($val); ?> ₺</div>
+                            <div class="mt-2 text-lg font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($val); ?></div>
                             <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
                                 <div class="h-1.5 rounded-full bg-rose-600" style="width: <?php echo number_format($pctVal, 2, '.', ''); ?>%"></div>
                             </div>

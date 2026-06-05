@@ -181,7 +181,7 @@ if(isset($_POST['kategoriGuncelle']))
                                             <?php echo $kategori["CategoryName"]; ?>
                                         </a>
                                     </td>
-                                    <td class="text-right font-extrabold"><?php echo para($kategori["Total_Amount"]); ?> ₺</td>
+                                    <td class="text-right font-extrabold"><?php echo paraSpan($kategori["Total_Amount"]); ?></td>
                                     <td class="text-center">
                                         <a class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50"
                                            href="kategoriler.php?action=edit&CategoryId=<?php echo $kategori["CategoryId"]; ?>" title="Düzenle">

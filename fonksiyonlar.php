@@ -44,6 +44,41 @@ function loginmi() { if(isset($_SESSION['Api_Token']) && $_SESSION['Api_Token'] 
 
 if(!isset($_GET['loginbypass']) && !loginmi()) { header("Location: " . APP_SITE_URL . "/login.php"); exit; } 
 
+// Auto-complete missing TCMB exchange rates on panel entry
+if (loginmi() && $dbReady && isset($pdo)) {
+    try {
+        $stmt = $pdo->query("SELECT MAX(rate_date) FROM tcmb_fx_rates");
+        $lastDateStr = $stmt->fetchColumn();
+
+        $today = new DateTime("today");
+        $yesterday = new DateTime("yesterday");
+
+        if (!$lastDateStr) {
+            $startDate = new DateTime("2014-01-01");
+        } else {
+            $startDate = new DateTime($lastDateStr);
+            $startDate->modify("+1 day");
+        }
+
+        if ($startDate <= $yesterday) {
+            // Limit to maximum 10 days per page load to prevent execution timeouts
+            $diff = $startDate->diff($yesterday)->days;
+            if ($diff > 10) {
+                $endDate = clone $startDate;
+                $endDate->modify("+10 days");
+            } else {
+                $endDate = $yesterday;
+            }
+
+            require_once(__DIR__ . "/tcmb.php");
+            tcmb_pull_rates($pdo, $startDate, $endDate);
+        }
+    } catch (Throwable $e) {
+        // Fail silently in case of internet connection issues or TCMB downtimes
+    }
+}
+
+
 function apiRequest($endpoint, $method = 'GET', $data = [], $token = NULL) 
 {
     $requestFn = function($url, $method, $data, $token) {
@@ -264,9 +299,8 @@ function paraSpan($miktar, array $options = []): string
         if (!empty($options["date"])) {
             $attrs .= ' data-money-date="' . htmlspecialchars((string)$options["date"], ENT_QUOTES, "UTF-8") . '"';
         }
-        if (!empty($options["context"])) {
-            $attrs .= ' data-money-context="' . htmlspecialchars((string)$options["context"], ENT_QUOTES, "UTF-8") . '"';
-        }
+        $context = !empty($options["context"]) ? (string)$options["context"] : "generic";
+        $attrs .= ' data-money-context="' . htmlspecialchars($context, ENT_QUOTES, "UTF-8") . '"';
         $attrs .= ' tabindex="0"';
     }
 
