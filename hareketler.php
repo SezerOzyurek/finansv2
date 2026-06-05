@@ -20,7 +20,6 @@ if (isset($_GET["datatable"])) {
 		1 => "CategoryName",
 		2 => "Title",
 		4 => "Amount",
-		5 => "Enflasyon",
 	];
 	$orderkey = $orderMap[$orderColIdx] ?? "Date";
 
@@ -55,7 +54,9 @@ if (isset($_GET["datatable"])) {
 		$isPending = (int)($row["Gerceklesmemis"] ?? 0) === 1;
 		$desc = $row["Description"] ?? "";
 		$amount = isset($row["Amount"]) ? (string)para($row["Amount"]) . " ₺" : "";
-		$enf = isset($row["Enflasyon"]) ? (string)para($row["Enflasyon"]) . " ₺" : "";
+
+		$rowDate = !empty($row["Date"]) ? date("Y-m-d", strtotime((string)$row["Date"])) : null;
+		$amount = isset($row["Amount"]) ? paraSpan($row["Amount"], ["date" => $rowDate, "context" => "movement"]) : "";
 
 		if ($type == "1") {
 			$id = $row["AssetsId"] ?? "";
@@ -96,7 +97,6 @@ if (isset($_GET["datatable"])) {
 			$titleHtml,
 			'<div class="cell-clip text-slate-600" title="'.htmlspecialchars((string)$desc, ENT_QUOTES, "UTF-8").'">'.htmlspecialchars((string)$desc, ENT_QUOTES, "UTF-8").'</div>',
 			'<div class="text-right font-extrabold">'.$amount.'</div>',
-			'<div class="text-right font-bold text-slate-700">'.$enf.'</div>',
 			'<div class="text-center">'.$actions.'</div>',
 		];
 	}
@@ -130,6 +130,17 @@ if(empty($_POST))
 	else { header("Location: index.php"); exit; }
 }
 
+$selectedCategoryName = "";
+if (!empty($CategoryId) && ($type == "1" || $type == "2")) {
+	$categoryResp = apiRequest('/kategoriler', 'GET', [
+		"CategoryId" => (int)$CategoryId,
+		"Type" => (int)$type,
+		"orderkey" => "CategoryName",
+		"ordertype" => "ASC",
+	], $_SESSION['Api_Token']);
+	$selectedCategoryName = (string)($categoryResp["data"]["list"][0]["CategoryName"] ?? "");
+}
+
 if (isset($_POST['gelirSil'])) {
     $gelirSil = apiRequest('/gelirler', 'DELETE', $_POST, $_SESSION['Api_Token']);
     echo json_encode($gelirSil, JSON_UNESCAPED_UNICODE);
@@ -150,7 +161,7 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title><?php if($type == 1) { ?>Gelir Hareketleri<?php } else { ?>Gider Hareketleri<?php } ?></title>
+    <title><?php if($type == 1) { ?>Gelir Hareketleri<?php } else { ?>Gider Hareketleri<?php } ?><?php if ($selectedCategoryName !== "") { ?> (<?php echo htmlspecialchars($selectedCategoryName, ENT_QUOTES, "UTF-8"); ?>)<?php } ?></title>
     
     <link href="https://fonts.googleapis.com/css?family=Manrope:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -212,31 +223,20 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
             <div class="mb-6">
                 <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Hareketler</div>
                 <div class="mt-1 text-2xl font-extrabold tracking-tight">
-                    <?php if($type == 1) { ?>Gelir Hareketleri<?php } else { ?>Gider Hareketleri<?php } ?>
+                    <?php if($type == 1) { ?>Gelir Hareketleri<?php } else { ?>Gider Hareketleri<?php } ?><?php if ($selectedCategoryName !== "") { ?> <span class="text-slate-500">(<?php echo htmlspecialchars($selectedCategoryName, ENT_QUOTES, "UTF-8"); ?>)</span><?php } ?>
                 </div>
             </div>
 
             <?php if($type == 1) { ?>
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div class="grid grid-cols-1 gap-6">
                     <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <div class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Toplam Gelir</div>
-                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo para($gelirler["data"]["total"]); ?> ₺</div>
+                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo paraSpan($gelirler["data"]["total"]); ?></div>
                             </div>
                             <div class="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-700">
                                 <i class="ti ti-currency-lira"></i>
-                            </div>
-                        </div>
-                    </section>
-                    <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Toplam Gelir (Enflasyon)</div>
-                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo para($gelirler["data"]["enflasyon_total"]); ?> ₺</div>
-                            </div>
-                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-sky-50 text-sky-700">
-                                <i class="ti ti-chart-line"></i>
                             </div>
                         </div>
                     </section>
@@ -264,7 +264,6 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                                     <th>Başlık</th>
                                     <th>Açıklama</th>
                                     <th class="text-right">Tutar</th>
-                                    <th class="text-right">Enflasyon</th>
                                     <th class="text-center">İşlem</th>
                                 </tr>
                             </thead>
@@ -273,26 +272,15 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                     </div>
                 </section>
             <?php } else { ?>
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div class="grid grid-cols-1 gap-6">
                     <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <div class="text-xs font-semibold uppercase tracking-widest text-rose-700">Toplam Gider</div>
-                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo para($giderler["data"]["total"]); ?> ₺</div>
+                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo paraSpan($giderler["data"]["total"]); ?></div>
                             </div>
                             <div class="grid h-12 w-12 place-items-center rounded-2xl bg-rose-50 text-rose-700">
                                 <i class="ti ti-currency-lira"></i>
-                            </div>
-                        </div>
-                    </section>
-                    <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-widest text-rose-700">Toplam Gider (Enflasyon)</div>
-                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo para($giderler["data"]["enflasyon_total"]); ?> ₺</div>
-                            </div>
-                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-sky-50 text-sky-700">
-                                <i class="ti ti-chart-line"></i>
                             </div>
                         </div>
                     </section>
@@ -320,7 +308,6 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                                     <th>Başlık</th>
                                     <th>Açıklama</th>
                                     <th class="text-right">Tutar</th>
-                                    <th class="text-right">Enflasyon</th>
                                     <th class="text-center">İşlem</th>
                                 </tr>
                             </thead>
@@ -369,11 +356,9 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
 						{ targets: 2, width: "220px" },
 						{ targets: 3, width: "320px" },
 						{ targets: 4, width: "120px", orderable: true, searchable: false },
-						{ targets: 5, width: "120px", orderable: true, searchable: false },
-						{ targets: 6, width: "120px", orderable: false, searchable: false },
+						{ targets: 5, width: "120px", orderable: false, searchable: false },
 						// Mobile: hide heavy columns to keep the table readable.
 						{ targets: 3, visible: !isMobile },
-						{ targets: 5, visible: !isMobile },
 					],
 					language: {
 						search: "Ara:",

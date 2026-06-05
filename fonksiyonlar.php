@@ -197,5 +197,84 @@ function para($miktar, $birim = "TL", $ondalik = 2)
 }
 
 
+function mevcutAsgariUcret(): ?array
+{
+    global $pdo;
+
+    static $cacheLoaded = false;
+    static $cache = null;
+
+    if ($cacheLoaded) {
+        return $cache;
+    }
+
+    $cacheLoaded = true;
+
+    if (!isset($pdo) || !($pdo instanceof PDO)) {
+        return null;
+    }
+
+    try {
+        $parseMoneyValue = function($rawValue) {
+            $value = trim((string)$rawValue);
+            if ($value === '') {
+                return null;
+            }
+
+            $normalized = str_replace('.', '', $value);
+            $normalized = str_replace(',', '.', $normalized);
+
+            return is_numeric($normalized) ? (float)$normalized : null;
+        };
+
+        $stmt = $pdo->prepare("
+            SELECT asgari_ucret, baslangic_tarihi, bitis_tarihi
+            FROM asgari_ucret
+            WHERE CURDATE() BETWEEN baslangic_tarihi AND bitis_tarihi
+            ORDER BY id DESC
+            LIMIT 1
+        ");
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        $parsedAmount = $row ? $parseMoneyValue($row["asgari_ucret"] ?? null) : null;
+
+        if (!$row || $parsedAmount === null) {
+            return null;
+        }
+
+        $cache = [
+            "amount" => $parsedAmount,
+            "start" => (string)($row["baslangic_tarihi"] ?? ""),
+            "end" => (string)($row["bitis_tarihi"] ?? ""),
+        ];
+    } catch (Throwable $e) {
+        $cache = null;
+    }
+
+    return $cache;
+}
+
+function paraSpan($miktar, array $options = []): string
+{
+    $classes = trim((string)($options["class"] ?? ""));
+    $attrs = '';
+
+    if (is_numeric($miktar) && !rakamlarGizli() && (($options["tooltip"] ?? true) !== false)) {
+        $attrs .= ' data-money-amount="' . htmlspecialchars((string)((float)$miktar), ENT_QUOTES, "UTF-8") . '"';
+        if (!empty($options["date"])) {
+            $attrs .= ' data-money-date="' . htmlspecialchars((string)$options["date"], ENT_QUOTES, "UTF-8") . '"';
+        }
+        if (!empty($options["context"])) {
+            $attrs .= ' data-money-context="' . htmlspecialchars((string)$options["context"], ENT_QUOTES, "UTF-8") . '"';
+        }
+        $attrs .= ' tabindex="0"';
+    }
+
+    $spanClass = trim("js-money-tooltip inline-flex items-center gap-1 whitespace-nowrap " . $classes);
+    $formatted = htmlspecialchars((string)para($miktar), ENT_QUOTES, "UTF-8");
+
+    return '<span class="' . htmlspecialchars($spanClass, ENT_QUOTES, "UTF-8") . '"' . $attrs . '>' . $formatted . '<span>₺</span></span>';
+}
+
 ?>
 

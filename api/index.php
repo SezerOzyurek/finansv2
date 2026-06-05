@@ -190,7 +190,7 @@ WHERE 1=1";
 			$stmt = $db->prepare("
 SELECT 
 	COALESCE(SUM(assets.Amount), 0) AS Toplam,
-	COALESCE(SUM((assets.Amount / eski.asgari_ucret) * guncel.asgari_ucret), 0) AS Enflasyon_Toplam
+	COALESCE(SUM((assets.Amount / CAST(REPLACE(REPLACE(eski.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2))) * CAST(REPLACE(REPLACE(guncel.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2))), 0) AS Enflasyon_Toplam
 $fromSql
 ");
 			$stmt->execute($params);
@@ -227,7 +227,7 @@ SELECT
 	CASE WHEN assets.Date > NOW() THEN 1 ELSE 0 END AS Gerceklesmemis, 
 	category.CategoryId AS category_id, 
 	category.CategoryName,
-	(assets.Amount / eski.asgari_ucret) * guncel.asgari_ucret AS Enflasyon,
+	(assets.Amount / CAST(REPLACE(REPLACE(eski.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2))) * CAST(REPLACE(REPLACE(guncel.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2)) AS Enflasyon,
 	COALESCE(mp.cnt, 0) AS PhotoCount
 $fromSql
 ORDER BY $orderCol $orderDir";
@@ -428,7 +428,7 @@ WHERE 1=1";
 			$stmt = $db->prepare("
 SELECT 
 	COALESCE(SUM(bills.Amount), 0) AS Toplam,
-	COALESCE(SUM((bills.Amount / eski.asgari_ucret) * guncel.asgari_ucret), 0) AS Enflasyon_Toplam
+	COALESCE(SUM((bills.Amount / CAST(REPLACE(REPLACE(eski.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2))) * CAST(REPLACE(REPLACE(guncel.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2))), 0) AS Enflasyon_Toplam
 $fromSql
 ");
 			$stmt->execute($params);
@@ -463,7 +463,7 @@ SELECT
 	CASE WHEN bills.Date > NOW() THEN 1 ELSE 0 END AS Gerceklesmemis, 
 	category.CategoryId AS category_id, 
 	category.CategoryName,
-	(bills.Amount / eski.asgari_ucret) * guncel.asgari_ucret AS Enflasyon,
+	(bills.Amount / CAST(REPLACE(REPLACE(eski.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2))) * CAST(REPLACE(REPLACE(guncel.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2)) AS Enflasyon,
 	COALESCE(mp.cnt, 0) AS PhotoCount
 $fromSql
 ORDER BY $orderCol $orderDir";
@@ -757,6 +757,99 @@ ORDER BY $orderCol $orderDir";
 			responseCode(405);
 		}
     break;
+
+	case 'para-detay':
+		validateToken();
+		if ($requestMethod === 'GET')
+		{
+			$amount = $_GET['amount'] ?? null;
+			$date = !empty($_GET['date']) ? $_GET['date'] : null;
+			$context = $_GET['context'] ?? 'generic';
+
+			if (!is_numeric($amount)) {
+				responseCode(400, "Tutar eksik veya gecersiz.");
+			}
+
+			$amount = (float)$amount;
+
+			$parseMoneyValue = function($rawValue) {
+				$value = trim((string)$rawValue);
+				if ($value === '') {
+					return null;
+				}
+
+				$normalized = str_replace('.', '', $value);
+				$normalized = str_replace(',', '.', $normalized);
+
+				return is_numeric($normalized) ? (float)$normalized : null;
+			};
+
+			$getAsgariByDate = function(string $targetDate) use ($db, $parseMoneyValue) {
+				$stmt = $db->prepare("
+					SELECT asgari_ucret, baslangic_tarihi, bitis_tarihi
+					FROM asgari_ucret
+					WHERE :targetDate BETWEEN baslangic_tarihi AND bitis_tarihi
+					ORDER BY id DESC
+					LIMIT 1
+				");
+				$stmt->execute([":targetDate" => $targetDate]);
+				$row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+				$parsedAmount = $row ? $parseMoneyValue($row["asgari_ucret"] ?? null) : null;
+				if (!$row || $parsedAmount === null) {
+					return null;
+				}
+				return [
+					"amount" => $parsedAmount,
+					"start" => (string)($row["baslangic_tarihi"] ?? ""),
+					"end" => (string)($row["bitis_tarihi"] ?? ""),
+				];
+			};
+
+			$currentAsgari = $getAsgariByDate(date('Y-m-d'));
+			$asgariValue = number_format($amount, 2, ',', '.') . " TL";
+
+			if ($context === 'movement' && $date) {
+				$historicalAsgari = $getAsgariByDate($date);
+				if ($historicalAsgari && !empty($historicalAsgari["amount"]) && $currentAsgari && !empty($currentAsgari["amount"])) {
+					$currentEquivalent = ($amount / (float)$historicalAsgari["amount"]) * (float)$currentAsgari["amount"];
+					$asgariValue = number_format($currentEquivalent, 2, ',', '.') . " TL";
+				}
+			}
+
+			$payload = [
+				"title" => "Karsiliklar",
+				"items" => [
+					[
+						"label" => "Tutar",
+						"value" => number_format($amount, 2, ',', '.') . " TL",
+					],
+					[
+						"label" => "Asgari Ucret",
+						"value" => $asgariValue,
+					],
+					[
+						"label" => "EUR",
+						"value" => "-",
+					],
+					[
+						"label" => "USD",
+						"value" => "-",
+					],
+					[
+						"label" => "ALTIN",
+						"value" => "-",
+					],
+				],
+				"footer" => "",
+			];
+
+			responseCode(200, null, $payload);
+		}
+		else
+		{
+			responseCode(405);
+		}
+	break;
 
 	case 'istatistikler':
 		validateToken();

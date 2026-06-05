@@ -64,6 +64,81 @@
   .swal2-actions { gap: 10px !important; margin-top: 16px !important; }
   .swal2-styled { border-radius: 16px !important; font-weight: 900 !important; padding: 10px 14px !important; box-shadow: none !important; }
   .swal2-styled:focus { box-shadow: 0 0 0 4px rgba(2,132,199,.18) !important; }
+
+  .js-money-tooltip[data-money-amount] {
+    cursor: help;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: rgba(148, 163, 184, .9);
+    text-underline-offset: 3px;
+  }
+
+  .money-tip-floating.hidden {
+    display: none;
+  }
+  .money-tip-floating {
+    position: fixed;
+    z-index: 10020;
+    pointer-events: none;
+    max-width: min(320px, calc(100vw - 24px));
+  }
+  .money-tip-box {
+    border-radius: 18px;
+    background: rgba(15, 23, 42, .98);
+    border: 1px solid rgba(148, 163, 184, .22);
+    box-shadow: 0 24px 80px rgba(2, 6, 23, .34);
+    color: #f8fafc;
+    padding: 12px 14px;
+  }
+  .money-tip-floating__arrow {
+    position: absolute;
+    left: 24px;
+    bottom: -7px;
+    width: 14px;
+    height: 14px;
+    background: rgba(15, 23, 42, .98);
+    border-right: 1px solid rgba(148, 163, 184, .22);
+    border-bottom: 1px solid rgba(148, 163, 184, .22);
+    transform: rotate(45deg);
+  }
+  .money-tip {
+    min-width: 220px;
+  }
+  .money-tip__title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(148, 163, 184, 1);
+  }
+  .money-tip__rows {
+    margin-top: 8px;
+    display: grid;
+    gap: 8px;
+  }
+  .money-tip__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .money-tip__label {
+    font-size: 12px;
+    color: rgba(226, 232, 240, .78);
+  }
+  .money-tip__value {
+    font-size: 12px;
+    font-weight: 800;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .money-tip__footer {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(148, 163, 184, .16);
+    font-size: 11px;
+    color: rgba(148, 163, 184, 1);
+  }
 </style>
 
 <script>
@@ -270,6 +345,244 @@
     if (ov && e.target === ov) closeSidebar();
   });
 
+  var moneyTooltipEl = null;
+  var moneyTooltipActiveNode = null;
+  var moneyTooltipCache = {};
+  var moneyTooltipRequestId = 0;
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function ensureMoneyTooltipElement() {
+    if (moneyTooltipEl) return moneyTooltipEl;
+
+    moneyTooltipEl = document.createElement("div");
+    moneyTooltipEl.id = "moneyTooltip";
+    moneyTooltipEl.className = "money-tip-floating hidden";
+    moneyTooltipEl.innerHTML =
+      '<div class="money-tip-box">' +
+      '  <div class="money-tip">' +
+      '    <div class="money-tip__title">Hesaplaniyor</div>' +
+      '    <div class="money-tip__rows">' +
+      '      <div class="money-tip__row">' +
+      '        <div class="money-tip__label">Durum</div>' +
+      '        <div class="money-tip__value">Yukleniyor...</div>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>' +
+      '<div class="money-tip-floating__arrow"></div>';
+    document.body.appendChild(moneyTooltipEl);
+    return moneyTooltipEl;
+  }
+
+  function moneyTooltipKey(node) {
+    if (!node) return "";
+    var amount = node.getAttribute("data-money-amount") || "";
+    var date = node.getAttribute("data-money-date") || "";
+    var context = node.getAttribute("data-money-context") || "";
+    return [amount, date, context].join("|");
+  }
+
+  function buildMoneyTooltipHtml(payload) {
+    if (!payload || !Array.isArray(payload.items)) {
+      return '<div class="money-tip"><div class="money-tip__title">Detay</div><div class="money-tip__rows"><div class="money-tip__row"><div class="money-tip__label">Durum</div><div class="money-tip__value">Veri alinamadi</div></div></div></div>';
+    }
+
+    var html = '<div class="money-tip">';
+    if (payload.title) {
+      html += '<div class="money-tip__title">' + escapeHtml(payload.title) + '</div>';
+    }
+    html += '<div class="money-tip__rows">';
+    payload.items.forEach(function (item) {
+      html += '<div class="money-tip__row">';
+      html += '<div class="money-tip__label">' + escapeHtml(item.label || "") + '</div>';
+      html += '<div class="money-tip__value">' + escapeHtml(item.value || "") + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    if (payload.footer) {
+      html += '<div class="money-tip__footer">' + escapeHtml(payload.footer) + '</div>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  function setMoneyTooltipLoading() {
+    var el = ensureMoneyTooltipElement();
+    el.querySelector(".money-tip-box").innerHTML =
+      '<div class="money-tip">' +
+      '  <div class="money-tip__title">Hesaplaniyor</div>' +
+      '  <div class="money-tip__rows">' +
+      '    <div class="money-tip__row">' +
+      '      <div class="money-tip__label">Durum</div>' +
+      '      <div class="money-tip__value">Yukleniyor...</div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+  }
+
+  function setMoneyTooltipContent(payload) {
+    var el = ensureMoneyTooltipElement();
+    el.querySelector(".money-tip-box").innerHTML = buildMoneyTooltipHtml(payload);
+  }
+
+  function positionMoneyTooltip(node) {
+    var el = ensureMoneyTooltipElement();
+    if (!node || el.classList.contains("hidden")) return;
+
+    var rect = node.getBoundingClientRect();
+    var top = rect.top - el.offsetHeight - 12;
+    var left = rect.left + (rect.width / 2) - (el.offsetWidth / 2);
+
+    if (left < 12) left = 12;
+    if (left + el.offsetWidth > window.innerWidth - 12) {
+      left = window.innerWidth - el.offsetWidth - 12;
+    }
+
+    if (top < 12) {
+      top = rect.bottom + 12;
+      var arrow = el.querySelector(".money-tip-floating__arrow");
+      if (arrow) {
+        arrow.style.top = "-7px";
+        arrow.style.bottom = "auto";
+        arrow.style.transform = "rotate(225deg)";
+      }
+    } else {
+      var arrowBottom = el.querySelector(".money-tip-floating__arrow");
+      if (arrowBottom) {
+        arrowBottom.style.top = "auto";
+        arrowBottom.style.bottom = "-7px";
+        arrowBottom.style.transform = "rotate(45deg)";
+      }
+    }
+
+    el.style.left = left + "px";
+    el.style.top = top + "px";
+  }
+
+  function showMoneyTooltip(node) {
+    var el = ensureMoneyTooltipElement();
+    moneyTooltipActiveNode = node;
+    el.classList.remove("hidden");
+    positionMoneyTooltip(node);
+  }
+
+  function hideMoneyTooltip() {
+    if (!moneyTooltipEl) return;
+    moneyTooltipEl.classList.add("hidden");
+    moneyTooltipActiveNode = null;
+  }
+
+  function fetchMoneyTooltip(node) {
+    if (!node) return;
+
+    var key = moneyTooltipKey(node);
+    if (key && moneyTooltipCache[key]) {
+      setMoneyTooltipContent(moneyTooltipCache[key]);
+      positionMoneyTooltip(node);
+      return;
+    }
+
+    setMoneyTooltipLoading();
+    positionMoneyTooltip(node);
+
+    var params = new URLSearchParams();
+    params.set("amount", node.getAttribute("data-money-amount") || "0");
+    if (node.hasAttribute("data-money-date")) {
+      params.set("date", node.getAttribute("data-money-date"));
+    }
+    if (node.hasAttribute("data-money-context")) {
+      params.set("context", node.getAttribute("data-money-context"));
+    }
+
+    var requestId = ++moneyTooltipRequestId;
+    fetch("para_detay.php?" + params.toString(), {
+      method: "GET",
+      credentials: "same-origin",
+      headers: { "Accept": "application/json" }
+    })
+      .then(function (response) { return response.json(); })
+      .then(function (json) {
+        if (requestId !== moneyTooltipRequestId) return;
+        var payload = (json && json.code === 200 && json.data) ? json.data : null;
+        if (!payload) {
+          payload = {
+            title: "Detay",
+            items: [{ label: "Durum", value: "Veri alinamadi" }]
+          };
+        }
+        if (key) moneyTooltipCache[key] = payload;
+        if (moneyTooltipActiveNode === node) {
+          setMoneyTooltipContent(payload);
+          positionMoneyTooltip(node);
+        }
+      })
+      .catch(function () {
+        if (requestId !== moneyTooltipRequestId) return;
+        if (moneyTooltipActiveNode === node) {
+          setMoneyTooltipContent({
+            title: "Detay",
+            items: [{ label: "Durum", value: "Baglanti hatasi" }]
+          });
+          positionMoneyTooltip(node);
+        }
+      });
+  }
+
+  window.initMoneyTooltips = function (root) {
+    var scope = root && root.querySelectorAll ? root : document;
+    scope.querySelectorAll(".js-money-tooltip[data-money-amount]").forEach(function (node) {
+      if (!node.hasAttribute("data-money-bound")) {
+        node.setAttribute("data-money-bound", "1");
+      }
+    });
+  };
+
+  document.addEventListener("mouseover", function (e) {
+    var node = e.target.closest(".js-money-tooltip[data-money-amount]");
+    if (!node) return;
+    showMoneyTooltip(node);
+    fetchMoneyTooltip(node);
+  });
+
+  document.addEventListener("focusin", function (e) {
+    var node = e.target.closest(".js-money-tooltip[data-money-amount]");
+    if (!node) return;
+    showMoneyTooltip(node);
+    fetchMoneyTooltip(node);
+  });
+
+  document.addEventListener("mouseout", function (e) {
+    if (!moneyTooltipActiveNode) return;
+    var related = e.relatedTarget;
+    if (moneyTooltipActiveNode.contains(e.target) && (!related || !moneyTooltipActiveNode.contains(related))) {
+      hideMoneyTooltip();
+    }
+  });
+
+  document.addEventListener("focusout", function (e) {
+    if (moneyTooltipActiveNode && e.target === moneyTooltipActiveNode) {
+      hideMoneyTooltip();
+    }
+  });
+
+  window.addEventListener("scroll", function () {
+    if (moneyTooltipActiveNode) positionMoneyTooltip(moneyTooltipActiveNode);
+  }, true);
+
+  window.addEventListener("resize", function () {
+    if (moneyTooltipActiveNode) positionMoneyTooltip(moneyTooltipActiveNode);
+  });
+
   // Keep shared global behaviors (toastr + sweetalert) intact.
   $(document).ready(function () {
     // Global Toastr defaults (theme is CSS-driven above).
@@ -299,6 +612,8 @@
         backdrop: "rgba(2,6,23,.55)"
       });
     }
+
+    window.initMoneyTooltips(document);
 
     $(".gizle").on("click", function (e) {
       e.preventDefault();

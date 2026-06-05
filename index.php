@@ -128,7 +128,7 @@ $giderCount = count($giderList);
                                                 </div>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-right font-extrabold text-slate-900">
-                                                <span class="inline-flex items-center justify-end gap-1 whitespace-nowrap"><?php echo para($gelir["Amount"]); ?><span>₺</span></span>
+                                                <?php echo paraSpan($gelir["Amount"], ["date" => date("Y-m-d", strtotime((string)$gelir["Date"])), "context" => "movement"]); ?>
                                             </td>
                                         </tr>
                                     <?php } ?>
@@ -193,7 +193,7 @@ $giderCount = count($giderList);
                                                 </div>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-right font-extrabold text-slate-900">
-                                                <span class="inline-flex items-center justify-end gap-1 whitespace-nowrap"><?php echo para($gider["Amount"]); ?><span>₺</span></span>
+                                                <?php echo paraSpan($gider["Amount"], ["date" => date("Y-m-d", strtotime((string)$gider["Date"])), "context" => "movement"]); ?>
                                             </td>
                                         </tr>
                                     <?php } ?>
