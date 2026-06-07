@@ -1,5 +1,4 @@
 <?php
-header("Content-Type: application/json; charset=utf-8");
 
 date_default_timezone_set("Europe/Istanbul");
 
@@ -194,6 +193,8 @@ if (PHP_SAPI === 'cli') {
 }
 
 if ($isEntryPoint) {
+    header("Content-Type: application/json; charset=utf-8");
+
     $case = $_GET["case"] ?? "";
 
     switch ($case) {

@@ -94,7 +94,7 @@ if(isset($_POST['girisFormu']))
                                class="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-white/20 focus:bg-white/10"
                                placeholder="********">
                     </div>
-                    <button type="submit"
+                    <button type="submit" id="girisButonu"
                             class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-extrabold text-slate-900 shadow-xl hover:bg-slate-100">
                         <i class="ti ti-login"></i>
                         Giri&#351; Yap
@@ -115,6 +115,11 @@ if(isset($_POST['girisFormu']))
 		$(document).ready(function() {
 			$('#girisFormu').on('submit', function(e) {
 				e.preventDefault();
+				var $button = $('#girisButonu');
+				$button.prop('disabled', true).addClass('opacity-70 cursor-not-allowed');
+				if (window.uxShowUploading) {
+					window.uxShowUploading('Giriş yapılıyor...', 'Lütfen bekleyin.');
+				}
 				var formData = new FormData(this);
 				formData.append("girisFormu", true);
 				$.ajax({
@@ -129,10 +134,14 @@ if(isset($_POST['girisFormu']))
 						if (yanit.code === 200) {
 							window.location.href = 'index.php';
 						} else {
+							if (window.uxHideUploading) { window.uxHideUploading(); }
+							$button.prop('disabled', false).removeClass('opacity-70 cursor-not-allowed');
 							toastr.error('Hata: ' + yanit.message);
 						}
 					},
 					error: function(xhr, status, error) {
+                        if (window.uxHideUploading) { window.uxHideUploading(); }
+                        $button.prop('disabled', false).removeClass('opacity-70 cursor-not-allowed');
                         toastr.error('API iste&#287;i s&#305;ras&#305;nda bir hata olu&#351;tu: ' + error);
 					}
 				});
