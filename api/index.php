@@ -715,7 +715,7 @@ ORDER BY $orderCol $orderDir";
 
 			$tarihKosulu = "";
 			if ($baslangictarihi && $bitistarihi) {
-				$tarihKosulu = "Date BETWEEN :baslangictarihi AND :bitistarihi";
+				$tarihKosulu = "Date >= :baslangictarihi AND Date < DATE_ADD(:bitistarihi, INTERVAL 1 DAY)";
 				$parametre[":baslangictarihi"] = $baslangictarihi;
 				$parametre[":bitistarihi"] = $bitistarihi;
 			} else {

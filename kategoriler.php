@@ -104,8 +104,8 @@ if(isset($_POST['kategoriGuncelle']))
                         <div>
                             <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Tür</label>
                             <select name="Type" required class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
-                                <option value="1" selected>Gelir Kategorisi</option>
-                                <option value="2">Gider Kategorisi</option>
+                                <option value="1" <?php if ((int)$type === 1) { ?>selected<?php } ?>>Gelir Kategorisi</option>
+                                <option value="2" <?php if ((int)$type === 2) { ?>selected<?php } ?>>Gider Kategorisi</option>
                             </select>
                         </div>
 
