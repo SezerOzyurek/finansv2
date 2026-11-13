@@ -55,7 +55,7 @@ if (is_array($monthly) && count($monthly) > 0) {
     <?php include("menu.php"); ?>
     <?php include("ustmenu.php"); ?>
 
-    <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+    <main class="w-full flex-1 px-3 py-4 lg:px-6 space-y-4">
 
         <!-- Başlık -->
         <div>
@@ -120,8 +120,8 @@ if (is_array($monthly) && count($monthly) > 0) {
         </div>
 
         <!-- Öne Çıkan Tespitler: En Masraflı Gün & En Bereketli Ay -->
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex items-start gap-4">
                     <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
                         <i class="ti ti-calendar-event text-xl"></i>
@@ -138,7 +138,7 @@ if (is_array($monthly) && count($monthly) > 0) {
                 </div>
             </div>
 
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex items-start gap-4">
                     <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
                         <i class="ti ti-sparkles text-xl"></i>
@@ -146,7 +146,7 @@ if (is_array($monthly) && count($monthly) > 0) {
                     <div>
                         <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">En Bereketli Ay</div>
                         <div class="mt-1 text-xl font-black text-slate-900 dark:text-white">
-                            <?php echo $bestMonth ? htmlspecialchars($bestMonth['ym'], ENT_QUOTES, 'UTF-8') : 'Yeterli veri yok'; ?>
+                            <?php echo $bestMonth ? formatAyYil($bestMonth['ym']) : 'Yeterli veri yok'; ?>
                         </div>
                         <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                             Net artı bakiye: <strong class="font-bold text-emerald-600 dark:text-emerald-400"><?php echo $bestMonth ? paraSpan($bestMonth['net']) : '-'; ?></strong>
@@ -157,7 +157,7 @@ if (is_array($monthly) && count($monthly) > 0) {
         </div>
 
         <!-- Aylık Net Akış Tablosu -->
-        <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
                 <div>
                     <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Son 12 Ayın Nakit Akış Trendi</h2>
@@ -187,7 +187,7 @@ if (is_array($monthly) && count($monthly) > 0) {
                                 $rate = ($inc > 0) ? round(($mNet / $inc) * 100, 1) : 0;
                         ?>
                             <tr class="hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors">
-                                <td class="py-3 px-4 font-bold text-slate-900 dark:text-white"><?= htmlspecialchars((string)($m['ym'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                                <td class="py-3 px-4 font-bold text-slate-900 dark:text-white"><?= formatAyYil($m['ym'] ?? '') ?></td>
                                 <td class="py-3 px-4 text-right tabular-nums text-emerald-600 dark:text-emerald-400"><?= paraSpan($inc) ?></td>
                                 <td class="py-3 px-4 text-right tabular-nums text-rose-600 dark:text-rose-400"><?= paraSpan($exp) ?></td>
                                 <td class="py-3 px-4 text-right tabular-nums font-extrabold <?= ($mNet >= 0) ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' ?>"><?= paraSpan($mNet) ?></td>

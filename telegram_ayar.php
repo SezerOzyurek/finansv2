@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include("fonksiyonlar.php");
 
 $envPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . ".FINANS";
@@ -306,8 +306,8 @@ $recentChats = loadRecentByUser($recentPath, $userId);
         <?php include("menu.php"); ?>
         <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <main class="w-full flex-1 px-3 py-4 lg:px-6 space-y-4">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                     <div>
                         <div class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Entegrasyon</div>
@@ -390,7 +390,7 @@ $recentChats = loadRecentByUser($recentPath, $userId);
                 </div>
             </section>
 
-            <section class="mt-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <section class="mt-4 rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                     <div>
                         <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Son Mesajlar</div>

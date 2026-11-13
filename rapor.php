@@ -8,12 +8,8 @@ if ($type != 1 && $type != 2) {
 $type = (int)$type;
 $isIncome = ($type === 1);
 
-// API'den genel rapor ve zaman akışı verilerini al
+// API'den genel rapor verisini al
 $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
-$zaman_akisi = apiRequest('/zaman_akisi', 'GET', [
-    "baslangictarihi" => date("Y-m-d", strtotime("-3 months")),
-    "bitistarihi" => date("Y-m-d")
-], $_SESSION['Api_Token']);
 
 $periods = [
     [
@@ -106,7 +102,7 @@ function renderReportCard(array $reportConfig, array $reportResponse, string $to
     $cats = $reportResponse["data"][$catKey] ?? [];
     sortByFieldDesc($cats, $catField);
     ?>
-    <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
+    <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
         <div>
             <div class="flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                 <div class="flex items-center gap-2.5">
@@ -181,7 +177,7 @@ function renderReportCard(array $reportConfig, array $reportResponse, string $to
     <?php include("menu.php"); ?>
     <?php include("ustmenu.php"); ?>
 
-    <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+    <main class="w-full flex-1 px-3 py-4 lg:px-6 space-y-4">
 
         <!-- Başlık ve Sekme Seçimi -->
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -209,7 +205,7 @@ function renderReportCard(array $reportConfig, array $reportResponse, string $to
         </div>
 
         <!-- Üst Metrikler Özeti -->
-        <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <div class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Genel Özet</div>
@@ -238,7 +234,7 @@ function renderReportCard(array $reportConfig, array $reportResponse, string $to
         </div>
 
         <!-- İsteğe Bağlı Tarih Aralığı Filtresi -->
-        <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
             <details class="group" <?php if ($customStart !== "" || $customEnd !== "") { echo "open"; } ?>>
                 <summary class="flex cursor-pointer list-none items-center justify-between gap-3 font-bold text-slate-900 dark:text-white">
                     <div class="flex items-center gap-2.5">
@@ -291,18 +287,18 @@ function renderReportCard(array $reportConfig, array $reportResponse, string $to
         </section>
 
         <!-- 4 Dönemsel Rapor Kartı: Haftalık, Aylık, Yıllık, Tüm Zamanlar -->
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             <?php foreach ($periods as $p) {
                 $resp = apiRequest('/rapor', 'GET', ["baslangictarihi" => $p["start"], "bitistarihi" => $p["end"]], $_SESSION['Api_Token']);
                 renderReportCard($p, $resp, $totalKey, $catKey, $catField, $isIncome, $accentSoft, $accentText, $accentBarColor);
             } ?>
         </div>
 
-        <!-- Grafikler Alanı: Kategori Dağılımı & Zaman Akışı -->
-        <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <!-- Grafikler Alanı: Kategori Dağılımı -->
+        <div class="w-full">
             
             <!-- Kategori Dağılımı Çubuk Grafiği -->
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                     <div>
                         <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Grafik Analizi</div>
@@ -318,22 +314,6 @@ function renderReportCard(array $reportConfig, array $reportResponse, string $to
                     <?php } else { ?>
                         <canvas id="giderBarGrafigi" height="300"></canvas>
                     <?php } ?>
-                </div>
-            </section>
-
-            <!-- Zaman Akışı Çizgi Grafiği (Son 3 Ay) -->
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                <div class="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
-                    <div>
-                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Grafik Analizi</div>
-                        <div class="text-sm font-extrabold text-slate-900 dark:text-white">Zaman Akışı (Son 3 Ay)</div>
-                    </div>
-                    <div class="grid h-10 w-10 place-items-center rounded-2xl bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                        <i class="ti ti-chart-line text-lg"></i>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <canvas id="zamanAkisiGrafigi" height="300"></canvas>
                 </div>
             </section>
         </div>
@@ -438,71 +418,6 @@ $(document).ready(function() {
             });
         }
     <?php } ?>
-
-    // Zaman Akışı Çizgi Grafiği
-    var zData = <?php echo json_encode($zaman_akisi["data"] ?? [], JSON_UNESCAPED_UNICODE); ?>;
-    var zLabels = [];
-    var zGelir = [];
-    var zGider = [];
-
-    if (zData && zData.length) {
-        for (var j = 0; j < zData.length; j++) {
-            zLabels.push(zData[j].Zaman || zData[j].Date || ('Gün ' + (j + 1)));
-            zGelir.push(Number(zData[j].ToplamGelir || 0));
-            zGider.push(Number(zData[j].ToplamGider || 0));
-        }
-    }
-
-    var zCtx = document.getElementById('zamanAkisiGrafigi');
-    if (zCtx) {
-        new Chart(zCtx.getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: zLabels,
-                datasets: [
-                    {
-                        label: 'Gelir',
-                        data: zGelir,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.08)',
-                        borderWidth: 2,
-                        pointRadius: 2,
-                        fill: true
-                    },
-                    {
-                        label: 'Gider',
-                        data: zGider,
-                        borderColor: '#f43f5e',
-                        backgroundColor: 'rgba(244, 63, 94, 0.08)',
-                        borderWidth: 2,
-                        pointRadius: 2,
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                legend: {
-                    labels: { fontColor: cColors.textColor, fontSize: 11 }
-                },
-                scales: {
-                    xAxes: [{
-                        gridLines: { display: false },
-                        ticks: { fontColor: cColors.textColor, fontSize: 10 }
-                    }],
-                    yAxes: [{
-                        gridLines: { color: cColors.gridColor },
-                        ticks: {
-                            fontColor: cColors.textColor,
-                            fontSize: 10,
-                            callback: function(v) { return Number(v).toLocaleString('tr-TR') + ' ₺'; }
-                        }
-                    }]
-                }
-            }
-        });
-    }
 });
 </script>
 </body>

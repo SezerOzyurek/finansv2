@@ -196,6 +196,20 @@ function formatTarihSaat($tarih): string
     return date("d.m.Y H:i", $ts);
 }
 
+function formatAyYil($ym): string
+{
+    if (empty($ym)) return "-";
+    $parts = explode("-", trim((string)$ym));
+    if (count($parts) === 2 && strlen($parts[0]) === 4 && strlen($parts[1]) === 2) {
+        return $parts[1] . "-" . $parts[0];
+    }
+    $ts = strtotime((string)$ym . "-01");
+    if ($ts && $ts > 0) {
+        return date("m-Y", $ts);
+    }
+    return (string)$ym;
+}
+
 function mevcutAsgariUcret(): ?array
 {
     global $pdo;

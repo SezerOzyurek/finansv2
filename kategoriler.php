@@ -40,12 +40,22 @@ if(isset($_POST['kategoriGuncelle']))
     <title><?php if($type == 1) { ?>Gelir Kategorileri<?php } else { ?>Gider Kategorileri<?php } ?> - Ultra Finans</title>
     <?php include("head.php"); ?>
     <style>
-      table.dataTable { border-collapse: collapse !important; table-layout: fixed !important; width: 100% !important; }
-      table.dataTable thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: rgb(100 116 139); background: rgb(248 250 252); white-space: nowrap; }
-      table.dataTable thead th, table.dataTable tbody td { padding: 8px 12px !important; }
-      table.dataTable tbody td { font-size: 13px; line-height: 1.25; border-top: 1px solid rgb(241 245 249); vertical-align: middle; white-space: nowrap; }
+      table.dataTable { border-collapse: collapse !important; width: 100% !important; }
+      table.dataTable thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: rgb(100 116 139); background: rgb(248 250 252); white-space: nowrap; }
+      table.dataTable thead th, table.dataTable tbody td { padding: 6px 10px !important; }
+      table.dataTable tbody td { font-size: 12.5px; line-height: 1.25; border-top: 1px solid rgb(241 245 249); vertical-align: middle; }
       table.dataTable tbody tr:hover td { background: rgb(248 250 252); }
-      #kategoriler td:nth-child(2) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      table.dataTable thead th.text-right, table.dataTable tbody td.text-right { text-align: right !important; }
+      table.dataTable thead th.text-center, table.dataTable tbody td.text-center { text-align: center !important; }
+      table.dataTable thead th.text-left, table.dataTable tbody td.text-left { text-align: left !important; }
+      @media (max-width: 640px) {
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate { float: none !important; text-align: left !important; width: 100% !important; }
+        .dataTables_wrapper .dataTables_filter { margin-top: 8px; margin-bottom: 8px; }
+        .dataTables_wrapper .dataTables_filter input { width: 100% !important; margin-left: 0 !important; }
+      }
     </style>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100" id="top">
@@ -53,7 +63,7 @@ if(isset($_POST['kategoriGuncelle']))
         <?php include("menu.php"); ?>
         <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+        <main class="w-full flex-1 px-3 py-4 lg:px-6 space-y-4">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
@@ -66,7 +76,7 @@ if(isset($_POST['kategoriGuncelle']))
                 </div>
             </div>
 
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <?php if(isset($action) && $action != "edit") { ?>
                     <div class="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div>
@@ -124,7 +134,7 @@ if(isset($_POST['kategoriGuncelle']))
             </section>
 
             <?php if(!$action && $action != "edit") { ?>
-                <section class="mt-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <section class="mt-4 rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div>
                             <?php if($type == 1) { ?>
@@ -137,23 +147,23 @@ if(isset($_POST['kategoriGuncelle']))
                     </div>
 
                     <div class="mt-4 overflow-x-auto rounded-2xl border border-slate-100 bg-slate-50/50 p-2 sm:p-3 dark:border-slate-800 dark:bg-slate-950/50">
-                        <table class="w-full text-sm" id="kategoriler" width="100%" cellspacing="0">
+                        <table class="w-full text-xs sm:text-sm" id="kategoriler" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
-                                    <th class="w-32 text-left">Hareket</th>
+                                    <th class="whitespace-nowrap text-left">Hareket</th>
                                     <th class="text-left">Kategori</th>
-                                    <th class="w-48 text-right">Toplam Meblağ</th>
-                                    <th class="w-24 text-center">İşlem</th>
+                                    <th class="whitespace-nowrap text-right">Toplam Meblağ</th>
+                                    <th class="whitespace-nowrap text-center">İşlem</th>
                                 </tr>
                             </thead>
                             <tbody>
                             <?php foreach($kategoriList AS $kategori) { ?>
                                 <tr>
-                                    <td class="w-32 text-left">
+                                    <td class="whitespace-nowrap text-left">
                                         <?php if($kategori["Type"] == 1) { ?>
-                                            <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"><?php echo $kategori["Total_Count"]; ?> Hareket</span>
+                                            <span class="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"><?php echo $kategori["Total_Count"]; ?> Hareket</span>
                                         <?php } else { ?>
-                                            <span class="inline-flex items-center rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-950/40 dark:text-rose-400"><?php echo $kategori["Total_Count"]; ?> Hareket</span>
+                                            <span class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-semibold text-rose-700 dark:bg-rose-950/40 dark:text-rose-400"><?php echo $kategori["Total_Count"]; ?> Hareket</span>
                                         <?php } ?>
                                     </td>
                                     <td class="text-left">
@@ -161,9 +171,9 @@ if(isset($_POST['kategoriGuncelle']))
                                             <?php echo htmlspecialchars((string)$kategori["CategoryName"], ENT_QUOTES, "UTF-8"); ?>
                                         </a>
                                     </td>
-                                    <td class="w-48 text-right font-extrabold"><?php echo paraSpan($kategori["Total_Amount"]); ?></td>
-                                    <td class="w-24 text-center">
-                                        <a class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                    <td class="whitespace-nowrap text-right font-extrabold"><?php echo paraSpan($kategori["Total_Amount"]); ?></td>
+                                    <td class="whitespace-nowrap text-center">
+                                        <a class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                                            href="kategoriler.php?action=edit&CategoryId=<?php echo $kategori["CategoryId"]; ?>" title="Düzenle">
                                             <i class="ti ti-edit"></i>
                                         </a>
@@ -191,10 +201,10 @@ if(isset($_POST['kategoriGuncelle']))
 				searchDelay: 250,
 				autoWidth: false,
 				columns: [
-					{ width: "120px", className: "text-left" },
+					{ className: "text-left whitespace-nowrap" },
 					{ className: "text-left" },
-					{ width: "180px", className: "text-right" },
-					{ width: "90px", className: "text-center" }
+					{ className: "text-right whitespace-nowrap" },
+					{ className: "text-center whitespace-nowrap" }
 				]
 			});
 			

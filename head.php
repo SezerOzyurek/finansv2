@@ -49,10 +49,64 @@
     letter-spacing: -0.015em;
   }
 
-  /* Unify Table Head and Cell Spacing */
+  /* DataTables CSS overrides */
+  table.dataTable thead th.text-left,
+  table.dataTable tbody td.text-left {
+    text-align: left !important;
+  }
+  table.dataTable thead th.text-right,
+  table.dataTable tbody td.text-right {
+    text-align: right !important;
+  }
+  table.dataTable thead th.text-center,
+  table.dataTable tbody td.text-center {
+    text-align: center !important;
+  }
+
+  /* Unify Table Head and Cell Spacing (Compact, Clean Fintech Layout) */
   table.dataTable thead th,
   table.dataTable tbody td {
-    padding: 10px 14px !important;
+    padding: 7px 10px !important;
+  }
+
+  /* Responsive and Compact DataTables Wrapper */
+  .dataTables_wrapper {
+    width: 100% !important;
+    overflow-x: auto;
+  }
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter {
+    margin-bottom: 0.5rem;
+  }
+  @media (max-width: 640px) {
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+      float: none !important;
+      text-align: left !important;
+      width: 100% !important;
+    }
+    .dataTables_wrapper .dataTables_filter {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin-left: 0 !important;
+    }
+    .dataTables_wrapper .dataTables_paginate {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+    table.dataTable thead th,
+    table.dataTable tbody td {
+      padding: 6px 8px !important;
+      font-size: 11.5px !important;
+    }
   }
 
   /* Elite Fintech Tabular Numbers for Currency and Metrics */

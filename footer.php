@@ -7,7 +7,6 @@
         </div>
         <div class="flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
             <a href="profil.php" class="hover:text-slate-900 dark:hover:text-white transition-colors">Ayarlar</a>
-            <a href="hesaplar.php" class="hover:text-slate-900 dark:hover:text-white transition-colors">Kartlar</a>
             <a href="#top" class="inline-flex items-center gap-1 hover:text-slate-900 dark:hover:text-white transition-colors">
                 <span>Yukarı</span>
                 <i class="ti ti-arrow-up text-xs"></i>

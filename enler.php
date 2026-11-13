@@ -40,7 +40,7 @@ if (is_array($monthly) && count($monthly) > 0) {
     <?php include("menu.php"); ?>
     <?php include("ustmenu.php"); ?>
 
-    <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+    <main class="w-full flex-1 px-3 py-4 lg:px-6 space-y-4">
 
         <!-- Başlık -->
         <div>
@@ -54,10 +54,10 @@ if (is_array($monthly) && count($monthly) > 0) {
         </div>
 
         <!-- 2 Büyük Rekortmen Kartı: En Çok Harcanan Para & En Yüksek Gelir -->
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
             
             <!-- En Çok Harcanan Para -->
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div class="flex items-center gap-3">
@@ -109,7 +109,7 @@ if (is_array($monthly) && count($monthly) > 0) {
             </section>
 
             <!-- En Yüksek Gelir -->
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div class="flex items-center gap-3">
@@ -204,7 +204,7 @@ if (is_array($monthly) && count($monthly) > 0) {
                     </div>
                     <div>
                         <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">En Bereketli Ay</div>
-                        <div class="text-sm font-extrabold text-slate-900 dark:text-white"><?= $bestMonth ? htmlspecialchars($bestMonth['ym'], ENT_QUOTES, 'UTF-8') : '-' ?></div>
+                        <div class="text-sm font-extrabold text-slate-900 dark:text-white"><?= $bestMonth ? formatAyYil($bestMonth['ym']) : '-' ?></div>
                     </div>
                 </div>
                 <div class="mt-3 text-xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
@@ -230,10 +230,10 @@ if (is_array($monthly) && count($monthly) > 0) {
         </div>
 
         <!-- Rekortmen Kategoriler -->
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
             
             <!-- En Çok Harcanan Kategoriler -->
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
                     <div class="flex items-center gap-2.5">
                         <div class="grid h-9 w-9 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
@@ -265,7 +265,7 @@ if (is_array($monthly) && count($monthly) > 0) {
             </section>
 
             <!-- En Çok Gelir Getiren Kategoriler -->
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
                     <div class="flex items-center gap-2.5">
                         <div class="grid h-9 w-9 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">

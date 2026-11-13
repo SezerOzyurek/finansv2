@@ -1,4 +1,4 @@
-<?php 
+﻿<?php 
 include("fonksiyonlar.php");
 
 $gelirKategorileri = apiRequest('/kategoriler', 'GET', ["Type" => 1, "orderkey" => "CategoryName", "ordertype" => "ASC"], $_SESSION['Api_Token']);
@@ -108,7 +108,7 @@ if(isset($_POST['giderGuncelle']))
         <?php include("menu.php"); ?>
         <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+        <main class="w-full flex-1 px-3 py-4 lg:px-6 space-y-4">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
@@ -125,7 +125,7 @@ if(isset($_POST['giderGuncelle']))
             </div>
 
             <?php if($hareket["code"] == 200 && $hareketturu == "gelir") { ?>
-                <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div>
                             <div class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Gelir Kaydı</div>
@@ -246,7 +246,7 @@ if(isset($_POST['giderGuncelle']))
             <?php } ?>
 
             <?php if($hareket["code"] == 200 && $hareketturu == "gider") { ?>
-                <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div>
                             <div class="text-xs font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">Gider Kaydı</div>

@@ -1,4 +1,4 @@
-<?php 
+﻿<?php 
 include("fonksiyonlar.php");
 
 $gelirKategorileri = apiRequest('/kategoriler', 'GET', ["Type" => 1, "orderkey" => "CategoryName", "ordertype" => "ASC"], $_SESSION['Api_Token']);
@@ -79,7 +79,7 @@ if(isset($_POST['yeniGider']))
         <?php include("menu.php"); ?>
         <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+        <main class="w-full flex-1 px-3 py-4 lg:px-6 space-y-4">
             <div>
                 <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                     <i class="ti ti-plus text-emerald-600 dark:text-emerald-400"></i>
@@ -90,10 +90,10 @@ if(isset($_POST['yeniGider']))
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 
                 <!-- Gelir Ekleme Kartı -->
-                <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div class="flex items-center gap-2.5">
                             <div class="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 font-bold">
@@ -192,7 +192,7 @@ if(isset($_POST['yeniGider']))
                 </section>
 
                 <!-- Gider Ekleme Kartı -->
-                <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div class="flex items-center gap-2.5">
                             <div class="grid h-10 w-10 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 font-bold">

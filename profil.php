@@ -1,4 +1,4 @@
-<?php 
+﻿<?php 
 include("fonksiyonlar.php");
 
 // AJAX istekleri
@@ -56,7 +56,7 @@ $telegramChatId = $userData['TelegramChatId'] ?? '';
     <?php include("menu.php"); ?>
     <?php include("ustmenu.php"); ?>
 
-    <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+    <main class="w-full flex-1 px-3 py-4 lg:px-6 space-y-4">
             
             <!-- Başlık -->
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -73,10 +73,10 @@ $telegramChatId = $userData['TelegramChatId'] ?? '';
             </div>
 
             <!-- Ana Form Grid -->
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
                 <!-- 1. KART: Profil Bilgileri -->
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div class="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 font-bold">
                             <i class="ti ti-user text-lg"></i>
@@ -136,7 +136,7 @@ $telegramChatId = $userData['TelegramChatId'] ?? '';
                 </div>
 
                 <!-- 2. KART: Şifre Değiştir -->
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div class="grid h-10 w-10 place-items-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 font-bold">
                             <i class="ti ti-lock text-lg"></i>

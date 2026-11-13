@@ -169,9 +169,9 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
     <title><?php if($type == 1) { ?>Gelir Hareketleri<?php } else { ?>Gider Hareketleri<?php } ?><?php if ($selectedCategoryName !== "") { ?> (<?php echo htmlspecialchars($selectedCategoryName, ENT_QUOTES, "UTF-8"); ?>)<?php } ?> - Ultra Finans</title>
     <?php include("head.php"); ?>
     <style>
-      table.dataTable { border-collapse: collapse !important; table-layout: fixed !important; width: 100% !important; }
-      table.dataTable thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: rgb(100 116 139); background: rgb(248 250 252); white-space: nowrap; }
-      table.dataTable thead th, table.dataTable tbody td { padding: 8px 10px !important; }
+      table.dataTable { border-collapse: collapse !important; width: 100% !important; }
+      table.dataTable thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: rgb(100 116 139); background: rgb(248 250 252); white-space: nowrap; }
+      table.dataTable thead th, table.dataTable tbody td { padding: 6px 8px !important; }
       table.dataTable tbody td {
         font-size: 12px;
         line-height: 1.2;
@@ -187,9 +187,9 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
         .dataTables_wrapper .dataTables_length,
         .dataTables_wrapper .dataTables_filter,
         .dataTables_wrapper .dataTables_info,
-        .dataTables_wrapper .dataTables_paginate { float: none !important; text-align: left !important; }
-        .dataTables_wrapper .dataTables_filter { margin-top: 10px; }
-        .dataTables_wrapper .dataTables_filter input { width: 100%; max-width: 100%; }
+        .dataTables_wrapper .dataTables_paginate { float: none !important; text-align: left !important; width: 100% !important; }
+        .dataTables_wrapper .dataTables_filter { margin-top: 8px; margin-bottom: 8px; }
+        .dataTables_wrapper .dataTables_filter input { width: 100% !important; margin-left: 0 !important; }
       }
     </style>
 </head>
@@ -198,7 +198,7 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
         <?php include("menu.php"); ?>
         <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+        <main class="w-full flex-1 px-3 py-4 lg:px-6 space-y-4">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
@@ -222,7 +222,7 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
 
             <?php if($type == 1) { ?>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <div class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Toplam Gelir</div>
@@ -233,7 +233,7 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                             </div>
                         </div>
                     </section>
-                    <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <div class="text-xs font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">Toplam Gelir (Enflasyon)</div>
@@ -246,7 +246,7 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                     </section>
                 </div>
 
-                <section class="mt-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <section class="mt-4 rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div>
                             <div class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">İşlem Listesi</div>
@@ -277,7 +277,7 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                 </section>
             <?php } else { ?>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <div class="text-xs font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">Toplam Gider</div>
@@ -288,7 +288,7 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                             </div>
                         </div>
                     </section>
-                    <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <div class="text-xs font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">Toplam Gider (Enflasyon)</div>
@@ -301,7 +301,7 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                     </section>
                 </div>
 
-                <section class="mt-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <section class="mt-4 rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div>
                             <div class="text-xs font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">İşlem Listesi</div>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include("fonksiyonlar.php");
 
 $stats = apiRequest('/istatistikler', 'GET', [], $_SESSION['Api_Token']);
@@ -34,7 +34,7 @@ if (!empty($weekdayExpense[0]["dow"])) {
     <?php include("menu.php"); ?>
     <?php include("ustmenu.php"); ?>
 
-    <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+    <main class="w-full flex-1 px-3 py-4 lg:px-6 space-y-4">
 
         <!-- Başlık -->
         <div>
@@ -48,10 +48,10 @@ if (!empty($weekdayExpense[0]["dow"])) {
         </div>
 
         <!-- 3 Ana Davranış Kartı: Kara Gün, Zen Gün, Sessiz Düşman -->
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
             
             <!-- Kara Gün -->
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex items-center gap-2.5 text-rose-600 dark:text-rose-400">
                     <div class="grid h-10 w-10 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
                         <i class="ti ti-flame text-lg"></i>
@@ -72,7 +72,7 @@ if (!empty($weekdayExpense[0]["dow"])) {
             </div>
 
             <!-- Zen Gün -->
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex items-center gap-2.5 text-emerald-600 dark:text-emerald-400">
                     <div class="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
                         <i class="ti ti-leaf text-lg"></i>
@@ -93,7 +93,7 @@ if (!empty($weekdayExpense[0]["dow"])) {
             </div>
 
             <!-- Sessiz Düşman -->
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex items-center gap-2.5 text-amber-600 dark:text-amber-400">
                     <div class="grid h-10 w-10 place-items-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
                         <i class="ti ti-ghost text-lg"></i>
@@ -116,7 +116,7 @@ if (!empty($weekdayExpense[0]["dow"])) {
         </div>
 
         <!-- Haftalık Harcama Ritmi Grafiği -->
-        <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
                 <div>
                     <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Haftanın Günlerine Göre Harcama Yoğunluğu</h2>
@@ -132,10 +132,10 @@ if (!empty($weekdayExpense[0]["dow"])) {
         </section>
 
         <!-- 2 Sütun: Ani Kararlar (Gece Harcamaları) & Bu Neydi Şimdi? (Açıklamasızlar) -->
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
             
             <!-- Ani Kararlar: Gece 22:00 - 05:00 -->
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
                     <div class="flex items-center gap-2.5">
                         <div class="grid h-9 w-9 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
@@ -169,7 +169,7 @@ if (!empty($weekdayExpense[0]["dow"])) {
             </section>
 
             <!-- Bu Neydi Şimdi?: Açıklamasız Büyük Harcamalar -->
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
                     <div class="flex items-center gap-2.5">
                         <div class="grid h-9 w-9 place-items-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
