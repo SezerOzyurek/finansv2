@@ -78,7 +78,6 @@ $remainingSeconds = sessionRemainingSeconds();
 
             <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Raporlar</div>
             <div class="mt-2 space-y-1">
-                <?= navLink('yasam_ozeti.php', 'ti ti-receipt', 'Yaşam Özeti', isActive('yasam_ozeti.php')) ?>
                 <?= navLink('para_davranislari.php', 'ti ti-activity', 'Para Davranışları', isActive('para_davranislari.php')) ?>
                 <?= navLink('enler.php', 'ti ti-sparkles', "En'ler ve Şaşırtanlar", isActive('enler.php')) ?>
                 <?= navLink('rapor.php?type=1', 'ti ti-chart-line', 'Gelir Raporları', isActive('rapor.php')) ?>
@@ -87,6 +86,7 @@ $remainingSeconds = sessionRemainingSeconds();
             </div>
             <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Ayarlar</div>
             <div class="mt-2 space-y-1">
+                <?= navLink('profil.php', 'ti ti-user-cog', 'Hesap & Şifre', isActive('profil.php')) ?>
                 <?= navLink('telegram_ayar.php', 'ti ti-brand-telegram', 'Telegram Ayarları', isActive('telegram_ayar.php')) ?>
             </div>
         </div>

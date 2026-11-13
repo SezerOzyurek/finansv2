@@ -1679,6 +1679,128 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 		}
 	break;
 	
+	case 'profil':
+		validateToken();
+		$token = getBearerToken();
+		$payload = verifyJwtToken((string)$token, "access");
+		$userId = (int)($payload["uid"] ?? 0);
+		if ($userId <= 0) {
+			$u = $db->query("SELECT UserId FROM `user` ORDER BY UserId ASC LIMIT 1")->fetch(PDO::FETCH_ASSOC);
+			$userId = (int)($u["UserId"] ?? 0);
+		}
+		if ($userId <= 0) {
+			responseCode(404, "Kullanıcı bulunamadı.");
+		}
+
+		if ($requestMethod === 'GET') 
+		{
+			$stmt = $db->prepare("SELECT UserId, FirstName, LastName, Email, Currency, TelegramBotUsername, TelegramChatId, TelegramUpdatedAt FROM `user` WHERE UserId = :uid LIMIT 1");
+			$stmt->execute([":uid" => $userId]);
+			$user = $stmt->fetch(PDO::FETCH_ASSOC);
+			if (!$user) { responseCode(404, "Kullanıcı bulunamadı."); }
+			responseCode(200, NULL, $user);
+		}
+		elseif ($requestMethod === 'POST' || $requestMethod === 'PATCH') 
+		{
+			$input = json_decode(file_get_contents("php://input"), true);
+			if (!is_array($input) || empty($input)) {
+				$input = $_POST;
+			}
+
+			$action = $input['action'] ?? 'profil';
+
+			if ($action === 'sifre') 
+			{
+				$currentPassword = (string)($input['current_password'] ?? '');
+				$newPassword = (string)($input['new_password'] ?? '');
+				$confirmPassword = (string)($input['confirm_password'] ?? '');
+
+				if ($currentPassword === '') {
+					responseCode(400, "Mevcut şifrenizi girmelisiniz.");
+				}
+				if ($newPassword === '') {
+					responseCode(400, "Yeni şifre boş olamaz.");
+				}
+				if (mb_strlen($newPassword) < 6) {
+					responseCode(400, "Yeni şifre en az 6 karakter olmalıdır.");
+				}
+				if ($newPassword !== $confirmPassword) {
+					responseCode(400, "Yeni şifre ve şifre tekrarı birbiriyle uyuşmuyor.");
+				}
+
+				$stmt = $db->prepare("SELECT Password FROM `user` WHERE UserId = :uid LIMIT 1");
+				$stmt->execute([":uid" => $userId]);
+				$storedHash = (string)($stmt->fetchColumn() ?? '');
+
+				if ($storedHash === '' || !password_verify($currentPassword, $storedHash)) {
+					responseCode(400, "Mevcut şifreniz hatalı.");
+				}
+
+				if (password_verify($newPassword, $storedHash)) {
+					responseCode(400, "Yeni şifreniz mevcut şifrenizle aynı olamaz.");
+				}
+
+				$newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+				$up = $db->prepare("UPDATE `user` SET Password = :pw WHERE UserId = :uid LIMIT 1");
+				$up->execute([
+					":pw" => $newHash,
+					":uid" => $userId,
+				]);
+
+				responseCode(200, "Şifreniz başarıyla güncellendi.");
+			}
+			else 
+			{
+				$firstName = trim((string)($input['FirstName'] ?? ''));
+				$lastName = trim((string)($input['LastName'] ?? ''));
+				$email = trim((string)($input['Email'] ?? ''));
+				$currency = trim((string)($input['Currency'] ?? ''));
+
+				if ($firstName === '' || $lastName === '') {
+					responseCode(400, "Ad ve Soyad alanları zorunludur.");
+				}
+				if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+					responseCode(400, "Geçerli bir e-posta adresi giriniz.");
+				}
+
+				$check = $db->prepare("SELECT COUNT(*) FROM `user` WHERE Email = :em AND UserId != :uid");
+				$check->execute([":em" => $email, ":uid" => $userId]);
+				if ((int)$check->fetchColumn() > 0) {
+					responseCode(400, "Bu e-posta adresi başka bir kullanıcı tarafından kullanılıyor.");
+				}
+
+				$fields = ["FirstName = :fn", "LastName = :ln", "Email = :em"];
+				$params = [
+					":fn" => $firstName,
+					":ln" => $lastName,
+					":em" => $email,
+					":uid" => $userId,
+				];
+
+				if ($currency !== '') {
+					$fields[] = "Currency = :cur";
+					$params[":cur"] = $currency;
+				}
+
+				$sql = "UPDATE `user` SET " . implode(", ", $fields) . " WHERE UserId = :uid LIMIT 1";
+				$up = $db->prepare($sql);
+				$up->execute($params);
+
+				responseCode(200, "Profil bilgileriniz başarıyla güncellendi.", [
+					"UserId" => $userId,
+					"FirstName" => $firstName,
+					"LastName" => $lastName,
+					"Email" => $email,
+					"Currency" => $currency !== '' ? $currency : 'TRY',
+				]);
+			}
+		}
+		else 
+		{
+			responseCode(405);
+		}
+	break;
+	
 	
 	case "gorunurluk":
 		if($requestMethod === "POST") 
