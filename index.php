@@ -118,7 +118,7 @@ $giderCount = count($giderList);
                                                         </span>
                                                     <?php } ?>
                                                     <a class="block min-w-0 flex-1 truncate font-semibold text-slate-900 hover:underline" title="<?php echo htmlspecialchars((string)$gelir["Title"], ENT_QUOTES, "UTF-8"); ?>" href="hareketduzenle.php?type=gelir&ID=<?php echo $gelir["AssetsId"]; ?>">
-                                                        <?php echo $gelir["Title"]; ?>
+                                                        <?php echo htmlspecialchars((string)$gelir["Title"], ENT_QUOTES, "UTF-8"); ?>
                                                     </a>
                                                     <?php if (!empty($gelir["PhotoCount"])) { ?>
                                                         <span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-extrabold text-slate-700" title="Ekli dosya var">
@@ -183,7 +183,7 @@ $giderCount = count($giderList);
                                                         </span>
                                                     <?php } ?>
                                                     <a class="block min-w-0 flex-1 truncate font-semibold text-slate-900 hover:underline" title="<?php echo htmlspecialchars((string)$gider["Title"], ENT_QUOTES, "UTF-8"); ?>" href="hareketduzenle.php?type=gider&ID=<?php echo $gider["BillsId"]; ?>">
-                                                        <?php echo $gider["Title"]; ?>
+                                                        <?php echo htmlspecialchars((string)$gider["Title"], ENT_QUOTES, "UTF-8"); ?>
                                                     </a>
                                                     <?php if (!empty($gider["PhotoCount"])) { ?>
                                                         <span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-extrabold text-slate-700" title="Ekli dosya var">

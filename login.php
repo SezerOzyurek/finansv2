@@ -2,7 +2,6 @@
 $_GET['loginbypass'] = true;	
 include("fonksiyonlar.php");
 if (loginmi()) { header("Location: " . APP_SITE_URL . "/index.php"); exit; }
-$ayarlar = apiRequest('/ayarlar', 'GET', [], NULL);
 
 if(isset($_POST['girisFormu'])) 
 {
@@ -71,7 +70,7 @@ if(isset($_POST['girisFormu']))
                 </div>
 
                 <div class="text-xs text-white/50">
-                    <?php if (!empty($ayarlar["site_url"])) { echo $ayarlar["site_url"]; } ?>
+                    <?php echo APP_SITE_URL; ?>
                 </div>
             </div>
 

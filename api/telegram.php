@@ -30,8 +30,6 @@ try {
     exit;
 }
 
-ensureTelegramColumns($db);
-
 $secretToken = getHeaderValue("X-Telegram-Bot-Api-Secret-Token");
 if ($secretToken === "") {
     echo json_encode(["code" => 200, "message" => "OK"], JSON_UNESCAPED_UNICODE);

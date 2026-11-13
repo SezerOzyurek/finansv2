@@ -69,10 +69,11 @@ $remainingSeconds = sessionRemainingSeconds();
                 <?= navLink('hareketler.php?type=2', 'ti ti-cash-banknote', 'Giderler', isActive('hareketler.php')) ?>
             </div>
 
-            <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Kategoriler</div>
+            <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Kategoriler & Hesaplar</div>
             <div class="mt-2 space-y-1">
                 <?= navLink('kategoriler.php?type=1', 'ti ti-folder-plus', 'Gelir Kategorileri', isActive('kategoriler.php')) ?>
                 <?= navLink('kategoriler.php?type=2', 'ti ti-folder-minus', 'Gider Kategorileri', isActive('kategoriler.php')) ?>
+                <?= navLink('hesaplar.php', 'ti ti-credit-card', 'Hesaplar / Kartlar', isActive('hesaplar.php')) ?>
             </div>
 
             <div class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">Raporlar</div>

@@ -1,5 +1,24 @@
-uploads/
-install.lock
+# Environment and secrets
 .FINANS
+.env
+*.env
+
+# Installation lock
+install.lock
+
+# Migration runtime cache
+migrate/.last_run
+
+# Session and Telegram caches
 api/sessions.json
 api/telegram_recent_chats.json
+
+# User uploaded files (keep .htaccess and directory placeholder)
+uploads/*
+!uploads/.htaccess
+!uploads/.gitkeep
+
+# System, temporary, and log files
+*.log
+.DS_Store
+Thumbs.db

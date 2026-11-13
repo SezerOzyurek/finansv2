@@ -4,6 +4,10 @@ include("fonksiyonlar.php");
 $gelirKategorileri = apiRequest('/kategoriler', 'GET', ["Type" => 1, "orderkey" => "CategoryName", "ordertype" => "ASC"], $_SESSION['Api_Token']);
 $giderKategorileri = apiRequest('/kategoriler', 'GET', ["Type" => 2, "orderkey" => "CategoryName", "ordertype" => "ASC"], $_SESSION['Api_Token']);
 
+$hesaplarResp = apiRequest('/hesaplar', 'GET', [], $_SESSION['Api_Token']);
+$hesapList = (isset($hesaplarResp["data"]["list"]) && is_array($hesaplarResp["data"]["list"])) ? $hesaplarResp["data"]["list"] : [];
+$hesapCount = count($hesapList);
+
 if(empty($_POST)) 
 {
 	$hareketturu = $_GET['type'] ?? false;
@@ -173,6 +177,22 @@ if(isset($_POST['giderGuncelle']))
                             </div>
                         </div>
 
+                        <?php if ($hesapCount > 0) { 
+                            $currentAccId = $hareket["data"]["list"][0]["AccountId"] ?? null;
+                        ?>
+                        <div>
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Hesap / Kart (Opsiyonel)</label>
+                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                <option value="">Seçilmedi (Boş)</option>
+                                <?php foreach($hesapList as $h) { ?>
+                                    <option value="<?php echo (int)$h["AccountId"]; ?>" <?php if (!empty($currentAccId) && (int)$currentAccId === (int)$h["AccountId"]) { ?>selected<?php } ?>>
+                                        <?php echo htmlspecialchars((string)$h["AccountName"], ENT_QUOTES, "UTF-8"); ?> (<?php echo htmlspecialchars((string)$h["AccountType"], ENT_QUOTES, "UTF-8"); ?>)<?php if ((int)($h["IsDefault"] ?? -1) === 1) { ?> ★ Varsayılan<?php } ?>
+                                    </option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <?php } ?>
+
                         <div>
                             <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Açıklama</label>
                             <textarea rows="3" name="Description"
@@ -277,6 +297,22 @@ if(isset($_POST['giderGuncelle']))
                                        class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
                             </div>
                         </div>
+
+                        <?php if ($hesapCount > 0) { 
+                            $currentAccId = $hareket["data"]["list"][0]["AccountId"] ?? null;
+                        ?>
+                        <div>
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Hesap / Kart (Opsiyonel)</label>
+                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                <option value="">Seçilmedi (Boş)</option>
+                                <?php foreach($hesapList as $h) { ?>
+                                    <option value="<?php echo (int)$h["AccountId"]; ?>" <?php if (!empty($currentAccId) && (int)$currentAccId === (int)$h["AccountId"]) { ?>selected<?php } ?>>
+                                        <?php echo htmlspecialchars((string)$h["AccountName"], ENT_QUOTES, "UTF-8"); ?> (<?php echo htmlspecialchars((string)$h["AccountType"], ENT_QUOTES, "UTF-8"); ?>)<?php if ((int)($h["IsDefault"] ?? -1) === 1) { ?> ★ Varsayılan<?php } ?>
+                                    </option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <?php } ?>
 
                         <div>
                             <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Açıklama</label>

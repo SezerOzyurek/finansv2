@@ -129,6 +129,7 @@ switch ($path)
 		if ($requestMethod === 'GET') 
 		{
 			$AssetsId = $_GET['AssetsId'] ?? false;
+			$AccountId = $_GET['AccountId'] ?? false;
 			$search = $_GET['search'] ?? false;
 			$CategoryId = $_GET['CategoryId'] ?? false;
 			$orderkey = $_GET['orderkey'] ?? false;
@@ -143,6 +144,7 @@ switch ($path)
 			$fromSql = "
 FROM assets
 LEFT JOIN category ON assets.CategoryId = category.CategoryId
+LEFT JOIN accounts ON assets.AccountId = accounts.AccountId
 LEFT JOIN (
 	SELECT MovementId, COUNT(*) AS cnt
 	FROM movement_files
@@ -159,10 +161,16 @@ WHERE 1=1";
 				$fromSql .= " AND assets.AssetsId = :AssetsId";
 				$params[":AssetsId"] = $AssetsId;
 			}
+			if ($AccountId) {
+				$fromSql .= " AND assets.AccountId = :AccountId";
+				$params[":AccountId"] = (int)$AccountId;
+			}
 			if ($baslangictarihi && $bitistarihi) {
-				$fromSql .= " AND assets.Date BETWEEN :baslangictarihi AND :bitistarihi";
-				$params[":baslangictarihi"] = $baslangictarihi;
-				$params[":bitistarihi"] = $bitistarihi;
+				$startDt = (strlen(trim((string)$baslangictarihi)) === 10) ? trim((string)$baslangictarihi) . " 00:00:00" : trim((string)$baslangictarihi);
+				$endDt = (strlen(trim((string)$bitistarihi)) === 10) ? trim((string)$bitistarihi) . " 23:59:59" : trim((string)$bitistarihi);
+				$fromSql .= " AND assets.Date >= :baslangictarihi AND assets.Date <= :bitistarihi";
+				$params[":baslangictarihi"] = $startDt;
+				$params[":bitistarihi"] = $endDt;
 			}
 			if ($CategoryId) {
 				$fromSql .= " AND assets.CategoryId = :CategoryId";
@@ -227,6 +235,9 @@ SELECT
 	CASE WHEN assets.Date > NOW() THEN 1 ELSE 0 END AS Gerceklesmemis, 
 	category.CategoryId AS category_id, 
 	category.CategoryName,
+	accounts.AccountId AS account_id,
+	accounts.AccountName,
+	accounts.AccountType,
 	(assets.Amount / CAST(REPLACE(REPLACE(eski.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2))) * CAST(REPLACE(REPLACE(guncel.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2)) AS Enflasyon,
 	COALESCE(mp.cnt, 0) AS PhotoCount
 $fromSql
@@ -265,6 +276,7 @@ ORDER BY $orderCol $orderDir";
 				$Title = !empty($input['Title']) ? $input['Title'] : responseCode(400, "Başlık eksik");
 				$Date = !empty($input['Date']) ? $input['Date'] : responseCode(400, "Tarih eksik");
 				$CategoryId = !empty($input['CategoryId']) ? $input['CategoryId'] : responseCode(400, "Kategori ID'si eksik");
+				$AccountId = !empty($input['AccountId']) ? (int)$input['AccountId'] : null;
 				$Amount = !empty($input['Amount']) ? $input['Amount'] : responseCode(400, "Tutar eksik");
 				$Description = !empty($input['Description']) ? $input['Description'] : NULL;
 
@@ -273,6 +285,7 @@ ORDER BY $orderCol $orderDir";
 					Title = :Title,
 					Date = :Date,
 					CategoryId = :CategoryId, 
+					AccountId = :AccountId,
 					Amount = :Amount, 
 					Description = :Description
 				"); 
@@ -281,6 +294,7 @@ ORDER BY $orderCol $orderDir";
 					"Title" => $Title, 
 					"Date" => $Date, 
 					"CategoryId" => $CategoryId, 
+					"AccountId" => $AccountId,
 					"Amount" => $Amount, 
 					"Description" => $Description
 				));
@@ -302,22 +316,27 @@ ORDER BY $orderCol $orderDir";
 				$AssetsId = $input['AssetsId'] ?? responseCode(400, "Gelir ID'si eksik");
 				$Title = $input['Title'] ?? null;
 				$CategoryId = $input['CategoryId'] ?? null;
+				$hasAccountId = array_key_exists('AccountId', $input);
+				$AccountId = $hasAccountId ? (!empty($input['AccountId']) ? (int)$input['AccountId'] : null) : false;
 				$Date = $input['Date'] ?? null;
 				$Amount = $input['Amount'] ?? null;
 				$Description = $input['Description'] ?? null;
 
-				if (!$Title && !$CategoryId && !$Date && !$Amount && !$Description) { 
+				if (!$Title && !$CategoryId && !$Date && !$Amount && !$Description && !$hasAccountId) { 
 					responseCode(400, "Güncelleme için en az bir alan sağlamalısınız.");
 				}
 					
 				$fields = [];
-				$params = [":AssetsId" => decrypt($AssetsId)];
+				$plainAssetsId = decrypt($AssetsId);
+				if ($plainAssetsId === false || $plainAssetsId === "") { $plainAssetsId = $AssetsId; }
+				$params = [":AssetsId" => (int)$plainAssetsId];
 
 				if ($Title) { $fields[] = "Title = :Title"; $params[":Title"] = $Title; }
 				if ($CategoryId) { $fields[] = "CategoryId = :CategoryId"; $params[":CategoryId"] = $CategoryId; }
+				if ($hasAccountId) { $fields[] = "AccountId = :AccountId"; $params[":AccountId"] = $AccountId; }
 				if ($Date) { $fields[] = "Date = :Date"; $params[":Date"] = $Date; }
 				if ($Amount) { $fields[] = "Amount = :Amount"; $params[":Amount"] = $Amount; }
-				if ($Description) { $fields[] = "Description = :Description"; $params[":Description"] = $Description; }
+				if ($Description !== null) { $fields[] = "Description = :Description"; $params[":Description"] = $Description; }
 
 				$assetsGuncelle = "UPDATE assets SET " . implode(", ", $fields) . " WHERE AssetsId = :AssetsId";
 				$assetsGuncelle = $db->prepare($assetsGuncelle);
@@ -366,6 +385,7 @@ ORDER BY $orderCol $orderDir";
 		if ($requestMethod === 'GET')
 		{
 			$BillsId = $_GET['BillsId'] ?? false;
+			$AccountId = $_GET['AccountId'] ?? false;
 			$search = $_GET['search'] ?? false;
 			$CategoryId = $_GET['CategoryId'] ?? false;
 			$orderkey = $_GET['orderkey'] ?? false;
@@ -379,6 +399,7 @@ ORDER BY $orderCol $orderDir";
 	$fromSql = "
 FROM bills
 LEFT JOIN category ON bills.CategoryId = category.CategoryId
+LEFT JOIN accounts ON bills.AccountId = accounts.AccountId
 LEFT JOIN (
 	SELECT MovementId, COUNT(*) AS cnt
 	FROM movement_files
@@ -399,10 +420,16 @@ WHERE 1=1";
 				$fromSql .= " AND bills.BillsId = :BillsId";
 				$params[":BillsId"] = $BillsId;
 			}
+			if ($AccountId) {
+				$fromSql .= " AND bills.AccountId = :AccountId";
+				$params[":AccountId"] = (int)$AccountId;
+			}
 			if ($baslangictarihi && $bitistarihi) {
-				$fromSql .= " AND bills.Date BETWEEN :baslangictarihi AND :bitistarihi";
-				$params[":baslangictarihi"] = $baslangictarihi;
-				$params[":bitistarihi"] = $bitistarihi;
+				$startDt = (strlen(trim((string)$baslangictarihi)) === 10) ? trim((string)$baslangictarihi) . " 00:00:00" : trim((string)$baslangictarihi);
+				$endDt = (strlen(trim((string)$bitistarihi)) === 10) ? trim((string)$bitistarihi) . " 23:59:59" : trim((string)$bitistarihi);
+				$fromSql .= " AND bills.Date >= :baslangictarihi AND bills.Date <= :bitistarihi";
+				$params[":baslangictarihi"] = $startDt;
+				$params[":bitistarihi"] = $endDt;
 			}
 			if ($CategoryId) {
 				$fromSql .= " AND bills.CategoryId = :CategoryId";
@@ -463,6 +490,9 @@ SELECT
 	CASE WHEN bills.Date > NOW() THEN 1 ELSE 0 END AS Gerceklesmemis, 
 	category.CategoryId AS category_id, 
 	category.CategoryName,
+	accounts.AccountId AS account_id,
+	accounts.AccountName,
+	accounts.AccountType,
 	(bills.Amount / CAST(REPLACE(REPLACE(eski.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2))) * CAST(REPLACE(REPLACE(guncel.asgari_ucret, '.', ''), ',', '.') AS DECIMAL(12,2)) AS Enflasyon,
 	COALESCE(mp.cnt, 0) AS PhotoCount
 $fromSql
@@ -500,6 +530,7 @@ ORDER BY $orderCol $orderDir";
 				$Title = !empty($input['Title']) ? $input['Title'] : responseCode(400, "Başlık eksik");
 				$Date = !empty($input['Date']) ? $input['Date'] : responseCode(400, "Tarih eksik");
 				$CategoryId = !empty($input['CategoryId']) ? $input['CategoryId'] : responseCode(400, "Kategori ID'si eksik");
+				$AccountId = !empty($input['AccountId']) ? (int)$input['AccountId'] : null;
 				$Amount = !empty($input['Amount']) ? $input['Amount'] : responseCode(400, "Tutar eksik");
 				$Description = !empty($input['Description']) ? $input['Description'] : NULL;
 
@@ -508,6 +539,7 @@ ORDER BY $orderCol $orderDir";
 					Title = :Title,
 					Date = :Date,
 					CategoryId = :CategoryId, 
+					AccountId = :AccountId,
 					Amount = :Amount, 
 					Description = :Description
 				"); 
@@ -516,6 +548,7 @@ ORDER BY $orderCol $orderDir";
 					"Title" => $Title, 
 					"Date" => $Date, 
 					"CategoryId" => $CategoryId, 
+					"AccountId" => $AccountId,
 					"Amount" => $Amount, 
 					"Description" => $Description
 				));
@@ -538,22 +571,27 @@ ORDER BY $orderCol $orderDir";
 				$BillsId = $input['BillsId'] ?? responseCode(400, "Gider ID'si eksik");
 				$Title = $input['Title'] ?? null;
 				$CategoryId = $input['CategoryId'] ?? null;
+				$hasAccountId = array_key_exists('AccountId', $input);
+				$AccountId = $hasAccountId ? (!empty($input['AccountId']) ? (int)$input['AccountId'] : null) : false;
 				$Date = $input['Date'] ?? null;
 				$Amount = $input['Amount'] ?? null;
 				$Description = $input['Description'] ?? null;
 
-				if (!$Title && !$CategoryId && !$Date && !$Amount && !$Description) { 
+				if (!$Title && !$CategoryId && !$Date && !$Amount && !$Description && !$hasAccountId) { 
 					responseCode(400, "Güncelleme için en az bir alan sağlamalısınız.");
 				}
 
 				$fields = [];
-				$params = [":BillsId" => decrypt($BillsId)];
+				$plainBillsId = decrypt($BillsId);
+				if ($plainBillsId === false || $plainBillsId === "") { $plainBillsId = $BillsId; }
+				$params = [":BillsId" => (int)$plainBillsId];
 
 				if ($Title) { $fields[] = "Title = :Title"; $params[":Title"] = $Title; }
 				if ($CategoryId) { $fields[] = "CategoryId = :CategoryId"; $params[":CategoryId"] = $CategoryId; }
+				if ($hasAccountId) { $fields[] = "AccountId = :AccountId"; $params[":AccountId"] = $AccountId; }
 				if ($Date) { $fields[] = "Date = :Date"; $params[":Date"] = $Date; }
 				if ($Amount) { $fields[] = "Amount = :Amount"; $params[":Amount"] = $Amount; }
-				if ($Description) { $fields[] = "Description = :Description"; $params[":Description"] = $Description; }
+				if ($Description !== null) { $fields[] = "Description = :Description"; $params[":Description"] = $Description; }
 
 				$updateQuery = "UPDATE bills SET " . implode(", ", $fields) . " WHERE BillsId = :BillsId";
 				$stmt = $db->prepare($updateQuery);
@@ -630,7 +668,19 @@ ORDER BY $orderCol $orderDir";
 
 			if ($CategoryId) { $kategoriler .= " AND c.CategoryId = :CategoryId"; $parametre[":CategoryId"] = $CategoryId; }        
 			if ($Type) { $kategoriler .= " AND c.Type = :Type"; $parametre[":Type"] = $Type; }
-			if ($orderkey && $ordertype) { $kategoriler .= " ORDER BY $orderkey $ordertype"; }
+
+			$allowedOrderCols = [
+				"CategoryId" => "c.CategoryId",
+				"CategoryName" => "c.CategoryName",
+				"Type" => "c.Type",
+				"Total_Count" => "Total_Count",
+				"Total_Amount" => "Total_Amount",
+			];
+			if ($orderkey && isset($allowedOrderCols[$orderkey])) {
+				$orderCol = $allowedOrderCols[$orderkey];
+				$orderDir = (strtoupper((string)$ordertype) === "DESC") ? "DESC" : "ASC";
+				$kategoriler .= " ORDER BY $orderCol $orderDir";
+			}
 
 			$listeSorgusu = $db->prepare($kategoriler);
 			$listeSorgusu->execute($parametre);
@@ -713,30 +763,32 @@ ORDER BY $orderCol $orderDir";
 			$bitistarihi = $_GET['bitistarihi'] ?? false;
 			$parametre = [];
 
-			$tarihKosulu = "";
+			$tarihKosuluGelir = "1=1";
+			$tarihKosuluGider = "1=1";
 			if ($baslangictarihi && $bitistarihi) {
-				$tarihKosulu = "Date >= :baslangictarihi AND Date < DATE_ADD(:bitistarihi, INTERVAL 1 DAY)";
-				$parametre[":baslangictarihi"] = $baslangictarihi;
-				$parametre[":bitistarihi"] = $bitistarihi;
-			} else {
-				$tarihKosulu = "1=1";
+				$startDt = (strlen(trim((string)$baslangictarihi)) === 10) ? trim((string)$baslangictarihi) . " 00:00:00" : trim((string)$baslangictarihi);
+				$endDt = (strlen(trim((string)$bitistarihi)) === 10) ? trim((string)$bitistarihi) . " 23:59:59" : trim((string)$bitistarihi);
+				$tarihKosuluGelir = "assets.Date >= :baslangictarihi AND assets.Date <= :bitistarihi";
+				$tarihKosuluGider = "bills.Date >= :baslangictarihi AND bills.Date <= :bitistarihi";
+				$parametre[":baslangictarihi"] = $startDt;
+				$parametre[":bitistarihi"] = $endDt;
 			}
 
-			$gelirSorgu = $db->prepare("SELECT SUM(Amount) AS Gelir FROM assets WHERE $tarihKosulu");
+			$gelirSorgu = $db->prepare("SELECT SUM(Amount) AS Gelir FROM assets WHERE $tarihKosuluGelir");
 			$gelirSorgu->execute($parametre);
 			$genelGelirSonucu = $gelirSorgu->fetch(PDO::FETCH_ASSOC);
 
-			$giderSorgu = $db->prepare("SELECT SUM(Amount) AS Gider FROM bills WHERE $tarihKosulu");
+			$giderSorgu = $db->prepare("SELECT SUM(Amount) AS Gider FROM bills WHERE $tarihKosuluGider");
 			$giderSorgu->execute($parametre);
 			$genelGiderSonucu = $giderSorgu->fetch(PDO::FETCH_ASSOC);
 
 			// Kategori Bazlı Gider Sorgusu
-			$kategoriBazliSorguGiderler = $db->prepare("SELECT bills.CategoryId, SUM(Amount) AS ToplamGider, category.CategoryName as CategoryName FROM bills INNER JOIN category ON bills.CategoryId = category.CategoryId WHERE $tarihKosulu GROUP BY CategoryId ORDER BY CategoryName ASC");
+			$kategoriBazliSorguGiderler = $db->prepare("SELECT bills.CategoryId, SUM(bills.Amount) AS ToplamGider, category.CategoryName as CategoryName FROM bills INNER JOIN category ON bills.CategoryId = category.CategoryId WHERE $tarihKosuluGider GROUP BY bills.CategoryId ORDER BY CategoryName ASC");
 			$kategoriBazliSorguGiderler->execute($parametre);
 			$giderKategorileri = $kategoriBazliSorguGiderler->fetchAll(PDO::FETCH_ASSOC);
 
 			// Kategori Bazlı Gelir Sorgusu
-			$kategoriBazliSorguGelirler = $db->prepare("SELECT assets.CategoryId, SUM(Amount) AS ToplamGelir, category.CategoryName as CategoryName FROM assets INNER JOIN category ON assets.CategoryId = category.CategoryId WHERE $tarihKosulu GROUP BY CategoryId ORDER BY CategoryName ASC");
+			$kategoriBazliSorguGelirler = $db->prepare("SELECT assets.CategoryId, SUM(assets.Amount) AS ToplamGelir, category.CategoryName as CategoryName FROM assets INNER JOIN category ON assets.CategoryId = category.CategoryId WHERE $tarihKosuluGelir GROUP BY assets.CategoryId ORDER BY CategoryName ASC");
 			$kategoriBazliSorguGelirler->execute($parametre);
 			$gelirKategorileri = $kategoriBazliSorguGelirler->fetchAll(PDO::FETCH_ASSOC);
 
@@ -854,12 +906,6 @@ ORDER BY $orderCol $orderDir";
 							$eurValue = number_format($eurTodayEquivalent, 2, ',', '.') . " TL";
 						}
 					}
-					if (isset($usdTodayEquivalent) && $usdToday > 0) {
-						$usdValue = number_format($usdTodayEquivalent, 2, ',', '.') . " TL";
-					}
-					if (isset($eurTodayEquivalent) && $eurToday > 0) {
-						$eurValue = number_format($eurTodayEquivalent, 2, ',', '.') . " TL";
-					}
 				} else {
 					if ($usdToday > 0) {
 						$usdAmount = $amount / $usdToday;
@@ -870,13 +916,6 @@ ORDER BY $orderCol $orderDir";
 						$eurValue = number_format($eurAmount, 2, ',', '.') . " EUR";
 					}
 				}
-			}
-
-			if ($isMovement && isset($usdTodayEquivalent) && $usdToday > 0) {
-				$usdValue = number_format($usdTodayEquivalent, 2, ',', '.') . " TL";
-			}
-			if ($isMovement && isset($eurTodayEquivalent) && $eurToday > 0) {
-				$eurValue = number_format($eurTodayEquivalent, 2, ',', '.') . " TL";
 			}
 
 			$items = [
@@ -927,10 +966,12 @@ ORDER BY $orderCol $orderDir";
 			$whereAssets = "1=1";
 			$whereBills = "1=1";
 			if ($baslangictarihi && $bitistarihi) {
-				$whereAssets = "assets.Date BETWEEN :baslangictarihi AND :bitistarihi";
-				$whereBills = "bills.Date BETWEEN :baslangictarihi AND :bitistarihi";
-				$params[":baslangictarihi"] = $baslangictarihi;
-				$params[":bitistarihi"] = $bitistarihi;
+				$startDt = (strlen(trim((string)$baslangictarihi)) === 10) ? trim((string)$baslangictarihi) . " 00:00:00" : trim((string)$baslangictarihi);
+				$endDt = (strlen(trim((string)$bitistarihi)) === 10) ? trim((string)$bitistarihi) . " 23:59:59" : trim((string)$bitistarihi);
+				$whereAssets = "assets.Date >= :baslangictarihi AND assets.Date <= :bitistarihi";
+				$whereBills = "bills.Date >= :baslangictarihi AND bills.Date <= :bitistarihi";
+				$params[":baslangictarihi"] = $startDt;
+				$params[":bitistarihi"] = $endDt;
 			}
 
 			// Largest single income
@@ -1029,14 +1070,16 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 			// Daily expense pulse (last 30 days, ending at selected end date or today)
 			$pulseEnd = $bitistarihi ?: date('Y-m-d');
 			$pulseStart = date('Y-m-d', strtotime($pulseEnd . ' -29 days'));
+			$pstartDt = (strlen(trim((string)$pulseStart)) === 10) ? trim((string)$pulseStart) . " 00:00:00" : trim((string)$pulseStart);
+			$pendDt = (strlen(trim((string)$pulseEnd)) === 10) ? trim((string)$pulseEnd) . " 23:59:59" : trim((string)$pulseEnd);
 			$stmt = $db->prepare("
 				SELECT DATE(bills.Date) AS d, COALESCE(SUM(bills.Amount),0) AS Total
 				FROM bills
-				WHERE bills.Date BETWEEN :pstart AND :pend
+				WHERE bills.Date >= :pstart AND bills.Date <= :pend
 				GROUP BY d
 				ORDER BY d ASC
 			");
-			$stmt->execute([":pstart" => $pulseStart, ":pend" => $pulseEnd]);
+			$stmt->execute([":pstart" => $pstartDt, ":pend" => $pendDt]);
 			$dailyPulse = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
 			// Hourly expense (0-23)
@@ -1300,18 +1343,29 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 					if (($f["error"] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) continue;
 					if (!is_uploaded_file($f["tmp_name"] ?? "")) continue;
 
-					// Keep it simple: infer extension from original name; no MIME gating.
+					// Güvenli dosya uzantısı ve MIME kontrolü
 					$origName = (string)($f["name"] ?? "");
 					$ext = strtolower((string)pathinfo($origName, PATHINFO_EXTENSION));
-					$ext = preg_replace('/[^a-z0-9]/', '', $ext);
-					if ($ext === '') { $ext = 'jpg'; }
+					$allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf'];
+					if (!in_array($ext, $allowedExtensions, true)) {
+						continue;
+					}
 
-					$fileName = $type . "_" . $movementId . "_" . date("Ymd_His") . "_" . mt_rand(1000, 9999) . "." . $ext;
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					$mime = $finfo ? finfo_file($finfo, $f["tmp_name"]) : "";
+					if ($finfo) { finfo_close($finfo); }
+					$allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+					if (!in_array($mime, $allowedMimes, true)) {
+						continue;
+					}
+
+					$safeRandom = bin2hex(random_bytes(8));
+					$fileName = $type . "_" . $movementId . "_" . date("Ymd_His") . "_" . $safeRandom . "." . $ext;
 					$absPath = $absDir . $fileName;
 					$relPath = $relDir . $fileName;
 
 					if (!move_uploaded_file($f["tmp_name"], $absPath)) { continue; }
-					@chmod($absPath, 0666);
+					@chmod($absPath, 0644);
 
 					$stmt = $db->prepare("
 						INSERT INTO movement_files (MovementType, MovementId, FilePath, OriginalName, CreatedAt)
@@ -1384,6 +1438,9 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 			$baslangicTarihi = $_GET['baslangictarihi'] ?? '2000-01-01'; // Varsayılan bir tarih
 			$bitisTarihi = $_GET['bitistarihi'] ?? date('Y-m-d'); // Varsayılan olarak bugünün tarihi
 
+			$startDt = (strlen(trim((string)$baslangicTarihi)) === 10) ? trim((string)$baslangicTarihi) . " 00:00:00" : trim((string)$baslangicTarihi);
+			$endDt = (strlen(trim((string)$bitisTarihi)) === 10) ? trim((string)$bitisTarihi) . " 23:59:59" : trim((string)$bitisTarihi);
+
 			// Belirlenen başlangıç tarihinden önceki toplam bakiye
 			$sqlBakiyeOnce = "
 				SELECT 
@@ -1391,8 +1448,8 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 					- COALESCE((SELECT SUM(Amount) FROM bills WHERE Date < :baslangic), 0)) AS onceki_bakiye
 			";
 			$stmt = $db->prepare($sqlBakiyeOnce);
-			$stmt->execute([':baslangic' => $baslangicTarihi]);
-			$oncekiBakiye = $stmt->fetchColumn(); // Başlangıç tarihine kadar olan bakiye
+			$stmt->execute([':baslangic' => $startDt]);
+			$oncekiBakiye = (float)($stmt->fetchColumn() ?: 0); // Başlangıç tarihine kadar olan bakiye
 
 			// Seçilen tarih aralığında gelir ve giderleri getir
 			$sql = "
@@ -1400,21 +1457,21 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 					   COALESCE(gelir, 0) AS gelir, 
 					   COALESCE(gider, 0) AS gider 
 				FROM (
-					SELECT DISTINCT Date AS tarih FROM assets WHERE Date BETWEEN :baslangic AND :bitis
+					SELECT DISTINCT Date AS tarih FROM assets WHERE Date >= :baslangic AND Date <= :bitis
 					UNION 
-					SELECT DISTINCT Date FROM bills WHERE Date BETWEEN :baslangic AND :bitis
+					SELECT DISTINCT Date FROM bills WHERE Date >= :baslangic AND Date <= :bitis
 				) AS tarih_tablosu
 				LEFT JOIN (
-					SELECT Date, SUM(Amount) AS gelir FROM assets WHERE Date BETWEEN :baslangic AND :bitis GROUP BY Date
+					SELECT Date, SUM(Amount) AS gelir FROM assets WHERE Date >= :baslangic AND Date <= :bitis GROUP BY Date
 				) AS gelirler ON tarih_tablosu.tarih = gelirler.Date
 				LEFT JOIN (
-					SELECT Date, SUM(Amount) AS gider FROM bills WHERE Date BETWEEN :baslangic AND :bitis GROUP BY Date
+					SELECT Date, SUM(Amount) AS gider FROM bills WHERE Date >= :baslangic AND Date <= :bitis GROUP BY Date
 				) AS giderler ON tarih_tablosu.tarih = giderler.Date
 				ORDER BY tarih ASC;
 			";
 
 			$stmt = $db->prepare($sql);
-			$stmt->execute([':baslangic' => $baslangicTarihi, ':bitis' => $bitisTarihi]);
+			$stmt->execute([':baslangic' => $startDt, ':bitis' => $endDt]);
 			$rows = $stmt->fetchAll();
 
 			$toplam_bakiye = $oncekiBakiye; // Önceki bakiyeyi hesaba kat
@@ -1435,6 +1492,191 @@ LEFT JOIN category ON bills.CategoryId = category.CategoryId
 			responseCode(200, NULL, $bakiye_listesi);
 		}
 
+	break;
+	
+	case 'hesaplar':
+		validateToken();
+		if ($requestMethod === 'GET') 
+		{
+			$AccountId = $_GET['AccountId'] ?? false;
+			$search = $_GET['search'] ?? false;
+			$orderkey = $_GET['orderkey'] ?? false;
+			$ordertype = $_GET['ordertype'] ?? false;
+
+			$sql = "
+				SELECT 
+					a.AccountId,
+					a.AccountName,
+					a.AccountType,
+					a.Description,
+					a.IsDefault,
+					a.CreatedAt,
+					COALESCE(inc.cnt, 0) AS IncomeCount,
+					COALESCE(inc.total, 0) AS TotalIncome,
+					COALESCE(exp.cnt, 0) AS ExpenseCount,
+					COALESCE(exp.total, 0) AS TotalExpense
+				FROM accounts a
+				LEFT JOIN (
+					SELECT AccountId, COUNT(*) AS cnt, SUM(Amount) AS total FROM assets WHERE AccountId IS NOT NULL GROUP BY AccountId
+				) inc ON inc.AccountId = a.AccountId
+				LEFT JOIN (
+					SELECT AccountId, COUNT(*) AS cnt, SUM(Amount) AS total FROM bills WHERE AccountId IS NOT NULL GROUP BY AccountId
+				) exp ON exp.AccountId = a.AccountId
+				WHERE 1=1
+			";
+
+			$params = [];
+			if ($AccountId) {
+				$sql .= " AND a.AccountId = :AccountId";
+				$params[":AccountId"] = (int)$AccountId;
+			}
+			if ($search) {
+				$sql .= " AND (a.AccountName LIKE :search OR a.Description LIKE :search OR a.AccountType LIKE :search)";
+				$params[":search"] = '%' . $search . '%';
+			}
+
+			$allowedOrder = [
+				"AccountId" => "a.AccountId",
+				"AccountName" => "a.AccountName",
+				"AccountType" => "a.AccountType",
+				"IsDefault" => "a.IsDefault",
+				"CreatedAt" => "a.CreatedAt",
+			];
+			if ($orderkey && isset($allowedOrder[$orderkey])) {
+				$orderCol = $allowedOrder[$orderkey];
+				$orderDir = (strtoupper((string)$ordertype) === "DESC") ? "DESC" : "ASC";
+				$sql .= " ORDER BY $orderCol $orderDir";
+			} else {
+				$sql .= " ORDER BY a.IsDefault DESC, a.AccountName ASC";
+			}
+
+			$stmt = $db->prepare($sql);
+			$stmt->execute($params);
+			$list = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+			$defaultAccount = null;
+			foreach ($list as $acc) {
+				if ((int)($acc["IsDefault"] ?? -1) === 1) {
+					$defaultAccount = $acc;
+					break;
+				}
+			}
+
+			responseCode(200, NULL, [
+				"count" => count($list),
+				"default_account" => $defaultAccount,
+				"list" => $list
+			]);
+		}
+		elseif ($requestMethod === 'POST') 
+		{
+			try 
+			{
+				$input = json_decode(file_get_contents("php://input"), true);
+				$AccountName = trim((string)($input['AccountName'] ?? ''));
+				if ($AccountName === '') {
+					responseCode(400, "Hesap / Kart adı zorunludur.");
+				}
+				$AccountType = trim((string)($input['AccountType'] ?? 'Kredi Kartı'));
+				if ($AccountType === '') { $AccountType = 'Kredi Kartı'; }
+				$Description = !empty($input['Description']) ? trim((string)$input['Description']) : null;
+				$IsDefault = (isset($input['IsDefault']) && ((int)$input['IsDefault'] === 1 || $input['IsDefault'] === true || $input['IsDefault'] === "1")) ? 1 : -1;
+
+				if ($IsDefault === 1) {
+					$db->exec("UPDATE accounts SET IsDefault = -1");
+				}
+
+				$stmt = $db->prepare("INSERT INTO accounts (AccountName, AccountType, Description, IsDefault, CreatedAt) VALUES (:name, :type, :desc, :def, NOW())");
+				$stmt->execute([
+					":name" => $AccountName,
+					":type" => $AccountType,
+					":desc" => $Description,
+					":def" => $IsDefault,
+				]);
+
+				responseCode(200, NULL, [
+					"AccountId" => (int)$db->lastInsertId(),
+					"message" => "Hesap başarıyla eklendi."
+				]);
+			}
+			catch (Exception $e) 
+			{
+				responseCode(500, "Sunucu hatası: " . $e->getMessage());
+			}
+		}
+		elseif ($requestMethod === 'PATCH') 
+		{
+			try 
+			{
+				$input = json_decode(file_get_contents("php://input"), true);
+				$AccountId = $input['AccountId'] ?? responseCode(400, "Hesap ID'si eksik");
+				$plainId = decrypt($AccountId);
+				if ($plainId === false || $plainId === "") { $plainId = $AccountId; }
+				$plainId = (int)$plainId;
+				if ($plainId <= 0) { responseCode(400, "Geçersiz hesap ID'si."); }
+
+				$AccountName = isset($input['AccountName']) ? trim((string)$input['AccountName']) : null;
+				$AccountType = isset($input['AccountType']) ? trim((string)$input['AccountType']) : null;
+				$Description = array_key_exists('Description', $input) ? (!empty($input['Description']) ? trim((string)$input['Description']) : null) : false;
+				$hasDefault = array_key_exists('IsDefault', $input);
+				$IsDefault = $hasDefault ? (((int)$input['IsDefault'] === 1 || $input['IsDefault'] === true || $input['IsDefault'] === "1") ? 1 : -1) : null;
+
+				if ($AccountName === null && $AccountType === null && $Description === false && !$hasDefault) {
+					responseCode(400, "Güncelleme için en az bir alan belirtilmelidir.");
+				}
+
+				if ($IsDefault === 1) {
+					$db->exec("UPDATE accounts SET IsDefault = -1");
+				}
+
+				$fields = [];
+				$params = [":id" => $plainId];
+
+				if ($AccountName !== null && $AccountName !== "") { $fields[] = "AccountName = :name"; $params[":name"] = $AccountName; }
+				if ($AccountType !== null && $AccountType !== "") { $fields[] = "AccountType = :type"; $params[":type"] = $AccountType; }
+				if ($Description !== false) { $fields[] = "Description = :desc"; $params[":desc"] = $Description; }
+				if ($hasDefault) { $fields[] = "IsDefault = :def"; $params[":def"] = $IsDefault; }
+
+				$sql = "UPDATE accounts SET " . implode(", ", $fields) . " WHERE AccountId = :id";
+				$stmt = $db->prepare($sql);
+				$stmt->execute($params);
+
+				responseCode(200, NULL, ["message" => "Hesap başarıyla güncellendi."]);
+			}
+			catch (Exception $e) 
+			{
+				responseCode(500, "Sunucu hatası: " . $e->getMessage());
+			}
+		}
+		elseif ($requestMethod === 'DELETE') 
+		{
+			try 
+			{
+				$input = json_decode(file_get_contents("php://input"), true);
+				$AccountId = $input['AccountId'] ?? responseCode(400, "Hesap ID'si eksik");
+				$plainId = decrypt($AccountId);
+				if ($plainId === false || $plainId === "") { $plainId = $AccountId; }
+				$plainId = (int)$plainId;
+				if ($plainId <= 0) { responseCode(400, "Geçersiz hesap ID'si."); }
+
+				// Hareketlerdeki referansları güvenle NULL yap
+				$db->prepare("UPDATE assets SET AccountId = NULL WHERE AccountId = :id")->execute([":id" => $plainId]);
+				$db->prepare("UPDATE bills SET AccountId = NULL WHERE AccountId = :id")->execute([":id" => $plainId]);
+
+				$stmt = $db->prepare("DELETE FROM accounts WHERE AccountId = :id LIMIT 1");
+				$stmt->execute([":id" => $plainId]);
+
+				responseCode(200, "Hesap başarıyla silindi.");
+			}
+			catch (Exception $e) 
+			{
+				responseCode(500, "Sunucu hatası: " . $e->getMessage());
+			}
+		}
+		else 
+		{
+			responseCode(405);
+		}
 	break;
 	
 	
@@ -1638,22 +1880,7 @@ function validateToken()
 ////////// HATA AYIKLAMA FONKSİYONU //////////
 function hataAyikla($metin)
 {
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, 'https://finans.requestcatcher.com/');
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, $metin);
-
-	$headers = array();
-	$headers[] = 'Content-Type: application/x-www-form-urlencoded';
-	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-	$result = curl_exec($ch);
-	if (curl_errno($ch)) {
-		echo 'Error:' . curl_error($ch);
-	}
-	curl_close($ch);
-
+	error_log("[Finans API Debug] " . (is_scalar($metin) ? (string)$metin : json_encode($metin, JSON_UNESCAPED_UNICODE)));
 }
 ////////// HATA AYIKLAMA FONKSİYONU //////////
 

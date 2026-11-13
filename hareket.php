@@ -8,6 +8,14 @@ $giderKategoriList = (isset($giderKategorileri["data"]["list"]) && is_array($gid
 $gelirKategoriCount = count($gelirKategoriList);
 $giderKategoriCount = count($giderKategoriList);
 
+$hesaplarResp = apiRequest('/hesaplar', 'GET', [], $_SESSION['Api_Token']);
+$hesapList = (isset($hesaplarResp["data"]["list"]) && is_array($hesaplarResp["data"]["list"])) ? $hesaplarResp["data"]["list"] : [];
+$hesapCount = count($hesapList);
+$defaultAccountId = null;
+if (!empty($hesaplarResp["data"]["default_account"]["AccountId"])) {
+    $defaultAccountId = (int)$hesaplarResp["data"]["default_account"]["AccountId"];
+}
+
 function uploadPhotosIfAny(int $type, int $movementId): array
 {
 	$uploaded = [];
@@ -137,6 +145,20 @@ if(isset($_POST['yeniGider']))
                             </div>
                         </div>
 
+                        <?php if ($hesapCount > 0) { ?>
+                        <div>
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Hesap / Kart (Opsiyonel)</label>
+                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                <option value="">Seçilmedi (Boş)</option>
+                                <?php foreach($hesapList as $h) { ?>
+                                    <option value="<?php echo (int)$h["AccountId"]; ?>" <?php if ((int)$h["AccountId"] === $defaultAccountId) { ?>selected<?php } ?>>
+                                        <?php echo htmlspecialchars((string)$h["AccountName"], ENT_QUOTES, "UTF-8"); ?> (<?php echo htmlspecialchars((string)$h["AccountType"], ENT_QUOTES, "UTF-8"); ?>)<?php if ((int)($h["IsDefault"] ?? -1) === 1) { ?> ★ Varsayılan<?php } ?>
+                                    </option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <?php } ?>
+
                         <div>
                             <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Açıklama</label>
                             <textarea rows="3" name="Description" placeholder="Açıklama yazınız..."
@@ -218,6 +240,20 @@ if(isset($_POST['yeniGider']))
                                        class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
                             </div>
                         </div>
+
+                        <?php if ($hesapCount > 0) { ?>
+                        <div>
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Hesap / Kart (Opsiyonel)</label>
+                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                <option value="">Seçilmedi (Boş)</option>
+                                <?php foreach($hesapList as $h) { ?>
+                                    <option value="<?php echo (int)$h["AccountId"]; ?>" <?php if ((int)$h["AccountId"] === $defaultAccountId) { ?>selected<?php } ?>>
+                                        <?php echo htmlspecialchars((string)$h["AccountName"], ENT_QUOTES, "UTF-8"); ?> (<?php echo htmlspecialchars((string)$h["AccountType"], ENT_QUOTES, "UTF-8"); ?>)<?php if ((int)($h["IsDefault"] ?? -1) === 1) { ?> ★ Varsayılan<?php } ?>
+                                    </option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <?php } ?>
 
                         <div>
                             <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Açıklama</label>

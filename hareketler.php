@@ -5,6 +5,7 @@ include("fonksiyonlar.php");
 if (isset($_GET["datatable"])) {
 	$type = $_GET['type'] ?? false;
 	$CategoryId = $_GET['CategoryId'] ?? false;
+	$AccountId = $_GET['AccountId'] ?? false;
 
 	$draw = isset($_GET["draw"]) ? (int)$_GET["draw"] : 0;
 	$start = isset($_GET["start"]) ? max(0, (int)$_GET["start"]) : 0;
@@ -31,6 +32,7 @@ if (isset($_GET["datatable"])) {
 	];
 	if (!empty($searchValue)) { $params["search"] = $searchValue; }
 	if ($CategoryId) { $params["CategoryId"] = (int)$CategoryId; }
+	if ($AccountId) { $params["AccountId"] = (int)$AccountId; }
 
 	if ($type == "1") { $resp = apiRequest('/gelirler', 'GET', $params, $_SESSION['Api_Token']); }
 	elseif ($type == "2") { $resp = apiRequest('/giderler', 'GET', $params, $_SESSION['Api_Token']); }
@@ -83,6 +85,11 @@ if (isset($_GET["datatable"])) {
 			}
 		}
 		$titleHtml .= '<div class="cell-clip min-w-0 flex-1 font-semibold" title="'.htmlspecialchars((string)$title, ENT_QUOTES, "UTF-8").'">'.htmlspecialchars((string)$title, ENT_QUOTES, "UTF-8").'</div>';
+		$accName = $row["AccountName"] ?? "";
+		if (!empty($accName)) {
+			$titleHtml .= '<span class="inline-flex items-center gap-1 whitespace-nowrap rounded-lg border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700" title="Hesap / Kart: '.htmlspecialchars((string)$accName, ENT_QUOTES, "UTF-8").'">'.
+				'<i class="ti ti-credit-card text-slate-400"></i>'.htmlspecialchars((string)$accName, ENT_QUOTES, "UTF-8").'</span>';
+		}
 		if ($photoCount > 0) {
 			$titleHtml .= '<span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-extrabold text-slate-700" title="Ekli dosya var">'.
 				'<i class="ti ti-paperclip text-slate-400"></i>Ek'.($photoCount > 1 ? ' ('.$photoCount.')' : '').'</span>';
@@ -113,9 +120,11 @@ if(empty($_POST))
 { 
 	$type = $_GET['type'] ?? false;
 	$CategoryId = $_GET['CategoryId'] ?? false;
+	$AccountId = $_GET['AccountId'] ?? false;
 	
 	$kriterler = [];
     if ($CategoryId) { $kriterler["CategoryId"] = filter_var($CategoryId, FILTER_SANITIZE_NUMBER_INT); }
+    if ($AccountId) { $kriterler["AccountId"] = filter_var($AccountId, FILTER_SANITIZE_NUMBER_INT); }
 
     $kriterler["orderkey"] = "Date";
     $kriterler["ordertype"] = "DESC";

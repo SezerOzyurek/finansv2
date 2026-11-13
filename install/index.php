@@ -69,7 +69,6 @@ function envValuesFromInput(array $in): array
         "API_BEARER_TOKEN" => randomAscii(48),
         "CRYPTO_KEY" => randomAscii(32),
         "CRYPTO_IV" => randomAscii(16),
-        "DEBUG_HOOK_URL" => "https://finans.requestcatcher.com/test",
         "JWT_SECRET" => randomAscii(64),
         "JWT_ACCESS_TTL_SECONDS" => "300",
         "JWT_REFRESH_TTL_SECONDS" => "300",
@@ -99,7 +98,6 @@ function buildEnvContent(array $values): string
         "API_BEARER_TOKEN",
         "CRYPTO_KEY",
         "CRYPTO_IV",
-        "DEBUG_HOOK_URL",
         "JWT_SECRET",
         "JWT_ACCESS_TTL_SECONDS",
         "JWT_REFRESH_TTL_SECONDS",
@@ -199,20 +197,38 @@ function createSchema(PDO $pdo): void
             `Title` varchar(255) NOT NULL,
             `Date` datetime NOT NULL DEFAULT current_timestamp(),
             `CategoryId` int(5) NOT NULL,
+            `AccountId` int(11) DEFAULT NULL,
             `Amount` decimal(10,2) NOT NULL,
             `Description` text DEFAULT NULL,
             PRIMARY KEY (`AssetsId`),
-            KEY `idx_assets_category` (`CategoryId`)
+            KEY `idx_assets_category` (`CategoryId`),
+            KEY `idx_assets_account` (`AccountId`),
+            KEY `idx_assets_date` (`Date`),
+            KEY `idx_assets_cat_date` (`CategoryId`, `Date`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
         "CREATE TABLE IF NOT EXISTS `bills` (
             `BillsId` int(5) NOT NULL AUTO_INCREMENT,
             `Title` varchar(255) NOT NULL,
             `Date` datetime NOT NULL DEFAULT current_timestamp(),
             `CategoryId` int(5) NOT NULL,
+            `AccountId` int(11) DEFAULT NULL,
             `Amount` decimal(10,2) NOT NULL,
             `Description` text DEFAULT NULL,
             PRIMARY KEY (`BillsId`),
-            KEY `idx_bills_category` (`CategoryId`)
+            KEY `idx_bills_category` (`CategoryId`),
+            KEY `idx_bills_account` (`AccountId`),
+            KEY `idx_bills_date` (`Date`),
+            KEY `idx_bills_cat_date` (`CategoryId`, `Date`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        "CREATE TABLE IF NOT EXISTS `accounts` (
+            `AccountId` int(11) NOT NULL AUTO_INCREMENT,
+            `AccountName` varchar(255) NOT NULL,
+            `AccountType` varchar(50) NOT NULL DEFAULT 'Kredi Kartı',
+            `Description` text DEFAULT NULL,
+            `IsDefault` tinyint(2) NOT NULL DEFAULT -1,
+            `CreatedAt` datetime NOT NULL DEFAULT current_timestamp(),
+            PRIMARY KEY (`AccountId`),
+            KEY `idx_accounts_default` (`IsDefault`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
         "CREATE TABLE IF NOT EXISTS `asgari_ucret` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -220,6 +236,18 @@ function createSchema(PDO $pdo): void
             `bitis_tarihi` varchar(10) DEFAULT NULL,
             `asgari_ucret` varchar(9) DEFAULT NULL,
             PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        "CREATE TABLE IF NOT EXISTS `tcmb_fx_rates` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `rate_date` date NOT NULL,
+            `usd_forex_buying` decimal(10,4) DEFAULT NULL,
+            `usd_forex_selling` decimal(10,4) DEFAULT NULL,
+            `eur_forex_buying` decimal(10,4) DEFAULT NULL,
+            `eur_forex_selling` decimal(10,4) DEFAULT NULL,
+            `source_url` varchar(255) DEFAULT NULL,
+            `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uq_tcmb_fx_rates_date` (`rate_date`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
         "CREATE TABLE IF NOT EXISTS `movement_files` (
             `PhotoId` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -316,7 +344,7 @@ function createOrUpdateInitialUser(PDO $pdo, string $email, string $plainPasswor
     ]);
 }
 
-$installClosed = isEnvDbReady($envPath);
+$installClosed = file_exists($lockPath) || isEnvDbReady($envPath);
 if ($installClosed) {
     if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_GET["action"])) {
         jsonOut(["ok" => false, "message" => "Kurulum zaten tamamlanmis."], 403);

@@ -38,45 +38,16 @@ if (!defined("APP_API_BASE_URL")) { define("APP_API_BASE_URL", rtrim((string)($E
 if (!defined("APP_SITE_URL")) { define("APP_SITE_URL", preg_replace('#/api$#', '', APP_API_BASE_URL)); }
 if (!defined("APP_CRYPTO_KEY")) { define("APP_CRYPTO_KEY", (string)($ENV["CRYPTO_KEY"] ?? "")); }
 if (!defined("APP_CRYPTO_IV")) { define("APP_CRYPTO_IV", (string)($ENV["CRYPTO_IV"] ?? "")); }
-if (!defined("APP_DEBUG_HOOK_URL")) { define("APP_DEBUG_HOOK_URL", (string)($ENV["DEBUG_HOOK_URL"] ?? "https://finans.requestcatcher.com/test")); }
+
+// Otomatik migration kontrolü (Yeni migration varsa otomatik çalışır)
+if ($dbReady && isset($pdo)) {
+    require_once(__DIR__ . "/migrate/migrate.php");
+    auto_run_migrations_if_needed($pdo);
+}
 
 function loginmi() { if(isset($_SESSION['Api_Token']) && $_SESSION['Api_Token'] != "") { return true; } else { return false; } }
 
-if(!isset($_GET['loginbypass']) && !loginmi()) { header("Location: " . APP_SITE_URL . "/login.php"); exit; } 
-
-// Auto-complete missing TCMB exchange rates on panel entry
-if (loginmi() && $dbReady && isset($pdo)) {
-    try {
-        $stmt = $pdo->query("SELECT MAX(rate_date) FROM tcmb_fx_rates");
-        $lastDateStr = $stmt->fetchColumn();
-
-        $today = new DateTime("today");
-        $yesterday = new DateTime("yesterday");
-
-        if (!$lastDateStr) {
-            $startDate = new DateTime("2014-01-01");
-        } else {
-            $startDate = new DateTime($lastDateStr);
-            $startDate->modify("+1 day");
-        }
-
-        if ($startDate <= $yesterday) {
-            // Limit to maximum 10 days per page load to prevent execution timeouts
-            $diff = $startDate->diff($yesterday)->days;
-            if ($diff > 10) {
-                $endDate = clone $startDate;
-                $endDate->modify("+10 days");
-            } else {
-                $endDate = $yesterday;
-            }
-
-            require_once(__DIR__ . "/tcmb.php");
-            tcmb_pull_rates($pdo, $startDate, $endDate);
-        }
-    } catch (Throwable $e) {
-        // Fail silently in case of internet connection issues or TCMB downtimes
-    }
-}
+if(!isset($_GET['loginbypass']) && !loginmi()) { header("Location: " . APP_SITE_URL . "/login.php"); exit; }
 
 
 function apiRequest($endpoint, $method = 'GET', $data = [], $token = NULL) 
@@ -191,22 +162,7 @@ function decrypt($data)
 ////////// HATA AYIKLAMA FONKSİYONU //////////
 function hataAyikla($metin)
 {
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, APP_DEBUG_HOOK_URL);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, $metin);
-
-	$headers = array();
-	$headers[] = 'Content-Type: application/x-www-form-urlencoded';
-	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-	$result = curl_exec($ch);
-	if (curl_errno($ch)) {
-		echo 'Error:' . curl_error($ch);
-	}
-	curl_close($ch);
-
+	error_log("[Finans Debug] " . (is_scalar($metin) ? (string)$metin : json_encode($metin, JSON_UNESCAPED_UNICODE)));
 }
 ////////// HATA AYIKLAMA FONKSİYONU //////////
 
