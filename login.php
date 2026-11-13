@@ -25,95 +25,44 @@ if(isset($_POST['girisFormu']))
 <head>
     <title>Giriş Yap - Ultra Finans</title>
     <?php include("head.php"); ?>
-    <style>
-      .login-mesh {
-        background-color: #0b0f19;
-        background-image: 
-          radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.22) 0px, transparent 50%),
-          radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.16) 0px, transparent 50%),
-          radial-gradient(at 50% 50%, rgba(14, 165, 233, 0.12) 0px, transparent 60%);
-      }
-    </style>
 </head>
-<body class="login-mesh min-h-screen flex items-center justify-center p-4 sm:p-6 text-slate-100 antialiased">
+<body class="min-h-screen bg-slate-100 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100 flex flex-col justify-between p-4 sm:p-6">
 
-    <div class="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-900/90 shadow-2xl backdrop-blur-xl">
-        
-        <!-- Sol Panel: Marka & Görsel Hikaye -->
-        <div class="lg:col-span-5 hidden lg:flex flex-col justify-between p-10 border-r border-slate-800/80 bg-gradient-to-b from-slate-900/80 to-slate-950/80">
-            <div>
-                <div class="flex items-center gap-3">
-                    <div class="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 font-bold">
-                        <i class="ti ti-coins text-2xl"></i>
-                    </div>
-                    <div>
-                        <div class="text-base font-extrabold tracking-tight text-white">Ultra <span class="text-emerald-400">Finans</span></div>
-                        <div class="text-[11px] font-semibold text-slate-400 tracking-wider">KİŞİSEL PORTFÖY</div>
-                    </div>
-                </div>
-
-                <div class="mt-16 space-y-4">
-                    <span class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400">
-                        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        Akıllı Finans Asistanı
-                    </span>
-                    <h2 class="text-2xl font-black text-white leading-tight">
-                        Paranın kontrolü <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">tamamen sende.</span>
-                    </h2>
-                    <p class="text-xs text-slate-400 leading-relaxed">
-                        Kartlarını tanımla, gelir ve giderlerini şık tablolarla takip et, bütçeni tek bakışta yönet.
-                    </p>
-                </div>
+    <div class="w-full max-w-sm mx-auto my-auto py-8">
+        <!-- Logo & Başlık -->
+        <div class="text-center mb-8">
+            <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm dark:bg-emerald-500 dark:text-slate-950 mb-3">
+                <i class="ti ti-wallet text-2xl font-bold"></i>
             </div>
-
-            <div class="text-xs text-slate-500 flex items-center gap-2">
-                <i class="ti ti-shield-check text-emerald-400 text-base"></i>
-                <span>Güvenli Oturum & Yerel Kurulum</span>
-            </div>
+            <h1 class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Ultra Finans</h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Kişisel Finans Yönetim Sistemi</p>
         </div>
 
-        <!-- Sağ Panel: Giriş Formu -->
-        <div class="lg:col-span-7 p-8 sm:p-12 flex flex-col justify-center">
-            
-            <!-- Mobil Logo -->
-            <div class="flex lg:hidden items-center gap-3 mb-8">
-                <div class="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-500 text-white shadow-md font-bold">
-                    <i class="ti ti-coins text-xl"></i>
-                </div>
-                <div>
-                    <div class="text-base font-extrabold tracking-tight text-white">Ultra <span class="text-emerald-400">Finans</span></div>
-                    <div class="text-[10px] font-semibold text-slate-400 tracking-wider">KİŞİSEL PORTFÖY</div>
-                </div>
-            </div>
-
-            <div class="mb-8">
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Hoş Geldiniz</h1>
-                <p class="mt-1 text-xs sm:text-sm text-slate-400">Hesabınıza erişmek için e-posta ve şifrenizi girin.</p>
-            </div>
-
-            <form id="girisFormu" class="space-y-5">
+        <!-- Giriş Kartı -->
+        <div class="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <form id="girisFormu" class="space-y-4">
                 <input type="hidden" name="girisFormu" value="1">
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">E-Posta Adresi</label>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">E-Posta</label>
                     <div class="relative">
-                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">
                             <i class="ti ti-mail text-base"></i>
                         </span>
-                        <input type="email" name="Email" required autocomplete="email" placeholder="admin@domain.com"
-                               class="w-full rounded-2xl border border-slate-700/80 bg-slate-950/60 py-3 pl-10 pr-4 text-sm font-medium text-white placeholder-slate-500 transition focus:border-emerald-500 focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-emerald-500/20">
+                        <input type="email" name="Email" required autocomplete="email" placeholder="ornek@alanadi.com"
+                               class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm font-medium text-slate-900 placeholder-slate-400 transition focus:border-slate-400 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800/80 dark:text-white dark:placeholder-slate-500 dark:focus:border-slate-600">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Şifre</label>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Şifre</label>
                     <div class="relative">
-                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">
                             <i class="ti ti-lock text-base"></i>
                         </span>
                         <input type="password" id="loginPassword" name="Password" required autocomplete="current-password" placeholder="••••••••"
-                               class="w-full rounded-2xl border border-slate-700/80 bg-slate-950/60 py-3 pl-10 pr-10 text-sm font-medium text-white placeholder-slate-500 transition focus:border-emerald-500 focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-emerald-500/20">
-                        <button type="button" id="toggleLoginPass" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-white transition">
+                               class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-10 text-sm font-medium text-slate-900 placeholder-slate-400 transition focus:border-slate-400 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800/80 dark:text-white dark:placeholder-slate-500 dark:focus:border-slate-600">
+                        <button type="button" id="toggleLoginPass" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
                             <i class="ti ti-eye text-base"></i>
                         </button>
                     </div>
@@ -121,18 +70,17 @@ if(isset($_POST['girisFormu']))
 
                 <div class="pt-2">
                     <button type="submit" id="btnGiris"
-                            class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-400 hover:shadow-emerald-500/40 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-emerald-400">
-                        <i class="ti ti-login text-base"></i>
-                        <span>Sisteme Giriş Yap</span>
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-slate-800 active:scale-[0.99] dark:bg-emerald-600 dark:text-white dark:hover:bg-emerald-500">
+                        <i class="ti ti-arrow-right text-base"></i>
+                        <span>Giriş Yap</span>
                     </button>
                 </div>
             </form>
-
-            <div class="mt-8 text-center text-[11px] text-slate-500">
-                Ultra Finans Kişisel Yönetim Platformu
-            </div>
         </div>
 
+        <div class="mt-6 text-center text-xs text-slate-400 dark:text-slate-600">
+            &copy; <?= date("Y") ?> Ultra Finans
+        </div>
     </div>
 
     <?php include("scripts.php"); ?>
