@@ -3,7 +3,6 @@ include("fonksiyonlar.php");
 
 $stats = apiRequest('/istatistikler', 'GET', [], $_SESSION['Api_Token']);
 if (($stats['code'] ?? 500) !== 200) {
-    // Fallback: keep the UI alive.
     $stats = ["code" => 500, "data" => []];
 }
 
@@ -15,6 +14,7 @@ $net = (float)($data['net'] ?? 0);
 $savingsRate = (float)($data['savings_rate'] ?? 0);
 
 $maxIncome = $data['max_income'] ?? null;
+$maxExpense = $data['max_expense'] ?? null;
 
 $topIn = $data['top_income_categories'] ?? [];
 $topOut = $data['top_expense_categories'] ?? [];
@@ -43,214 +43,167 @@ if (is_array($monthly) && count($monthly) > 0) {
         }
     }
 }
-
 ?>
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Finans Nabzı</title>
-    <link href="https://fonts.googleapis.com/css?family=Manrope:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = { theme: { extend: { fontFamily: { sans: ["Manrope", "ui-sans-serif", "system-ui", "Segoe UI", "Arial"] } } } }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <style>
-      body { font-family: Manrope, ui-sans-serif, system-ui, Segoe UI, Arial, sans-serif; }
-      .app-bg {
-        background:
-          radial-gradient(900px 400px at 20% 0%, rgba(15, 23, 42, .08), transparent 60%),
-          radial-gradient(900px 400px at 80% 10%, rgba(2, 132, 199, .10), transparent 55%),
-          linear-gradient(#f8fafc, #f8fafc);
-      }
-    </style>
+    <title>Finans Nabzı - Ultra Finans</title>
+    <?php include("head.php"); ?>
 </head>
-<body class="app-bg text-slate-900" id="top">
-    <div class="min-h-screen lg:pl-64 flex flex-col">
-        <?php include("menu.php"); ?>
-        <?php include("ustmenu.php"); ?>
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100" id="top">
+<div class="min-h-screen lg:pl-64 flex flex-col">
+    <?php include("menu.php"); ?>
+    <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8">
-            <div class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                <div class="flex flex-wrap items-start justify-between gap-4">
+    <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+
+        <!-- Başlık -->
+        <div>
+            <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+                <i class="ti ti-wave-sine text-indigo-600 dark:text-indigo-400"></i>
+                <span>Finans Nabzı</span>
+            </h1>
+            <p class="mt-0.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                Verilerinizden derlenen tasarruf oranları, bütçe dengesi ve finansal trendler.
+            </p>
+        </div>
+
+        <!-- Üst KPI Kartları -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center justify-between gap-3">
                     <div>
-                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Analiz</div>
-                        <div class="mt-1 text-2xl font-extrabold tracking-tight">Finans Nabzı</div>
-                        <div class="mt-1 text-sm text-slate-600">Elindeki verilerden çıkarılabilen "vay be" istatistikleri.</div>
+                        <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Toplam Gelir</div>
+                        <div class="mt-1 text-2xl font-black tabular-nums text-emerald-600 dark:text-emerald-400"><?php echo paraSpan($totalIncome); ?></div>
                     </div>
+                    <div class="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                        <i class="ti ti-arrow-down-left text-xl"></i>
+                    </div>
+                </div>
+            </div>
 
-                    <div class="flex flex-wrap gap-3">
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Gelir</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums text-emerald-700"><?php echo paraSpan($totalIncome); ?></div>
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Toplam Gider</div>
+                        <div class="mt-1 text-2xl font-black tabular-nums text-rose-600 dark:text-rose-400"><?php echo paraSpan($totalExpense); ?></div>
+                    </div>
+                    <div class="grid h-11 w-11 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+                        <i class="ti ti-arrow-up-right text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Net Birikim</div>
+                        <div class="mt-1 text-2xl font-black tabular-nums <?php echo ($net >= 0) ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'; ?>"><?php echo paraSpan($net); ?></div>
+                    </div>
+                    <div class="grid h-11 w-11 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
+                        <i class="ti ti-wallet text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Tasarruf Oranı</div>
+                        <div class="mt-1 text-2xl font-black tabular-nums text-slate-900 dark:text-white"><?php echo number_format($savingsRate * 100, 1, ',', '.'); ?>%</div>
+                    </div>
+                    <div class="grid h-11 w-11 place-items-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
+                        <i class="ti ti-percentage text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Öne Çıkan Tespitler: En Masraflı Gün & En Bereketli Ay -->
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-start gap-4">
+                    <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+                        <i class="ti ti-calendar-event text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Haftanın En Masraflı Günü</div>
+                        <div class="mt-1 text-xl font-black text-slate-900 dark:text-white">
+                            <?php echo $worstDay ? dowName($worstDay['dow']) : 'Yeterli veri yok'; ?>
                         </div>
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Gider</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($totalExpense); ?></div>
-                        </div>
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Net</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo ($net >= 0) ? 'text-emerald-700' : 'text-rose-700'; ?>"><?php echo paraSpan($net); ?></div>
-                        </div>
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Tasarruf Oranı</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums text-slate-900"><?php echo number_format($savingsRate * 100, 1, ',', '.'); ?>%</div>
+                        <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            Bu günde toplam harcama: <strong class="font-bold text-rose-600 dark:text-rose-400"><?php echo $worstDay ? paraSpan($worstDay['Total']) : '-'; ?></strong>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Rekor</div>
-                            <div class="mt-1 text-sm font-semibold text-slate-900">En büyük tek seferlik hareketler</div>
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-start gap-4">
+                    <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                        <i class="ti ti-sparkles text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">En Bereketli Ay</div>
+                        <div class="mt-1 text-xl font-black text-slate-900 dark:text-white">
+                            <?php echo $bestMonth ? htmlspecialchars($bestMonth['ym'], ENT_QUOTES, 'UTF-8') : 'Yeterli veri yok'; ?>
                         </div>
-                        <div class="grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                            <i class="ti ti-trophy"></i>
+                        <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            Net artı bakiye: <strong class="font-bold text-emerald-600 dark:text-emerald-400"><?php echo $bestMonth ? paraSpan($bestMonth['net']) : '-'; ?></strong>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                            <div class="flex items-center justify-between">
-                                <div class="text-xs font-semibold uppercase tracking-widest text-emerald-700">En büyük gelir</div>
-                                <i class="ti ti-arrow-up-right text-emerald-700"></i>
-                            </div>
-                            <?php if ($maxIncome) { ?>
-                                <div class="mt-2 text-sm font-extrabold tabular-nums text-slate-900"><?php echo paraSpan($maxIncome['Amount'] ?? 0, ["date" => !empty($maxIncome['Date']) ? date("Y-m-d", strtotime((string)$maxIncome['Date'])) : null, "context" => "movement"]); ?></div>
-                                <div class="mt-1 text-sm font-semibold text-slate-900 truncate" title="<?php echo htmlspecialchars($maxIncome['Title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($maxIncome['Title'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
-                                <div class="mt-1 text-xs text-slate-500 tabular-nums"><?php echo htmlspecialchars($maxIncome['Date'] ?? '', ENT_QUOTES, 'UTF-8'); ?> | <?php echo htmlspecialchars($maxIncome['CategoryName'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
-                            <?php } else { ?>
-                                <div class="mt-2 text-sm text-slate-600">Veri yok.</div>
-                            <?php } ?>
-                        </div>
-
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                            <div class="flex items-center justify-between">
-                                <div class="text-xs font-semibold uppercase tracking-widest text-slate-700">En iyi ay</div>
-                                <i class="ti ti-chart-line text-slate-700"></i>
-                            </div>
-                            <?php if ($bestMonth) { ?>
-                                <div class="mt-2 text-sm font-extrabold tabular-nums text-slate-900"><?php echo htmlspecialchars($bestMonth['ym'] ?? '', ENT_QUOTES, 'UTF-8'); ?></div>
-                                <div class="mt-1 text-2xl font-extrabold tabular-nums <?php echo ((float)($bestMonth['net'] ?? 0) >= 0) ? 'text-emerald-700' : 'text-rose-700'; ?>"><?php echo paraSpan($bestMonth['net'] ?? 0); ?></div>
-                                <div class="mt-2 text-xs text-slate-500 tabular-nums">Gelir: <?php echo paraSpan($bestMonth['income'] ?? 0); ?> | Gider: <?php echo paraSpan($bestMonth['expense'] ?? 0); ?></div>
-                            <?php } else { ?>
-                                <div class="mt-2 text-sm text-slate-600">Veri yok.</div>
-                            <?php } ?>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Davranış raporları Para Davranışları sayfasına taşındı. -->
+        <!-- Aylık Net Akış Tablosu -->
+        <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                <div>
+                    <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Son 12 Ayın Nakit Akış Trendi</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Aylık bazda gelir, gider ve net tasarruf dengesi.</p>
+                </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Gider ritmi</div>
-                            <div class="mt-1 text-sm font-semibold text-slate-900">Hangi gün daha çok harcanıyor?</div>
-                        </div>
-                        <div class="grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                            <i class="ti ti-calendar-stats"></i>
-                        </div>
-                    </div>
-
-                    <?php if ($worstDay) { ?>
-                        <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-                            <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">En pahalı gün</div>
-                            <div class="mt-1 text-2xl font-extrabold tabular-nums text-slate-900"><?php echo dowName($worstDay['dow'] ?? 0); ?></div>
-                            <div class="mt-1 text-sm text-slate-600">Toplam: <span class="font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($worstDay['Total'] ?? 0); ?></span></div>
-                        </div>
-                    <?php } else { ?>
-                        <div class="mt-4 text-sm text-slate-600">Veri yok.</div>
-                    <?php } ?>
-
-                    <div class="mt-4 grid grid-cols-1 gap-2">
-                        <?php foreach ($weekday as $w) { ?>
-                            <?php
-                                $val = (float)($w['Total'] ?? 0);
-                                $pctw = ($totalExpense > 0) ? min(100.0, ($val / $totalExpense) * 100.0) : 0.0;
-                            ?>
-                            <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                                <div class="w-24 text-xs font-semibold text-slate-700"><?php echo dowName($w['dow'] ?? 0); ?></div>
-                                <div class="flex-1">
-                                    <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                                        <div class="h-1.5 rounded-full bg-rose-600" style="width: <?php echo number_format($pctw, 2, '.', ''); ?>%"></div>
-                                    </div>
-                                </div>
-                                <div class="w-28 text-right text-xs font-extrabold tabular-nums text-slate-900"><?php echo paraSpan($val); ?></div>
-                            </div>
-                        <?php } ?>
-                    </div>
-                </section>
-
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Trend</div>
-                            <div class="mt-1 text-sm font-semibold text-slate-900">Aylık net durum</div>
-                        </div>
-                        <div class="grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                            <i class="ti ti-chart-line"></i>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <canvas id="monthlyNet" height="220"></canvas>
-                    </div>
-                    <div class="mt-3 flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-700">
-                        <span class="inline-flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-emerald-600"></span>Gelir (yeşil)</span>
-                        <span class="inline-flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-rose-600"></span>Gider (kırmızı)</span>
-                        <span class="inline-flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-slate-900"></span>Net (siyah)</span>
-                    </div>
-                </section>
+            <div class="mt-4 overflow-x-auto rounded-2xl border border-slate-100 bg-slate-50/50 p-2 dark:border-slate-800 dark:bg-slate-950/50">
+                <table class="min-w-full text-xs" cellspacing="0">
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
+                            <th class="py-3 px-4 text-left font-bold">Dönem</th>
+                            <th class="py-3 px-4 text-right font-bold">Gelir</th>
+                            <th class="py-3 px-4 text-right font-bold">Gider</th>
+                            <th class="py-3 px-4 text-right font-bold">Net Bakiye</th>
+                            <th class="py-3 px-4 text-right font-bold">Tasarruf %</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-semibold">
+                        <?php if (empty($monthly)) { ?>
+                            <tr><td colspan="5" class="py-4 text-center text-slate-400">Veri bulunamadı.</td></tr>
+                        <?php } else { 
+                            foreach($monthly as $m) {
+                                $inc = (float)($m['income'] ?? 0);
+                                $exp = (float)($m['expense'] ?? 0);
+                                $mNet = $inc - $exp;
+                                $rate = ($inc > 0) ? round(($mNet / $inc) * 100, 1) : 0;
+                        ?>
+                            <tr class="hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors">
+                                <td class="py-3 px-4 font-bold text-slate-900 dark:text-white"><?= htmlspecialchars((string)($m['ym'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                                <td class="py-3 px-4 text-right tabular-nums text-emerald-600 dark:text-emerald-400"><?= paraSpan($inc) ?></td>
+                                <td class="py-3 px-4 text-right tabular-nums text-rose-600 dark:text-rose-400"><?= paraSpan($exp) ?></td>
+                                <td class="py-3 px-4 text-right tabular-nums font-extrabold <?= ($mNet >= 0) ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' ?>"><?= paraSpan($mNet) ?></td>
+                                <td class="py-3 px-4 text-right tabular-nums font-bold <?= ($rate >= 0) ? 'text-slate-700 dark:text-slate-300' : 'text-rose-500' ?>"><?= $rate ?>%</td>
+                            </tr>
+                        <?php } } ?>
+                    </tbody>
+                </table>
             </div>
-        </main>
+        </section>
 
-        <?php include("footer.php"); ?>
-    </div>
+    </main>
 
-    <?php include("scripts.php"); ?>
+    <?php include("footer.php"); ?>
+</div>
 
-    <script>
-    (function () {
-        var el = document.getElementById('monthlyNet');
-        if (!el) return;
-
-        var rows = <?php echo json_encode(array_reverse($monthly), JSON_UNESCAPED_UNICODE); ?>;
-        var labels = rows.map(r => r.ym);
-        var income = rows.map(r => Number(r.income || 0));
-        var expense = rows.map(r => Number(r.expense || 0));
-        var net = rows.map(r => Number(r.income || 0) - Number(r.expense || 0));
-
-        new Chart(el.getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: 'Net', data: net, borderColor: 'rgba(15, 23, 42, 1)', backgroundColor: 'rgba(15, 23, 42, .06)', pointRadius: 2, fill: true, lineTension: .25 },
-                    { label: 'Gelir', data: income, borderColor: 'rgba(5, 150, 105, 1)', backgroundColor: 'rgba(5, 150, 105, .05)', pointRadius: 0, fill: false, lineTension: .25 },
-                    { label: 'Gider', data: expense, borderColor: 'rgba(225, 29, 72, 1)', backgroundColor: 'rgba(225, 29, 72, .05)', pointRadius: 0, fill: false, lineTension: .25 }
-                ]
-            },
-            options: {
-                legend: { display: false },
-                scales: {
-                    xAxes: [{ gridLines: { display: false } }],
-                    yAxes: [{ ticks: { callback: function(v) { return v + ' ₺'; } } }]
-                },
-                tooltips: { callbacks: { label: function(t, d) { return d.datasets[t.datasetIndex].label + ': ' + t.yLabel + ' ₺'; } } }
-            }
-        });
-    })();
-    </script>
+<?php include("scripts.php"); ?>
 </body>
 </html>
-
-

@@ -48,7 +48,7 @@ if (isset($_GET["datatable"])) {
 
 	$data = [];
 	foreach ($list as $row) {
-		$date = isset($row["Date"]) ? date("Y-m-d H:i", strtotime($row["Date"])) : "";
+		$date = isset($row["Date"]) ? formatTarihSaat($row["Date"]) : "";
 		$catName = $row["CategoryName"] ?? "";
 		$catId = $row["CategoryId"] ?? "";
 		$title = $row["Title"] ?? "";
@@ -62,45 +62,45 @@ if (isset($_GET["datatable"])) {
 			$id = $row["AssetsId"] ?? "";
 			$enc = !empty($id) ? encrypt($id) : "";
 			$actions =
-				'<a class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50" href="hareketduzenle.php?type=gelir&ID='.htmlspecialchars((string)$id, ENT_QUOTES, "UTF-8").'" title="Düzenle"><i class="ti ti-edit"></i></a>'.
+				'<a class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700" href="hareketduzenle.php?type=gelir&ID='.htmlspecialchars((string)$id, ENT_QUOTES, "UTF-8").'" title="Düzenle"><i class="ti ti-edit"></i></a>'.
 				'<button class="deleteAssets ml-1 inline-flex items-center justify-center rounded-xl bg-rose-600 px-3 py-2 text-white hover:bg-rose-700" data-assetsid="'.htmlspecialchars((string)$enc, ENT_QUOTES, "UTF-8").'" title="Sil"><i class="ti ti-trash"></i></button>';
 			$catEsc = htmlspecialchars((string)$catName, ENT_QUOTES, "UTF-8");
-			$catLink = '<a class="font-semibold text-slate-900 hover:underline" href="hareketler.php?type=1&CategoryId='.htmlspecialchars((string)$catId, ENT_QUOTES, "UTF-8").'"><span class="cell-clip" title="'.$catEsc.'">'.$catEsc.'</span></a>';
+			$catLink = '<a class="font-semibold text-slate-900 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline" href="hareketler.php?type=1&CategoryId='.htmlspecialchars((string)$catId, ENT_QUOTES, "UTF-8").'"><span class="cell-clip" title="'.$catEsc.'">'.$catEsc.'</span></a>';
 		} else {
 			$id = $row["BillsId"] ?? "";
 			$enc = !empty($id) ? encrypt($id) : "";
 			$actions =
-				'<a class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50" href="hareketduzenle.php?type=gider&ID='.htmlspecialchars((string)$id, ENT_QUOTES, "UTF-8").'" title="Düzenle"><i class="ti ti-edit"></i></a>'.
+				'<a class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700" href="hareketduzenle.php?type=gider&ID='.htmlspecialchars((string)$id, ENT_QUOTES, "UTF-8").'" title="Düzenle"><i class="ti ti-edit"></i></a>'.
 				'<button class="deleteBills ml-1 inline-flex items-center justify-center rounded-xl bg-rose-600 px-3 py-2 text-white hover:bg-rose-700" data-billsid="'.htmlspecialchars((string)$enc, ENT_QUOTES, "UTF-8").'" title="Sil"><i class="ti ti-trash"></i></button>';
 			$catEsc = htmlspecialchars((string)$catName, ENT_QUOTES, "UTF-8");
-			$catLink = '<a class="font-semibold text-slate-900 hover:underline" href="hareketler.php?type=2&CategoryId='.htmlspecialchars((string)$catId, ENT_QUOTES, "UTF-8").'"><span class="cell-clip" title="'.$catEsc.'">'.$catEsc.'</span></a>';
+			$catLink = '<a class="font-semibold text-slate-900 dark:text-slate-100 hover:text-rose-600 dark:hover:text-rose-400 hover:underline" href="hareketler.php?type=2&CategoryId='.htmlspecialchars((string)$catId, ENT_QUOTES, "UTF-8").'"><span class="cell-clip" title="'.$catEsc.'">'.$catEsc.'</span></a>';
 		}
 
 		$titleHtml = '<div class="flex items-center gap-2 min-w-0">';
 		if ($isPending) {
 			if ($type == "1") {
-				$titleHtml .= '<span class="inline-flex items-center text-emerald-600" aria-label="durum"><i class="ti ti-hourglass"></i></span>';
+				$titleHtml .= '<span class="inline-flex items-center text-emerald-600 dark:text-emerald-400" aria-label="durum"><i class="ti ti-hourglass"></i></span>';
 			} else {
-				$titleHtml .= '<span class="inline-flex items-center text-rose-600" aria-label="durum"><i class="ti ti-hourglass"></i></span>';
+				$titleHtml .= '<span class="inline-flex items-center text-rose-600 dark:text-rose-400" aria-label="durum"><i class="ti ti-hourglass"></i></span>';
 			}
 		}
-		$titleHtml .= '<div class="cell-clip min-w-0 flex-1 font-semibold" title="'.htmlspecialchars((string)$title, ENT_QUOTES, "UTF-8").'">'.htmlspecialchars((string)$title, ENT_QUOTES, "UTF-8").'</div>';
+		$titleHtml .= '<div class="cell-clip min-w-0 flex-1 font-semibold text-slate-900 dark:text-slate-100" title="'.htmlspecialchars((string)$title, ENT_QUOTES, "UTF-8").'">'.htmlspecialchars((string)$title, ENT_QUOTES, "UTF-8").'</div>';
 		$accName = $row["AccountName"] ?? "";
 		if (!empty($accName)) {
-			$titleHtml .= '<span class="inline-flex items-center gap-1 whitespace-nowrap rounded-lg border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700" title="Hesap / Kart: '.htmlspecialchars((string)$accName, ENT_QUOTES, "UTF-8").'">'.
-				'<i class="ti ti-credit-card text-slate-400"></i>'.htmlspecialchars((string)$accName, ENT_QUOTES, "UTF-8").'</span>';
+			$titleHtml .= '<span class="inline-flex items-center gap-1 whitespace-nowrap rounded-lg border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" title="Hesap / Kart: '.htmlspecialchars((string)$accName, ENT_QUOTES, "UTF-8").'">'.
+				'<i class="ti ti-credit-card text-slate-400 dark:text-slate-500"></i>'.htmlspecialchars((string)$accName, ENT_QUOTES, "UTF-8").'</span>';
 		}
 		if ($photoCount > 0) {
-			$titleHtml .= '<span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-extrabold text-slate-700" title="Ekli dosya var">'.
-				'<i class="ti ti-paperclip text-slate-400"></i>Ek'.($photoCount > 1 ? ' ('.$photoCount.')' : '').'</span>';
+			$titleHtml .= '<span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-extrabold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" title="Ekli dosya var">'.
+				'<i class="ti ti-paperclip text-slate-400 dark:text-slate-500"></i>Ek'.($photoCount > 1 ? ' ('.$photoCount.')' : '').'</span>';
 		}
 		$titleHtml .= '</div>';
 
 		$data[] = [
-			'<div class="whitespace-nowrap tabular-nums">'.$date.'</div>',
+			'<div class="whitespace-nowrap tabular-nums text-slate-700 dark:text-slate-300">'.$date.'</div>',
 			$catLink,
 			$titleHtml,
-			'<div class="cell-clip text-slate-600" title="'.htmlspecialchars((string)$desc, ENT_QUOTES, "UTF-8").'">'.htmlspecialchars((string)$desc, ENT_QUOTES, "UTF-8").'</div>',
+			'<div class="cell-clip text-slate-600 dark:text-slate-400" title="'.htmlspecialchars((string)$desc, ENT_QUOTES, "UTF-8").'">'.htmlspecialchars((string)$desc, ENT_QUOTES, "UTF-8").'</div>',
 			'<div class="text-right font-extrabold">'.$amount.'</div>',
 			'<div class="text-center">'.$actions.'</div>',
 		];
@@ -166,50 +166,23 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title><?php if($type == 1) { ?>Gelir Hareketleri<?php } else { ?>Gider Hareketleri<?php } ?><?php if ($selectedCategoryName !== "") { ?> (<?php echo htmlspecialchars($selectedCategoryName, ENT_QUOTES, "UTF-8"); ?>)<?php } ?></title>
-    
-    <link href="https://fonts.googleapis.com/css?family=Manrope:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = { theme: { extend: { fontFamily: { sans: ["Manrope", "ui-sans-serif", "system-ui", "Segoe UI", "Arial"] } } } }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <title><?php if($type == 1) { ?>Gelir Hareketleri<?php } else { ?>Gider Hareketleri<?php } ?><?php if ($selectedCategoryName !== "") { ?> (<?php echo htmlspecialchars($selectedCategoryName, ENT_QUOTES, "UTF-8"); ?>)<?php } ?> - Ultra Finans</title>
+    <?php include("head.php"); ?>
     <style>
-      body { font-family: Manrope, ui-sans-serif, system-ui, Segoe UI, Arial, sans-serif; }
-      .app-bg {
-        background:
-          radial-gradient(900px 400px at 20% 0%, rgba(15, 23, 42, .08), transparent 60%),
-          radial-gradient(900px 400px at 80% 10%, rgba(2, 132, 199, .10), transparent 55%),
-          linear-gradient(#f8fafc, #f8fafc);
-      }
-      /* Light touch to make DataTables blend with Tailwind. */
       table.dataTable { border-collapse: collapse !important; table-layout: fixed !important; width: 100% !important; }
       table.dataTable thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: rgb(100 116 139); background: rgb(248 250 252); white-space: nowrap; }
-      table.dataTable thead th, table.dataTable tbody td { padding: 5px 8px !important; }
+      table.dataTable thead th, table.dataTable tbody td { padding: 8px 10px !important; }
       table.dataTable tbody td {
         font-size: 12px;
-        line-height: 1.15;
+        line-height: 1.2;
         border-top: 1px solid rgb(241 245 249);
         vertical-align: middle;
         white-space: nowrap;
       }
       table.dataTable tbody tr:hover td { background: rgb(248 250 252); }
-      /* Keep dates on one line; allow horizontal scroll when needed. */
       #gelirler td:first-child, #giderler td:first-child { white-space: nowrap; }
       .cell-clip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .cell-clip-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-      .dataTables_wrapper .dataTables_filter input { border: 1px solid rgb(226 232 240); border-radius: 10px; padding: 6px 8px; font-size: 12px; }
-      .dataTables_wrapper .dataTables_length select { border: 1px solid rgb(226 232 240); border-radius: 10px; padding: 4px 8px; font-size: 12px; }
-      .dataTables_wrapper .dataTables_info { color: rgb(100 116 139); font-size: 12px; padding-top: 10px; }
-      .dataTables_wrapper .dataTables_paginate { padding-top: 10px; }
-      .dataTables_wrapper .dataTables_paginate .paginate_button { border: 1px solid rgb(226 232 240) !important; border-radius: 12px; padding: 6px 10px !important; margin-left: 6px; }
-      .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: rgb(15 23 42) !important; color: #fff !important; border-color: rgb(15 23 42) !important; }
-      .dataTables_wrapper .dataTables_paginate .paginate_button:hover { background: rgb(241 245 249) !important; color: rgb(15 23 42) !important; }
-
-      /* Mobile: DataTables controls should stack and avoid overflowing the viewport. */
       @media (max-width: 640px) {
         .dataTables_wrapper .dataTables_length,
         .dataTables_wrapper .dataTables_filter,
@@ -217,64 +190,77 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
         .dataTables_wrapper .dataTables_paginate { float: none !important; text-align: left !important; }
         .dataTables_wrapper .dataTables_filter { margin-top: 10px; }
         .dataTables_wrapper .dataTables_filter input { width: 100%; max-width: 100%; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button { padding: 6px 8px !important; margin-left: 4px; }
       }
     </style>
 </head>
-<body class="app-bg text-slate-900" id="top">
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100" id="top">
     <div class="min-h-screen lg:pl-64 flex flex-col">
         <?php include("menu.php"); ?>
         <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8">
-            <div class="mb-6">
-                <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Hareketler</div>
-                <div class="mt-1 text-2xl font-extrabold tracking-tight">
-                    <?php if($type == 1) { ?>Gelir Hareketleri<?php } else { ?>Gider Hareketleri<?php } ?><?php if ($selectedCategoryName !== "") { ?> <span class="text-slate-500">(<?php echo htmlspecialchars($selectedCategoryName, ENT_QUOTES, "UTF-8"); ?>)</span><?php } ?>
+        <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="ti <?= ($type == 1) ? 'ti-arrow-down-left text-emerald-600 dark:text-emerald-400' : 'ti-arrow-up-right text-rose-600 dark:text-rose-400' ?>"></i>
+                        <span><?php if($type == 1) { ?>Gelir Hareketleri<?php } else { ?>Gider Hareketleri<?php } ?></span>
+                        <?php if ($selectedCategoryName !== "") { ?>
+                            <span class="text-xs font-semibold rounded-lg bg-slate-200/80 px-2 py-0.5 text-slate-700 dark:bg-slate-800 dark:text-slate-300"><?= htmlspecialchars($selectedCategoryName, ENT_QUOTES, "UTF-8") ?></span>
+                        <?php } ?>
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                        Kaydedilmiş tüm <?= ($type == 1) ? 'gelir' : 'gider' ?> işlemlerinizi arayın, filtreleyin ve yönetin.
+                    </p>
+                </div>
+                <div>
+                    <a href="hareket.php?type=<?= ($type == 1) ? 'gelir' : 'gider' ?>" class="inline-flex items-center gap-2 rounded-xl <?= ($type == 1) ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-rose-600 hover:bg-rose-500' ?> px-4 py-2.5 text-xs font-bold text-white shadow-xs transition">
+                        <i class="ti ti-plus text-sm"></i>
+                        <span>Yeni <?= ($type == 1) ? 'Gelir' : 'Gider' ?> Ekle</span>
+                    </a>
                 </div>
             </div>
 
             <?php if($type == 1) { ?>
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div class="flex items-center justify-between gap-3">
                             <div>
-                                <div class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Toplam Gelir</div>
-                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo paraSpan($gelirler["data"]["total"]); ?></div>
+                                <div class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Toplam Gelir</div>
+                                <div class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white"><?php echo paraSpan($gelirler["data"]["total"]); ?></div>
                             </div>
-                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-700">
-                                <i class="ti ti-currency-lira"></i>
+                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                                <i class="ti ti-arrow-down-left text-xl"></i>
                             </div>
                         </div>
                     </section>
-                    <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
+                    <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div class="flex items-center justify-between gap-3">
                             <div>
-                                <div class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Toplam Gelir (Enflasyon)</div>
-                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo paraSpan($gelirler["data"]["enflasyon_total"]); ?></div>
+                                <div class="text-xs font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">Toplam Gelir (Enflasyon)</div>
+                                <div class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white"><?php echo paraSpan($gelirler["data"]["enflasyon_total"]); ?></div>
                             </div>
-                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-sky-50 text-sky-700">
-                                <i class="ti ti-chart-line"></i>
+                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-sky-50 text-sky-600 dark:bg-sky-950/40 dark:text-sky-400">
+                                <i class="ti ti-chart-line text-xl"></i>
                             </div>
                         </div>
                     </section>
                 </div>
 
-                <section class="mt-6 rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
+                <section class="mt-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Liste (Gelirler)</div>
-                            <div class="mt-1 text-sm text-slate-600"><?php echo (int)($gelirler["data"]["recordsFiltered"] ?? 0); ?> hareket</div>
+                            <div class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">İşlem Listesi</div>
+                            <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400"><?php echo (int)($gelirler["data"]["recordsFiltered"] ?? 0); ?> hareket listeleniyor</div>
                         </div>
                         <?php if (!empty($_GET["CategoryId"])) { ?>
-                            <a href="hareketler.php?type=1" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                                <i class="ti ti-x text-slate-400"></i>Filtreyi temizle
+                            <a href="hareketler.php?type=1" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200">
+                                <i class="ti ti-x text-xs"></i><span>Filtreyi Temizle</span>
                             </a>
                         <?php } ?>
                     </div>
 
-                    <div class="mt-4 -mx-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 sm:mx-0 sm:p-3">
-                        <table class="min-w-full text-sm" id="gelirler" width="100%" cellspacing="0">
+                    <div class="mt-4 overflow-x-auto rounded-2xl border border-slate-100 bg-slate-50/50 p-2 sm:p-3 dark:border-slate-800 dark:bg-slate-950/50">
+                        <table class="min-w-full text-xs" id="gelirler" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
                                     <th>Tarih</th>
@@ -290,46 +276,46 @@ $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
                     </div>
                 </section>
             <?php } else { ?>
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div class="flex items-center justify-between gap-3">
                             <div>
-                                <div class="text-xs font-semibold uppercase tracking-widest text-rose-700">Toplam Gider</div>
-                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo paraSpan($giderler["data"]["total"]); ?></div>
+                                <div class="text-xs font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">Toplam Gider</div>
+                                <div class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white"><?php echo paraSpan($giderler["data"]["total"]); ?></div>
                             </div>
-                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-rose-50 text-rose-700">
-                                <i class="ti ti-currency-lira"></i>
+                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+                                <i class="ti ti-arrow-up-right text-xl"></i>
                             </div>
                         </div>
                     </section>
-                    <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
+                    <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div class="flex items-center justify-between gap-3">
                             <div>
-                                <div class="text-xs font-semibold uppercase tracking-widest text-rose-700">Toplam Gider (Enflasyon)</div>
-                                <div class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900"><?php echo paraSpan($giderler["data"]["enflasyon_total"]); ?></div>
+                                <div class="text-xs font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">Toplam Gider (Enflasyon)</div>
+                                <div class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white"><?php echo paraSpan($giderler["data"]["enflasyon_total"]); ?></div>
                             </div>
-                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-sky-50 text-sky-700">
-                                <i class="ti ti-chart-line"></i>
+                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-sky-50 text-sky-600 dark:bg-sky-950/40 dark:text-sky-400">
+                                <i class="ti ti-chart-line text-xl"></i>
                             </div>
                         </div>
                     </section>
                 </div>
 
-                <section class="mt-6 rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
+                <section class="mt-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-rose-700">Liste (Giderler)</div>
-                            <div class="mt-1 text-sm text-slate-600"><?php echo (int)($giderler["data"]["recordsFiltered"] ?? 0); ?> hareket</div>
+                            <div class="text-xs font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">İşlem Listesi</div>
+                            <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400"><?php echo (int)($giderler["data"]["recordsFiltered"] ?? 0); ?> hareket listeleniyor</div>
                         </div>
                         <?php if (!empty($_GET["CategoryId"])) { ?>
-                            <a href="hareketler.php?type=2" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                                <i class="ti ti-x text-slate-400"></i>Filtreyi temizle
+                            <a href="hareketler.php?type=2" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200">
+                                <i class="ti ti-x text-xs"></i><span>Filtreyi Temizle</span>
                             </a>
                         <?php } ?>
                     </div>
 
-                    <div class="mt-4 -mx-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 sm:mx-0 sm:p-3">
-                        <table class="min-w-full text-sm" id="giderler" width="100%" cellspacing="0">
+                    <div class="mt-4 overflow-x-auto rounded-2xl border border-slate-100 bg-slate-50/50 p-2 sm:p-3 dark:border-slate-800 dark:bg-slate-950/50">
+                        <table class="min-w-full text-xs" id="giderler" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
                                     <th>Tarih</th>

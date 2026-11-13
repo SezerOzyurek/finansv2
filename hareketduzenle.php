@@ -100,68 +100,62 @@ if(isset($_POST['giderGuncelle']))
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Hareket Düzenle</title>
-    <link href="https://fonts.googleapis.com/css?family=Manrope:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = { theme: { extend: { fontFamily: { sans: ["Manrope", "ui-sans-serif", "system-ui", "Segoe UI", "Arial"] } } } }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <style>
-      body { font-family: Manrope, ui-sans-serif, system-ui, Segoe UI, Arial, sans-serif; }
-      .app-bg {
-        background:
-          radial-gradient(900px 400px at 20% 0%, rgba(15, 23, 42, .08), transparent 60%),
-          radial-gradient(900px 400px at 80% 10%, rgba(2, 132, 199, .10), transparent 55%),
-          linear-gradient(#f8fafc, #f8fafc);
-      }
-    </style>
+    <title>Hareket Düzenle - Ultra Finans</title>
+    <?php include("head.php"); ?>
 </head>
-<body class="app-bg text-slate-900" id="top">
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100" id="top">
     <div class="min-h-screen lg:pl-64 flex flex-col">
         <?php include("menu.php"); ?>
         <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8">
-            <div class="mb-6">
-                <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">İşlemler</div>
-                <div class="mt-1 text-2xl font-extrabold tracking-tight">Hareket Düzenle</div>
+        <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="ti ti-edit text-emerald-600 dark:text-emerald-400"></i>
+                        <span>İşlem Düzenleme</span>
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                        Seçilen hareketin başlık, tutar, tarih veya kategori detaylarını güncelleyin.
+                    </p>
+                </div>
+                <a href="hareketler.php?type=<?= ($hareketturu === 'gelir') ? '1' : '2' ?>" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+                    Geri Dön
+                </a>
             </div>
 
             <?php if($hareket["code"] == 200 && $hareketturu == "gelir") { ?>
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
+                <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Gelir</div>
-                            <div class="mt-1 text-sm text-slate-600">Gelir kaydını güncelle veya sil</div>
+                            <div class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Gelir Kaydı</div>
+                            <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Kayıt detaylarını güncelleyin veya silin</div>
                         </div>
-                        <button class="deleteAssets inline-flex items-center gap-2 rounded-2xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white shadow hover:bg-rose-700"
+                        <button class="deleteAssets inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-rose-500 transition"
                                 data-AssetsId="<?php echo encrypt($hareket["data"]["list"][0]["AssetsId"]); ?>">
-                            <i class="ti ti-trash"></i>
-                            Sil
+                            <i class="ti ti-trash text-sm"></i>
+                            <span>İşlemi Sil</span>
                         </button>
                     </div>
 
                     <form id="gelirForm" class="mt-5 space-y-4">
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Başlık</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Başlık</label>
                                 <input type="text" name="Title" value="<?php echo $hareket["data"]["list"][0]["Title"]; ?>"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-emerald-400">
                             </div>
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Tutar</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Tutar</label>
                                 <input type="number" step="0.01" min="0" name="Amount" value="<?php echo $hareket["data"]["list"][0]["Amount"]; ?>"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-emerald-400">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Kategori</label>
-                                <select name="CategoryId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Kategori</label>
+                                <select name="CategoryId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-emerald-400">
                                     <option value="">Bir kategori seçin</option>
                                     <?php foreach($gelirKategorileri["data"]["list"] as $gelirKategorisi) { ?>
                                         <option value="<?php echo $gelirKategorisi["CategoryId"]; ?>" <?php if($gelirKategorisi["CategoryId"] == $hareket["data"]["list"][0]["CategoryId"]) { ?>selected<?php } ?>>
@@ -171,9 +165,9 @@ if(isset($_POST['giderGuncelle']))
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Tarih</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Tarih</label>
                                 <input type="datetime-local" name="Date" value="<?php echo $hareket["data"]["list"][0]["Date"]; ?>"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-emerald-400">
                             </div>
                         </div>
 
@@ -181,8 +175,8 @@ if(isset($_POST['giderGuncelle']))
                             $currentAccId = $hareket["data"]["list"][0]["AccountId"] ?? null;
                         ?>
                         <div>
-                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Hesap / Kart (Opsiyonel)</label>
-                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Hesap / Kart (Opsiyonel)</label>
+                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-emerald-400">
                                 <option value="">Seçilmedi (Boş)</option>
                                 <?php foreach($hesapList as $h) { ?>
                                     <option value="<?php echo (int)$h["AccountId"]; ?>" <?php if (!empty($currentAccId) && (int)$currentAccId === (int)$h["AccountId"]) { ?>selected<?php } ?>>
@@ -194,9 +188,9 @@ if(isset($_POST['giderGuncelle']))
                         <?php } ?>
 
                         <div>
-                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Açıklama</label>
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Açıklama</label>
                             <textarea rows="3" name="Description"
-                                      class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300"><?php echo $hareket["data"]["list"][0]["Description"]; ?></textarea>
+                                      class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-emerald-400"><?php echo $hareket["data"]["list"][0]["Description"]; ?></textarea>
                         </div>
 
                         <input type="hidden" name="AssetsId" value="<?php echo encrypt($hareket["data"]["list"][0]["AssetsId"]); ?>">
@@ -252,37 +246,37 @@ if(isset($_POST['giderGuncelle']))
             <?php } ?>
 
             <?php if($hareket["code"] == 200 && $hareketturu == "gider") { ?>
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
+                <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                         <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-rose-700">Gider</div>
-                            <div class="mt-1 text-sm text-slate-600">Gider kaydını güncelle veya sil</div>
+                            <div class="text-xs font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">Gider Kaydı</div>
+                            <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Gider kaydını güncelleyin veya silin</div>
                         </div>
-                        <button class="deleteBills inline-flex items-center gap-2 rounded-2xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white shadow hover:bg-rose-700"
+                        <button class="deleteBills inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-rose-500 transition"
                                 data-BillsId="<?php echo encrypt($hareket["data"]["list"][0]["BillsId"]); ?>">
-                            <i class="ti ti-trash"></i>
-                            Sil
+                            <i class="ti ti-trash text-sm"></i>
+                            <span>İşlemi Sil</span>
                         </button>
                     </div>
 
                     <form id="giderForm" class="mt-5 space-y-4">
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Başlık</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Başlık</label>
                                 <input type="text" name="Title" value="<?php echo $hareket["data"]["list"][0]["Title"]; ?>"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-rose-400">
                             </div>
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Tutar</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Tutar</label>
                                 <input type="number" step="0.01" min="0" name="Amount" value="<?php echo $hareket["data"]["list"][0]["Amount"]; ?>"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-rose-400">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Kategori</label>
-                                <select name="CategoryId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Kategori</label>
+                                <select name="CategoryId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-rose-400">
                                     <option value="">Bir kategori seçin</option>
                                     <?php foreach($giderKategorileri["data"]["list"] as $giderKategorisi) { ?>
                                         <option value="<?php echo $giderKategorisi["CategoryId"]; ?>" <?php if($giderKategorisi["CategoryId"] == $hareket["data"]["list"][0]["CategoryId"]) { ?>selected<?php } ?>>
@@ -292,9 +286,9 @@ if(isset($_POST['giderGuncelle']))
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Tarih</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Tarih</label>
                                 <input type="datetime-local" value="<?php echo $hareket["data"]["list"][0]["Date"]; ?>" name="Date"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-rose-400">
                             </div>
                         </div>
 
@@ -302,8 +296,8 @@ if(isset($_POST['giderGuncelle']))
                             $currentAccId = $hareket["data"]["list"][0]["AccountId"] ?? null;
                         ?>
                         <div>
-                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Hesap / Kart (Opsiyonel)</label>
-                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Hesap / Kart (Opsiyonel)</label>
+                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-rose-400">
                                 <option value="">Seçilmedi (Boş)</option>
                                 <?php foreach($hesapList as $h) { ?>
                                     <option value="<?php echo (int)$h["AccountId"]; ?>" <?php if (!empty($currentAccId) && (int)$currentAccId === (int)$h["AccountId"]) { ?>selected<?php } ?>>
@@ -315,9 +309,9 @@ if(isset($_POST['giderGuncelle']))
                         <?php } ?>
 
                         <div>
-                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Açıklama</label>
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Açıklama</label>
                             <textarea rows="3" name="Description"
-                                      class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300"><?php echo $hareket["data"]["list"][0]["Description"]; ?></textarea>
+                                      class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-rose-400"><?php echo $hareket["data"]["list"][0]["Description"]; ?></textarea>
                         </div>
 
                         <input type="hidden" name="BillsId" value="<?php echo encrypt($hareket["data"]["list"][0]["BillsId"]); ?>">

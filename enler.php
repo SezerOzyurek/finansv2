@@ -2,234 +2,306 @@
 include("fonksiyonlar.php");
 
 $stats = apiRequest('/istatistikler', 'GET', [], $_SESSION['Api_Token']);
-$data = ($stats['code'] ?? 500) === 200 ? ($stats['data'] ?? []) : [];
+if (($stats['code'] ?? 500) !== 200) {
+    $stats = ["code" => 500, "data" => []];
+}
 
+$data = $stats['data'] ?? [];
+
+$maxIncome = $data['max_income'] ?? null;
+$maxExpense = $data['max_expense'] ?? null;
 $blackDay = $data['black_day'] ?? null;
 $zenDay = $data['zen_day'] ?? null;
-$maxExpense = $data['max_expense'] ?? null;
-$weird = $data['weird_expenses'] ?? [];
-$impulse = $data['impulse_expenses'] ?? [];
+$topIncomeCats = $data['top_income_categories'] ?? [];
+$topExpenseCats = $data['top_expense_categories'] ?? [];
 $silentEnemy = $data['silent_enemy'] ?? null;
+$monthly = $data['monthly'] ?? [];
 
-function h($s): string { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
-
+$bestMonth = null;
+if (is_array($monthly) && count($monthly) > 0) {
+    foreach ($monthly as $m) {
+        $inc = (float)($m['income'] ?? 0);
+        $exp = (float)($m['expense'] ?? 0);
+        $mNet = $inc - $exp;
+        if ($bestMonth === null || $mNet > (float)($bestMonth['net'] ?? -INF)) {
+            $bestMonth = ["ym" => (string)($m['ym'] ?? ''), "net" => $mNet];
+        }
+    }
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>En'ler ve Şaşırtanlar</title>
-    <link href="https://fonts.googleapis.com/css?family=Manrope:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = { theme: { extend: { fontFamily: { sans: ["Manrope", "ui-sans-serif", "system-ui", "Segoe UI", "Arial"] } } } }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <style>
-      body { font-family: Manrope, ui-sans-serif, system-ui, Segoe UI, Arial, sans-serif; }
-      .app-bg {
-        background:
-          radial-gradient(900px 400px at 20% 0%, rgba(15, 23, 42, .08), transparent 60%),
-          radial-gradient(900px 400px at 80% 10%, rgba(2, 132, 199, .10), transparent 55%),
-          linear-gradient(#f8fafc, #f8fafc);
-      }
-    </style>
+    <title>En'ler ve Şaşırtanlar - Ultra Finans</title>
+    <?php include("head.php"); ?>
 </head>
-<body class="app-bg text-slate-900" id="top">
-    <div class="min-h-screen lg:pl-64 flex flex-col">
-        <?php include("menu.php"); ?>
-        <?php include("ustmenu.php"); ?>
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100" id="top">
+<div class="min-h-screen lg:pl-64 flex flex-col">
+    <?php include("menu.php"); ?>
+    <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8">
-            <div class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                <div class="flex flex-wrap items-start justify-between gap-4">
+    <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+
+        <!-- Başlık -->
+        <div>
+            <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+                <i class="ti ti-sparkles text-amber-500 dark:text-amber-400"></i>
+                <span>En'ler ve Şaşırtanlar</span>
+            </h1>
+            <p class="mt-0.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                Finans geçmişinizdeki rekor harcamalar, en yüksek gelirler ve sıra dışı istatistikler. Tutarların üzerine gelerek asgari ücret ve enflasyon karşılıklarını inceleyebilirsiniz.
+            </p>
+        </div>
+
+        <!-- 2 Büyük Rekortmen Kartı: En Çok Harcanan Para & En Yüksek Gelir -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            
+            <!-- En Çok Harcanan Para -->
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+                                <i class="ti ti-arrow-up-right text-2xl font-bold"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">Tek Seferde En Büyük Gider</div>
+                                <h2 class="text-lg font-extrabold text-slate-900 dark:text-white">En Çok Harcanan Para</h2>
+                            </div>
+                        </div>
+                        <span class="rounded-full bg-rose-50 px-3 py-1 text-xs font-bold text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+                            Gider Rekoru
+                        </span>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-400">Tutar (Asgari Ücret / Enflasyon Detayı İçin Üzerine Gelin)</div>
+                        <div class="mt-1 text-3xl sm:text-4xl font-black text-rose-600 dark:text-rose-400 tabular-nums">
+                            <?php if ($maxExpense && !empty($maxExpense['Amount'])) { ?>
+                                <?= paraSpan($maxExpense['Amount'], ['date' => $maxExpense['Date'] ?? null, 'context' => 'movement']) ?>
+                            <?php } else { ?>
+                                -
+                            <?php } ?>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-800/40 text-xs">
+                        <div>
+                            <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Başlık</div>
+                            <div class="mt-1 font-extrabold text-slate-800 dark:text-slate-200 truncate">
+                                <?= !empty($maxExpense['Title']) ? htmlspecialchars((string)$maxExpense['Title'], ENT_QUOTES, 'UTF-8') : '-' ?>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Kategori</div>
+                            <div class="mt-1 font-extrabold text-slate-800 dark:text-slate-200 truncate">
+                                <?= !empty($maxExpense['CategoryName']) ? htmlspecialchars((string)$maxExpense['CategoryName'], ENT_QUOTES, 'UTF-8') : '-' ?>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Tarih</div>
+                            <div class="mt-1 font-extrabold text-slate-800 dark:text-slate-200 tabular-nums">
+                                <?= !empty($maxExpense['Date']) ? formatTarihSaat($maxExpense['Date']) : '-' ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- En Yüksek Gelir -->
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                                <i class="ti ti-arrow-down-left text-2xl font-bold"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Tek Seferde En Büyük Gelir</div>
+                                <h2 class="text-lg font-extrabold text-slate-900 dark:text-white">En Yüksek Gelir</h2>
+                            </div>
+                        </div>
+                        <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                            Gelir Rekoru
+                        </span>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-400">Tutar (Asgari Ücret / Enflasyon Detayı İçin Üzerine Gelin)</div>
+                        <div class="mt-1 text-3xl sm:text-4xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            <?php if ($maxIncome && !empty($maxIncome['Amount'])) { ?>
+                                <?= paraSpan($maxIncome['Amount'], ['date' => $maxIncome['Date'] ?? null, 'context' => 'movement']) ?>
+                            <?php } else { ?>
+                                -
+                            <?php } ?>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-800/40 text-xs">
+                        <div>
+                            <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Başlık</div>
+                            <div class="mt-1 font-extrabold text-slate-800 dark:text-slate-200 truncate">
+                                <?= !empty($maxIncome['Title']) ? htmlspecialchars((string)$maxIncome['Title'], ENT_QUOTES, 'UTF-8') : '-' ?>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Kategori</div>
+                            <div class="mt-1 font-extrabold text-slate-800 dark:text-slate-200 truncate">
+                                <?= !empty($maxIncome['CategoryName']) ? htmlspecialchars((string)$maxIncome['CategoryName'], ENT_QUOTES, 'UTF-8') : '-' ?>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Tarih</div>
+                            <div class="mt-1 font-extrabold text-slate-800 dark:text-slate-200 tabular-nums">
+                                <?= !empty($maxIncome['Date']) ? formatTarihSaat($maxIncome['Date']) : '-' ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 4 Öne Çıkan Rekor Kartı -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            
+            <!-- Kara Gün -->
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center gap-3">
+                    <div class="grid h-10 w-10 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+                        <i class="ti ti-flame text-lg"></i>
+                    </div>
                     <div>
-                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Rapor</div>
-                        <div class="mt-1 text-2xl font-extrabold tracking-tight">En'ler ve Şaşırtanlar</div>
-                        <div class="mt-1 text-sm text-slate-600">Kara gün, zen günü, tek darbe ve ani kararlar.</div>
+                        <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">En Masraflı Gün</div>
+                        <div class="text-sm font-extrabold text-slate-900 dark:text-white"><?= !empty($blackDay['d']) ? date("d.m.Y", strtotime($blackDay['d'])) : '-' ?></div>
                     </div>
-                    <div class="grid h-12 w-12 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                        <i class="ti ti-sparkles"></i>
-                    </div>
+                </div>
+                <div class="mt-3 text-xl font-black text-rose-600 dark:text-rose-400 tabular-nums">
+                    <?= !empty($blackDay['Total']) ? paraSpan($blackDay['Total'], ['date' => $blackDay['d'] ?? null, 'context' => 'movement']) : '-' ?>
                 </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Kara Gün</div>
-                            <div class="mt-1 text-sm font-semibold text-slate-900">Hayatındaki en pahalı gün</div>
-                        </div>
-                        <div class="grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                            <i class="ti ti-moon-stars"></i>
-                        </div>
+            <!-- Zen Gün -->
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center gap-3">
+                    <div class="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                        <i class="ti ti-leaf text-lg"></i>
                     </div>
-                    <?php if ($blackDay) { ?>
-                        <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-                            <div class="text-xs text-slate-500 tabular-nums"><?php echo h($blackDay['d'] ?? ''); ?></div>
-                            <div class="mt-2 text-3xl font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($blackDay['Total'] ?? 0); ?></div>
-                        </div>
-                    <?php } else { ?>
-                        <div class="mt-4 text-sm text-slate-600">Veri yok.</div>
-                    <?php } ?>
-                </section>
-
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Zen Günü</div>
-                            <div class="mt-1 text-sm font-semibold text-slate-900">En az harcadığın gün</div>
-                        </div>
-                        <div class="grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                            <i class="ti ti-leaf"></i>
-                        </div>
+                    <div>
+                        <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">En Sakin Gün</div>
+                        <div class="text-sm font-extrabold text-slate-900 dark:text-white"><?= !empty($zenDay['d']) ? date("d.m.Y", strtotime($zenDay['d'])) : '-' ?></div>
                     </div>
-                    <?php if ($zenDay) { ?>
-                        <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-                            <div class="text-xs text-slate-500 tabular-nums"><?php echo h($zenDay['d'] ?? ''); ?></div>
-                            <div class="mt-2 text-3xl font-extrabold tabular-nums text-emerald-700"><?php echo paraSpan($zenDay['Total'] ?? 0); ?></div>
-                        </div>
-                    <?php } else { ?>
-                        <div class="mt-4 text-sm text-slate-600">Veri yok.</div>
-                    <?php } ?>
-                </section>
+                </div>
+                <div class="mt-3 text-xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                    <?= !empty($zenDay['Total']) ? paraSpan($zenDay['Total'], ['date' => $zenDay['d'] ?? null, 'context' => 'movement']) : '-' ?>
+                </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur xl:col-span-1">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Tek Darbe</div>
-                            <div class="mt-1 text-sm font-semibold text-slate-900">Tek kalemde en can yakan</div>
-                        </div>
-                        <div class="grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                            <i class="ti ti-sword"></i>
-                        </div>
+            <!-- En Bereketli Ay -->
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center gap-3">
+                    <div class="grid h-10 w-10 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
+                        <i class="ti ti-calendar text-lg"></i>
                     </div>
-
-                    <?php if ($maxExpense) { ?>
-                        <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-                            <div class="text-xs text-slate-500 tabular-nums"><?php echo h($maxExpense['Date'] ?? ''); ?></div>
-                            <div class="mt-2 text-3xl font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($maxExpense['Amount'] ?? 0, ["date" => !empty($maxExpense['Date']) ? date("Y-m-d", strtotime((string)$maxExpense['Date'])) : null, "context" => "movement"]); ?></div>
-                            <div class="mt-2 text-sm font-semibold text-slate-900 truncate" title="<?php echo h($maxExpense['Title'] ?? ''); ?>"><?php echo h($maxExpense['Title'] ?? ''); ?></div>
-                            <div class="mt-1 text-xs text-slate-500"><?php echo h($maxExpense['CategoryName'] ?? ''); ?></div>
-                            <a class="mt-3 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" href="hareketduzenle.php?type=gider&ID=<?php echo (int)($maxExpense['BillsId'] ?? 0); ?>">
-                                <i class="ti ti-edit"></i>Detay
-                            </a>
-                        </div>
-                    <?php } else { ?>
-                        <div class="mt-4 text-sm text-slate-600">Veri yok.</div>
-                    <?php } ?>
-                </section>
-
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur xl:col-span-2">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Ani Karar</div>
-                            <div class="mt-1 text-sm font-semibold text-slate-900">Gece harcamaları (22:00-05:00)</div>
-                        </div>
-                        <div class="grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                            <i class="ti ti-bolt"></i>
-                        </div>
+                    <div>
+                        <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">En Bereketli Ay</div>
+                        <div class="text-sm font-extrabold text-slate-900 dark:text-white"><?= $bestMonth ? htmlspecialchars($bestMonth['ym'], ENT_QUOTES, 'UTF-8') : '-' ?></div>
                     </div>
-
-                    <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                        <table class="w-full text-sm">
-                            <thead class="bg-slate-50">
-                                <tr>
-                                    <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Tarih</th>
-                                    <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Başlık</th>
-                                    <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Kategori</th>
-                                    <th class="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Tutar</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                <?php foreach ($impulse as $r) { ?>
-                                    <tr class="hover:bg-slate-50">
-                                        <td class="px-3 py-2 whitespace-nowrap text-xs tabular-nums text-slate-600"><?php echo h($r['Date'] ?? ''); ?></td>
-                                        <td class="px-3 py-2 text-sm font-semibold text-slate-900 truncate" title="<?php echo h($r['Title'] ?? ''); ?>"><?php echo h($r['Title'] ?? ''); ?></td>
-                                        <td class="px-3 py-2 text-xs text-slate-600 truncate" title="<?php echo h($r['CategoryName'] ?? ''); ?>"><?php echo h($r['CategoryName'] ?? ''); ?></td>
-                                        <td class="px-3 py-2 whitespace-nowrap text-right text-sm font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($r['Amount'] ?? 0, ["date" => !empty($r['Date']) ? date("Y-m-d", strtotime((string)$r['Date'])) : null, "context" => "movement"]); ?></td>
-                                    </tr>
-                                <?php } ?>
-                                <?php if (count($impulse) === 0) { ?>
-                                    <tr><td colspan="4" class="px-3 py-4 text-sm text-slate-600">Veri yok.</td></tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+                </div>
+                <div class="mt-3 text-xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                    <?= $bestMonth ? paraSpan($bestMonth['net']) : '-' ?>
+                </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                    <div class="flex items-center justify-between gap-3">
+            <!-- Sessiz Düşman -->
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center gap-3">
+                    <div class="grid h-10 w-10 place-items-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
+                        <i class="ti ti-ghost text-lg"></i>
+                    </div>
+                    <div class="truncate">
+                        <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Sessiz Düşman</div>
+                        <div class="text-sm font-extrabold text-slate-900 dark:text-white truncate"><?= !empty($silentEnemy['CategoryName']) ? htmlspecialchars((string)$silentEnemy['CategoryName'], ENT_QUOTES, 'UTF-8') : '-' ?></div>
+                    </div>
+                </div>
+                <div class="mt-3 text-xl font-black text-amber-600 dark:text-amber-400 tabular-nums">
+                    <?= !empty($silentEnemy['Total']) ? paraSpan($silentEnemy['Total']) : '-' ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rekortmen Kategoriler -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            
+            <!-- En Çok Harcanan Kategoriler -->
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="grid h-9 w-9 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+                            <i class="ti ti-folder-minus text-base"></i>
+                        </div>
                         <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Bu Neydi Şimdi?</div>
-                            <div class="mt-1 text-sm font-semibold text-slate-900">Açıklaması zayıf ama pahalı</div>
-                        </div>
-                        <div class="grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                            <i class="ti ti-help"></i>
+                            <h2 class="text-sm font-extrabold text-slate-900 dark:text-white">En Çok Harcama Yapılan Kategoriler</h2>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Tüm zamanların lider gider kalemleri</p>
                         </div>
                     </div>
+                </div>
 
-                    <div class="mt-4 space-y-2">
-                        <?php foreach ($weird as $r) { ?>
-                            <div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                <div class="min-w-0">
-                                    <div class="truncate text-sm font-semibold text-slate-900" title="<?php echo h($r['Title'] ?? ''); ?>"><?php echo h($r['Title'] ?? ''); ?></div>
-                                    <div class="mt-1 text-xs text-slate-500 tabular-nums"><?php echo h($r['Date'] ?? ''); ?> | <?php echo h($r['CategoryName'] ?? ''); ?></div>
+                <div class="mt-4 space-y-2.5">
+                    <?php if (empty($topExpenseCats)) { ?>
+                        <div class="text-xs text-slate-400 py-3">Veri bulunamadı.</div>
+                    <?php } else {
+                        foreach(array_slice($topExpenseCats, 0, 5) as $idx => $cat) { ?>
+                            <div class="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-3 hover:bg-slate-50 dark:border-slate-800/60 dark:bg-slate-800/30 dark:hover:bg-slate-800/60">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="grid h-6 w-6 place-items-center rounded-lg bg-slate-200 text-xs font-black text-slate-700 dark:bg-slate-700 dark:text-slate-200"><?= $idx + 1 ?></span>
+                                    <span class="font-bold text-xs text-slate-800 dark:text-slate-200"><?= htmlspecialchars((string)($cat['CategoryName'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></span>
                                 </div>
-                                <div class="whitespace-nowrap text-sm font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($r['Amount'] ?? 0, ["date" => !empty($r['Date']) ? date("Y-m-d", strtotime((string)$r['Date'])) : null, "context" => "movement"]); ?></div>
-                            </div>
-                        <?php } ?>
-                        <?php if (count($weird) === 0) { ?>
-                            <div class="text-sm text-slate-600">Veri yok.</div>
-                        <?php } ?>
-                    </div>
-                </section>
-
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Sessiz Düşman</div>
-                            <div class="mt-1 text-sm font-semibold text-slate-900">En çok tekrarlanan gider kategorisi</div>
-                        </div>
-                        <div class="grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                            <i class="ti ti-bug"></i>
-                        </div>
-                    </div>
-
-                    <?php if ($silentEnemy) { ?>
-                        <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-                            <div class="text-sm font-semibold text-slate-900"><?php echo h($silentEnemy['CategoryName'] ?? ''); ?></div>
-                            <div class="mt-2 grid grid-cols-2 gap-3">
-                                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                    <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Adet</div>
-                                    <div class="mt-1 text-xl font-extrabold tabular-nums text-slate-900"><?php echo (int)($silentEnemy['Cnt'] ?? 0); ?></div>
-                                </div>
-                                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                    <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Toplam</div>
-                                    <div class="mt-1 text-xl font-extrabold tabular-nums text-rose-700"><?php echo paraSpan($silentEnemy['Total'] ?? 0); ?></div>
+                                <div class="font-black text-xs text-rose-600 dark:text-rose-400 tabular-nums">
+                                    <?= paraSpan($cat['Total']) ?>
                                 </div>
                             </div>
-                            <a class="mt-4 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" href="hareketler.php?type=2&CategoryId=<?php echo (int)($silentEnemy['CategoryId'] ?? 0); ?>">
-                                <i class="ti ti-list"></i>Hareketleri gör
-                            </a>
+                    <?php } } ?>
+                </div>
+            </section>
+
+            <!-- En Çok Gelir Getiren Kategoriler -->
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="grid h-9 w-9 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                            <i class="ti ti-folder-plus text-base"></i>
                         </div>
-                    <?php } else { ?>
-                        <div class="mt-4 text-sm text-slate-600">Veri yok.</div>
-                    <?php } ?>
-                </section>
-            </div>
-        </main>
+                        <div>
+                            <h2 class="text-sm font-extrabold text-slate-900 dark:text-white">En Çok Gelir Getiren Kategoriler</h2>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Tüm zamanların lider gelir kalemleri</p>
+                        </div>
+                    </div>
+                </div>
 
-        <?php include("footer.php"); ?>
-    </div>
+                <div class="mt-4 space-y-2.5">
+                    <?php if (empty($topIncomeCats)) { ?>
+                        <div class="text-xs text-slate-400 py-3">Veri bulunamadı.</div>
+                    <?php } else {
+                        foreach(array_slice($topIncomeCats, 0, 5) as $idx => $cat) { ?>
+                            <div class="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-3 hover:bg-slate-50 dark:border-slate-800/60 dark:bg-slate-800/30 dark:hover:bg-slate-800/60">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="grid h-6 w-6 place-items-center rounded-lg bg-slate-200 text-xs font-black text-slate-700 dark:bg-slate-700 dark:text-slate-200"><?= $idx + 1 ?></span>
+                                    <span class="font-bold text-xs text-slate-800 dark:text-slate-200"><?= htmlspecialchars((string)($cat['CategoryName'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></span>
+                                </div>
+                                <div class="font-black text-xs text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                    <?= paraSpan($cat['Total']) ?>
+                                </div>
+                            </div>
+                    <?php } } ?>
+                </div>
+            </section>
+        </div>
 
-    <?php include("scripts.php"); ?>
+    </main>
+
+    <?php include("footer.php"); ?>
+</div>
+
+<?php include("scripts.php"); ?>
 </body>
 </html>

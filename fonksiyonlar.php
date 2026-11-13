@@ -188,6 +188,14 @@ function para($miktar, $birim = "TL", $ondalik = 2)
 }
 
 
+function formatTarihSaat($tarih): string
+{
+    if (empty($tarih)) return "-";
+    $ts = is_numeric($tarih) ? (int)$tarih : strtotime((string)$tarih);
+    if (!$ts || $ts <= 0) return (string)$tarih;
+    return date("d.m.Y H:i", $ts);
+}
+
 function mevcutAsgariUcret(): ?array
 {
     global $pdo;

@@ -48,34 +48,15 @@ $telegramChatId = $userData['TelegramChatId'] ?? '';
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Hesap & Güvenlik Ayarları - Ultra Finans</title>
-    <link href="https://fonts.googleapis.com/css?family=Manrope:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: { extend: { fontFamily: { sans: ["Manrope", "ui-sans-serif", "system-ui", "Segoe UI", "Arial"] } } }
-      }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <style>
-      body { font-family: Manrope, ui-sans-serif, system-ui, Segoe UI, Arial, sans-serif; }
-      .app-bg {
-        background:
-          radial-gradient(900px 400px at 20% 0%, rgba(15, 23, 42, .08), transparent 60%),
-          radial-gradient(900px 400px at 80% 10%, rgba(2, 132, 199, .10), transparent 55%),
-          linear-gradient(#f8fafc, #f8fafc);
-      }
-    </style>
+    <?php include("head.php"); ?>
 </head>
-<body class="app-bg min-h-screen text-slate-900 antialiased">
-<div class="min-h-screen lg:pl-72">
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100" id="top">
+<div class="min-h-screen lg:pl-64 flex flex-col">
     <?php include("menu.php"); ?>
     <?php include("ustmenu.php"); ?>
 
-    <main class="px-4 py-8 lg:px-8">
-        <div class="mx-auto max-w-5xl space-y-8">
+    <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
             
             <!-- Başlık -->
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -92,51 +73,51 @@ $telegramChatId = $userData['TelegramChatId'] ?? '';
             </div>
 
             <!-- Ana Form Grid -->
-            <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 
                 <!-- 1. KART: Profil Bilgileri -->
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm">
-                    <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
-                        <div class="grid h-10 w-10 place-items-center rounded-2xl bg-sky-50 text-sky-600">
-                            <i class="ti ti-user text-xl"></i>
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                        <div class="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 font-bold">
+                            <i class="ti ti-user text-lg"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-bold text-slate-900">Profil Bilgileri</h2>
-                            <p class="text-xs text-slate-500">Kişisel bilgilerinizi ve e-posta adresinizi güncelleyin.</p>
+                            <h2 class="text-base font-bold text-slate-900 dark:text-white">Profil Bilgileri</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Kişisel bilgilerinizi ve e-posta adresinizi güncelleyin.</p>
                         </div>
                     </div>
 
-                    <form id="profilForm" class="mt-6 space-y-5">
+                    <form id="profilForm" class="mt-6 space-y-4">
                         <input type="hidden" name="profilGuncelle" value="1">
 
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Ad</label>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ad</label>
                                 <input type="text" name="FirstName" value="<?= htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') ?>" required
-                                       class="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm font-medium text-slate-800 transition focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                                       class="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm font-medium text-slate-800 transition focus:border-emerald-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-100 dark:focus:border-emerald-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Soyad</label>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Soyad</label>
                                 <input type="text" name="LastName" value="<?= htmlspecialchars($lastName, ENT_QUOTES, 'UTF-8') ?>" required
-                                       class="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm font-medium text-slate-800 transition focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                                       class="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm font-medium text-slate-800 transition focus:border-emerald-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-100 dark:focus:border-emerald-500">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">E-Posta Adresi</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">E-Posta Adresi</label>
                             <div class="relative mt-1.5">
                                 <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                                     <i class="ti ti-mail"></i>
                                 </span>
                                 <input type="email" name="Email" value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>" required
-                                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3.5 text-sm font-medium text-slate-800 transition focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3.5 text-sm font-medium text-slate-800 transition focus:border-emerald-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-100 dark:focus:border-emerald-500">
                             </div>
                             <p class="mt-1 text-[11px] text-slate-400">Giriş yaparken bu e-posta adresi kullanılacaktır.</p>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Varsayılan Para Birimi</label>
-                            <select name="Currency" class="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm font-medium text-slate-800 transition focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Varsayılan Para Birimi</label>
+                            <select name="Currency" class="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm font-medium text-slate-800 transition focus:border-emerald-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-100 dark:focus:border-emerald-500">
                                 <option value="₺" <?= in_array($currency, ['₺', 'TRY'], true) ? 'selected' : '' ?>>₺ - Türk Lirası (TRY)</option>
                                 <option value="$" <?= in_array($currency, ['$', 'USD'], true) ? 'selected' : '' ?>>$ - Amerikan Doları (USD)</option>
                                 <option value="€" <?= in_array($currency, ['€', 'EUR'], true) ? 'selected' : '' ?>>€ - Euro (EUR)</option>
@@ -144,10 +125,10 @@ $telegramChatId = $userData['TelegramChatId'] ?? '';
                             </select>
                         </div>
 
-                        <div class="pt-3">
+                        <div class="pt-2">
                             <button type="submit" id="btnProfilKaydet"
-                                    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-600/30">
-                                <i class="ti ti-device-floppy text-base"></i>
+                                    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-500">
+                                <i class="ti ti-device-floppy text-sm"></i>
                                 <span>Profil Bilgilerini Kaydet</span>
                             </button>
                         </div>
@@ -155,39 +136,39 @@ $telegramChatId = $userData['TelegramChatId'] ?? '';
                 </div>
 
                 <!-- 2. KART: Şifre Değiştir -->
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm">
-                    <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
-                        <div class="grid h-10 w-10 place-items-center rounded-2xl bg-amber-50 text-amber-600">
-                            <i class="ti ti-lock text-xl"></i>
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                        <div class="grid h-10 w-10 place-items-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 font-bold">
+                            <i class="ti ti-lock text-lg"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-bold text-slate-900">Şifre Değiştir</h2>
-                            <p class="text-xs text-slate-500">Hesabınızın güvenliği için güçlü bir şifre belirleyin.</p>
+                            <h2 class="text-base font-bold text-slate-900 dark:text-white">Şifre Değiştir</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Hesabınızın güvenliği için güçlü bir şifre belirleyin.</p>
                         </div>
                     </div>
 
-                    <form id="sifreForm" class="mt-6 space-y-5">
+                    <form id="sifreForm" class="mt-6 space-y-4">
                         <input type="hidden" name="sifreGuncelle" value="1">
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Mevcut Şifre</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Mevcut Şifre</label>
                             <div class="relative mt-1.5">
                                 <input type="password" id="current_password" name="current_password" required autocomplete="current-password"
                                        placeholder="••••••••"
-                                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-3.5 pr-10 text-sm font-medium text-slate-800 transition focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20">
-                                <button type="button" class="toggle-pass absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600" data-target="current_password">
+                                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-3.5 pr-10 text-sm font-medium text-slate-800 transition focus:border-amber-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-100 dark:focus:border-amber-500">
+                                <button type="button" class="toggle-pass absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" data-target="current_password">
                                     <i class="ti ti-eye"></i>
                                 </button>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Yeni Şifre</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Yeni Şifre</label>
                             <div class="relative mt-1.5">
                                 <input type="password" id="new_password" name="new_password" required minlength="6" autocomplete="new-password"
                                        placeholder="En az 6 karakter"
-                                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-3.5 pr-10 text-sm font-medium text-slate-800 transition focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20">
-                                <button type="button" class="toggle-pass absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600" data-target="new_password">
+                                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-3.5 pr-10 text-sm font-medium text-slate-800 transition focus:border-amber-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-100 dark:focus:border-amber-500">
+                                <button type="button" class="toggle-pass absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" data-target="new_password">
                                     <i class="ti ti-eye"></i>
                                 </button>
                             </div>
@@ -195,22 +176,22 @@ $telegramChatId = $userData['TelegramChatId'] ?? '';
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Yeni Şifre Tekrar</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Yeni Şifre Tekrar</label>
                             <div class="relative mt-1.5">
                                 <input type="password" id="confirm_password" name="confirm_password" required minlength="6" autocomplete="new-password"
                                        placeholder="Yeni şifrenizi tekrar girin"
-                                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-3.5 pr-10 text-sm font-medium text-slate-800 transition focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20">
-                                <button type="button" class="toggle-pass absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600" data-target="confirm_password">
+                                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-3.5 pr-10 text-sm font-medium text-slate-800 transition focus:border-amber-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-100 dark:focus:border-amber-500">
+                                <button type="button" class="toggle-pass absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" data-target="confirm_password">
                                     <i class="ti ti-eye"></i>
                                 </button>
                             </div>
                             <div id="passMatchIndicator" class="mt-1 hidden text-[11px] font-medium"></div>
                         </div>
 
-                        <div class="pt-3">
+                        <div class="pt-2">
                             <button type="submit" id="btnSifreKaydet"
-                                    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-600/30">
-                                <i class="ti ti-key text-base"></i>
+                                    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-amber-500">
+                                <i class="ti ti-key text-sm"></i>
                                 <span>Şifreyi Güncelle</span>
                             </button>
                         </div>

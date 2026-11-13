@@ -298,26 +298,23 @@ $recentChats = loadRecentByUser($recentPath, $userId);
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Telegram Ayarları</title>
-    <link href="https://fonts.googleapis.com/css?family=Manrope:200,300,400,600,700,800,900" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = { theme: { extend: { fontFamily: { sans: ["Manrope", "ui-sans-serif", "system-ui", "Segoe UI", "Arial"] } } } };
-    </script>
+    <title>Telegram Bot Ayarları - Ultra Finans</title>
+    <?php include("head.php"); ?>
 </head>
-<body class="bg-slate-50 text-slate-900" id="top">
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100" id="top">
     <div class="min-h-screen lg:pl-64 flex flex-col">
         <?php include("menu.php"); ?>
         <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8">
-            <section class="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
-                <div class="flex flex-wrap items-start justify-between gap-4">
+        <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                     <div>
-                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Entegrasyon</div>
-                        <h1 class="mt-1 text-2xl font-extrabold tracking-tight">Telegram Ayarları</h1>
+                        <div class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Entegrasyon</div>
+                        <h1 class="mt-1 text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="ti ti-brand-telegram text-blue-500"></i>
+                            <span>Telegram Bot Ayarları</span>
+                        </h1>
                         <p class="mt-1 text-sm text-slate-600">Bot token kaydet, webhook ayarla, sonra Telegram'a giriş yaparak Chat ID'ni kullanıcıya bağla.</p>
                     </div>
                     <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
@@ -339,82 +336,81 @@ $recentChats = loadRecentByUser($recentPath, $userId);
                 <form method="post" class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <input type="hidden" name="action" value="save_token">
                     <div class="md:col-span-2">
-                        <label class="text-xs font-semibold uppercase tracking-widest text-slate-500">Telegram Bot Token</label>
-                        <input type="text" name="telegram_bot_token" value="<?php echo h($botToken); ?>" class="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500" placeholder="123456:ABCDEF...">
+                        <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Telegram Bot Token</label>
+                        <input type="text" name="telegram_bot_token" value="<?php echo h($botToken); ?>" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500" placeholder="123456:ABCDEF...">
                     </div>
                     <div class="md:col-span-2 flex flex-wrap gap-2">
-                        <button type="submit" class="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Bot Token Kaydet ve Doğrula</button>
+                        <button type="submit" class="inline-flex items-center rounded-2xl bg-indigo-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-xs transition hover:bg-indigo-500">Bot Token Kaydet ve Doğrula</button>
                     </div>
                 </form>
 
                 <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
-                        <div class="text-xs text-slate-500">Bot Durumu</div>
-                        <div class="mt-1 font-semibold <?php echo $botValid ? 'text-emerald-700' : 'text-rose-700'; ?>"><?php echo $botValid ? 'Geçerli' : 'Geçersiz veya kayıtlı değil'; ?></div>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm dark:border-slate-800 dark:bg-slate-800/50">
+                        <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Bot Durumu</div>
+                        <div class="mt-1 font-bold <?php echo $botValid ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'; ?>"><?php echo $botValid ? 'Geçerli' : 'Geçersiz veya kayıtlı değil'; ?></div>
                     </div>
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
-                        <div class="text-xs text-slate-500">Bot Kullanıcı Adi</div>
-                        <div class="mt-1 font-semibold text-slate-900"><?php echo $botUsername !== "" ? '@'.h($botUsername) : '-'; ?></div>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm dark:border-slate-800 dark:bg-slate-800/50">
+                        <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Bot Kullanıcı Adı</div>
+                        <div class="mt-1 font-bold text-slate-900 dark:text-white"><?php echo $botUsername !== "" ? '@'.h($botUsername) : '-'; ?></div>
                     </div>
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
-                        <div class="text-xs text-slate-500">Bağlı Telegram ID</div>
-                        <div class="mt-1 font-semibold text-slate-900"><?php echo $chatIdBound !== "" ? h($chatIdBound) : 'Bağlı değil'; ?></div>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm dark:border-slate-800 dark:bg-slate-800/50">
+                        <div class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Bağlı Telegram ID</div>
+                        <div class="mt-1 font-bold text-slate-900 dark:text-white"><?php echo $chatIdBound !== "" ? h($chatIdBound) : 'Bağlı değil'; ?></div>
                     </div>
                 </div>
 
                 <div class="mt-4 flex flex-wrap gap-2">
                     <form method="post">
                         <input type="hidden" name="action" value="set_webhook">
-                        <button type="submit" class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Webhook'u Otomatik Ayarla</button>
+                        <button type="submit" class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">Webhook'u Otomatik Ayarla</button>
                     </form>
                     <form method="post">
                         <input type="hidden" name="action" value="webhook_info">
-                        <button type="submit" class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Webhook Bilgisi</button>
+                        <button type="submit" class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">Webhook Bilgisi</button>
                     </form>
                 </div>
 
                 <div class="mt-4 flex flex-wrap gap-2">
                     <?php if ($loginUrl !== "") { ?>
-                        <a href="<?php echo h($loginUrl); ?>" target="_blank" rel="noopener" class="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">Telegram'a Giriş Yap</a>
+                        <a href="<?php echo h($loginUrl); ?>" target="_blank" rel="noopener" class="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500">Telegram'a Giriş Yap</a>
                         <form method="post">
                             <input type="hidden" name="action" value="regenerate_link">
-                            <button type="submit" class="inline-flex items-center rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100">Giriş Kodunu Yenile</button>
+                            <button type="submit" class="inline-flex items-center rounded-xl border border-amber-300/40 bg-amber-500/10 px-4 py-2 text-xs font-bold text-amber-600 hover:bg-amber-500/20 dark:text-amber-400">Giriş Kodunu Yenile</button>
                         </form>
                     <?php } else { ?>
-                        <span class="inline-flex items-center rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm text-slate-600">Telegram'a giriş butonu için önce geçerli bot token kaydetmelisiniz.</span>
+                        <span class="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-800/40 dark:text-slate-400">Telegram'a giriş butonu için önce geçerli bot token kaydetmelisiniz.</span>
                     <?php } ?>
 
                     <?php if ($chatIdBound !== "") { ?>
                         <form method="post">
                             <input type="hidden" name="action" value="unlink">
-                            <button type="submit" class="inline-flex items-center rounded-xl border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">Bağlantıyı Kaldır</button>
+                            <button type="submit" class="inline-flex items-center rounded-xl border border-rose-300/40 bg-rose-500/10 px-4 py-2 text-xs font-bold text-rose-600 hover:bg-rose-500/20 dark:text-rose-400">Bağlantıyı Kaldır</button>
                         </form>
                     <?php } ?>
                 </div>
             </section>
 
-            <section class="mt-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
-                <div class="flex flex-wrap items-center justify-between gap-3">
+            <section class="mt-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
                     <div>
-                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Son Mesajlar</div>
-                        <h2 class="mt-1 text-lg font-extrabold tracking-tight">Tespit Edilen Chat ID'ler</h2>
-                        <p class="mt-1 text-sm text-slate-600">Telegram'a giriş adımıyla bağlama otomatik olur. Gerekirse buradan elle de bağlayabilirsiniz.</p>
+                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Son Mesajlar</div>
+                        <h2 class="mt-0.5 text-base font-extrabold text-slate-900 dark:text-white">Tespit Edilen Chat ID'ler</h2>
                     </div>
                 </div>
 
-                <div class="mt-4 overflow-x-auto rounded-2xl border border-slate-200">
-                    <table class="w-full min-w-[900px] text-sm">
-                        <thead class="bg-slate-50">
-                            <tr>
-                                <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Chat ID</th>
-                                <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Kullanıcı</th>
-                                <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Ad Soyad</th>
-                                <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Son Mesaj</th>
-                                <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Zaman</th>
-                                <th class="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">İşlem</th>
+                <div class="mt-4 overflow-x-auto rounded-2xl border border-slate-100 bg-slate-50/50 p-2 dark:border-slate-800 dark:bg-slate-950/50">
+                    <table class="w-full text-xs" cellspacing="0">
+                        <thead>
+                            <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
+                                <th class="px-3 py-2 text-left font-bold">Chat ID</th>
+                                <th class="px-3 py-2 text-left font-bold">Kullanıcı</th>
+                                <th class="px-3 py-2 text-left font-bold">Ad Soyad</th>
+                                <th class="px-3 py-2 text-left font-bold">Son Mesaj</th>
+                                <th class="px-3 py-2 text-left font-bold">Zaman</th>
+                                <th class="px-3 py-2 text-right font-bold">İşlem</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white">
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-semibold">
                         <?php if (count($recentChats) === 0) { ?>
                             <tr>
                                 <td colspan="6" class="px-3 py-6 text-center text-slate-500">Kayıt yok. Önce botunuza bir mesaj gönderin.</td>

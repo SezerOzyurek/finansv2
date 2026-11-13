@@ -71,67 +71,60 @@ if(isset($_POST['yeniGider']))
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Yeni Gelir/Gider Hareketi</title>
-    <link href="https://fonts.googleapis.com/css?family=Manrope:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = { theme: { extend: { fontFamily: { sans: ["Manrope", "ui-sans-serif", "system-ui", "Segoe UI", "Arial"] } } } }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <style>
-      body { font-family: Manrope, ui-sans-serif, system-ui, Segoe UI, Arial, sans-serif; }
-      .app-bg {
-        background:
-          radial-gradient(900px 400px at 20% 0%, rgba(15, 23, 42, .08), transparent 60%),
-          radial-gradient(900px 400px at 80% 10%, rgba(2, 132, 199, .10), transparent 55%),
-          linear-gradient(#f8fafc, #f8fafc);
-      }
-    </style>
+    <title>Yeni Gelir / Gider Ekle - Ultra Finans</title>
+    <?php include("head.php"); ?>
 </head>
-<body class="app-bg text-slate-900" id="top">
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100" id="top">
     <div class="min-h-screen lg:pl-64 flex flex-col">
         <?php include("menu.php"); ?>
         <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8">
-            <div class="mb-6">
-                <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">İşlemler</div>
-                <div class="mt-1 text-2xl font-extrabold tracking-tight">Yeni Gelir / Gider</div>
+        <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="ti ti-plus text-emerald-600 dark:text-emerald-400"></i>
+                    <span>Yeni Finansal Hareket Ekle</span>
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                    Gelir veya gider hareketlerinizi tek ekrandan hızla kaydedin.
+                </p>
             </div>
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Gelir</div>
-                                <div class="mt-1 text-sm text-slate-600">Yeni gelir hareketi ekle</div>
+                
+                <!-- Gelir Ekleme Kartı -->
+                <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 font-bold">
+                                <i class="ti ti-arrow-down-left text-lg"></i>
                             </div>
-                            <div class="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-50 text-emerald-700">
-                            <i class="ti ti-wallet"></i>
+                            <div>
+                                <h2 class="text-base font-bold text-slate-900 dark:text-white">Gelir Hareketi</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Maaş, satış, getiri vb.</p>
                             </div>
                         </div>
+                    </div>
 
                     <?php if ($gelirKategoriCount > 0) { ?>
                     <form id="gelirForm" class="mt-5 space-y-4">
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Başlık</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Başlık</label>
                                 <input type="text" name="Title" placeholder="Başlık"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-emerald-400">
                             </div>
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Tutar</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Tutar</label>
                                 <input type="number" step="0.01" min="0" name="Amount" placeholder="Tutar"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-emerald-400">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Kategori</label>
-                                <select name="CategoryId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Kategori</label>
+                                <select name="CategoryId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-emerald-400">
                                     <option value="" selected>Bir kategori seçin</option>
                                     <?php foreach($gelirKategoriList as $gelirKategorisi) { ?>
                                         <option value="<?php echo $gelirKategorisi["CategoryId"]; ?>"><?php echo $gelirKategorisi["CategoryName"]; ?></option>
@@ -139,16 +132,16 @@ if(isset($_POST['yeniGider']))
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Tarih</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Tarih</label>
                                 <input type="datetime-local" value="<?php echo date("Y-m-d H:i"); ?>" name="Date"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-emerald-400">
                             </div>
                         </div>
 
                         <?php if ($hesapCount > 0) { ?>
                         <div>
-                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Hesap / Kart (Opsiyonel)</label>
-                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Hesap / Kart (Opsiyonel)</label>
+                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-emerald-400">
                                 <option value="">Seçilmedi (Boş)</option>
                                 <?php foreach($hesapList as $h) { ?>
                                     <option value="<?php echo (int)$h["AccountId"]; ?>" <?php if ((int)$h["AccountId"] === $defaultAccountId) { ?>selected<?php } ?>>
@@ -160,17 +153,17 @@ if(isset($_POST['yeniGider']))
                         <?php } ?>
 
                         <div>
-                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Açıklama</label>
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Açıklama</label>
                             <textarea rows="3" name="Description" placeholder="Açıklama yazınız..."
-                                      class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300"></textarea>
+                                      class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-emerald-400"></textarea>
                         </div>
 
                         <div>
-                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Fotoğraflar (opsiyonel, max 5)</label>
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Fotoğraflar (opsiyonel, max 5)</label>
                             <div class="mt-2" data-photo-uploader>
                             <input type="file" name="Photos[]" multiple accept="image/*,application/pdf" data-photo-input
-                                       class="block w-full text-sm file:mr-3 file:rounded-xl file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-800">
-                                <div class="mt-2 text-xs text-slate-500" data-photo-hint>Dosya seçilmedi</div>
+                                       class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-3 file:rounded-xl file:border-0 file:bg-slate-900 dark:file:bg-slate-700 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white dark:file:text-slate-200 hover:file:bg-slate-800">
+                                <div class="mt-2 text-xs text-slate-500 dark:text-slate-400" data-photo-hint>Dosya seçilmedi</div>
                                 <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3" data-photo-previews></div>
                             </div>
                         </div>
@@ -181,14 +174,14 @@ if(isset($_POST['yeniGider']))
                         </button>
                     </form>
                     <?php } else { ?>
-                    <div class="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                    <div class="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 dark:border-emerald-900/50 dark:bg-emerald-950/20 p-4">
                         <div class="flex items-start gap-3">
-                            <div class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white text-emerald-700">
+                            <div class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white dark:bg-slate-800 text-emerald-700 dark:text-emerald-400">
                                 <i class="ti ti-info-circle"></i>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="text-sm font-bold text-emerald-800">Gelir kategorisi bulunamadı</div>
-                                <div class="mt-1 text-xs text-emerald-700">Yeni gelir eklemek için önce en az bir gelir kategorisi oluşturun.</div>
+                                <div class="text-sm font-bold text-emerald-800 dark:text-emerald-300">Gelir kategorisi bulunamadı</div>
+                                <div class="mt-1 text-xs text-emerald-700 dark:text-emerald-400">Yeni gelir eklemek için önce en az bir gelir kategorisi oluşturun.</div>
                                 <a href="kategoriler.php?type=1" class="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-3 py-2 text-xs font-extrabold text-white hover:bg-emerald-800">
                                     <i class="ti ti-plus"></i>Kategoriye Git
                                 </a>
@@ -198,36 +191,39 @@ if(isset($_POST['yeniGider']))
                     <?php } ?>
                 </section>
 
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-widest text-rose-700">Gider</div>
-                                <div class="mt-1 text-sm text-slate-600">Yeni gider hareketi ekle</div>
+                <!-- Gider Ekleme Kartı -->
+                <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="grid h-10 w-10 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 font-bold">
+                                <i class="ti ti-arrow-up-right text-lg"></i>
                             </div>
-                            <div class="grid h-11 w-11 place-items-center rounded-2xl bg-rose-50 text-rose-700">
-                            <i class="ti ti-cash-banknote"></i>
+                            <div>
+                                <h2 class="text-base font-bold text-slate-900 dark:text-white">Gider Hareketi</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Market, kira, fatura vb.</p>
                             </div>
                         </div>
+                    </div>
 
                     <?php if ($giderKategoriCount > 0) { ?>
                     <form id="giderForm" class="mt-5 space-y-4">
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Başlık</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Başlık</label>
                                 <input type="text" name="Title" placeholder="Başlık"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-rose-400">
                             </div>
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Tutar</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Tutar</label>
                                 <input type="number" step="0.01" min="0" name="Amount" placeholder="Tutar"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-rose-400">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Kategori</label>
-                                <select name="CategoryId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Kategori</label>
+                                <select name="CategoryId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-rose-400">
                                     <option value="" selected>Bir kategori seçin</option>
                                     <?php foreach($giderKategoriList as $giderKategorisi) { ?>
                                         <option value="<?php echo $giderKategorisi["CategoryId"]; ?>"><?php echo $giderKategorisi["CategoryName"]; ?></option>
@@ -235,16 +231,16 @@ if(isset($_POST['yeniGider']))
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Tarih</label>
+                                <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Tarih</label>
                                 <input type="datetime-local" value="<?php echo date("Y-m-d H:i"); ?>" name="Date"
-                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                                       class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-rose-400">
                             </div>
                         </div>
 
                         <?php if ($hesapCount > 0) { ?>
                         <div>
-                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Hesap / Kart (Opsiyonel)</label>
-                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300">
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Hesap / Kart (Opsiyonel)</label>
+                            <select name="AccountId" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-rose-400">
                                 <option value="">Seçilmedi (Boş)</option>
                                 <?php foreach($hesapList as $h) { ?>
                                     <option value="<?php echo (int)$h["AccountId"]; ?>" <?php if ((int)$h["AccountId"] === $defaultAccountId) { ?>selected<?php } ?>>
@@ -256,17 +252,17 @@ if(isset($_POST['yeniGider']))
                         <?php } ?>
 
                         <div>
-                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Açıklama</label>
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Açıklama</label>
                             <textarea rows="3" name="Description" placeholder="Açıklama yazınız..."
-                                      class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-slate-300"></textarea>
+                                      class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-rose-400"></textarea>
                         </div>
 
                         <div>
-                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Fotoğraflar (opsiyonel, max 5)</label>
+                            <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Fotoğraflar (opsiyonel, max 5)</label>
                             <div class="mt-2" data-photo-uploader>
                             <input type="file" name="Photos[]" multiple accept="image/*,application/pdf" data-photo-input
-                                       class="block w-full text-sm file:mr-3 file:rounded-xl file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-800">
-                                <div class="mt-2 text-xs text-slate-500" data-photo-hint>Dosya seçilmedi</div>
+                                       class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-3 file:rounded-xl file:border-0 file:bg-slate-900 dark:file:bg-slate-700 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white dark:file:text-slate-200 hover:file:bg-slate-800">
+                                <div class="mt-2 text-xs text-slate-500 dark:text-slate-400" data-photo-hint>Dosya seçilmedi</div>
                                 <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3" data-photo-previews></div>
                             </div>
                         </div>
@@ -277,14 +273,14 @@ if(isset($_POST['yeniGider']))
                         </button>
                     </form>
                     <?php } else { ?>
-                    <div class="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4">
+                    <div class="mt-5 rounded-2xl border border-rose-200 bg-rose-50 dark:border-rose-900/50 dark:bg-rose-950/20 p-4">
                         <div class="flex items-start gap-3">
-                            <div class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white text-rose-700">
+                            <div class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white dark:bg-slate-800 text-rose-700 dark:text-rose-400">
                                 <i class="ti ti-info-circle"></i>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="text-sm font-bold text-rose-800">Gider kategorisi bulunamadı</div>
-                                <div class="mt-1 text-xs text-rose-700">Yeni gider eklemek için önce en az bir gider kategorisi oluşturun.</div>
+                                <div class="text-sm font-bold text-rose-800 dark:text-rose-300">Gider kategorisi bulunamadı</div>
+                                <div class="mt-1 text-xs text-rose-700 dark:text-rose-400">Yeni gider eklemek için önce en az bir gider kategorisi oluşturun.</div>
                                 <a href="kategoriler.php?type=2" class="mt-3 inline-flex items-center gap-2 rounded-xl bg-rose-700 px-3 py-2 text-xs font-extrabold text-white hover:bg-rose-800">
                                     <i class="ti ti-plus"></i>Kategoriye Git
                                 </a>

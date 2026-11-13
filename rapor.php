@@ -1,17 +1,19 @@
 <?php
 include("fonksiyonlar.php");
 
-if (empty($_POST)) {
-    $type = $_GET["type"] ?? null;
-}
-
+$type = $_GET["type"] ?? null;
 if ($type != 1 && $type != 2) {
-    header("Location: index.php");
-    exit;
+    $type = 2; // Varsayılan: Gider Raporları
 }
+$type = (int)$type;
+$isIncome = ($type === 1);
 
+// API'den genel rapor ve zaman akışı verilerini al
 $rapor = apiRequest('/rapor', 'GET', [], $_SESSION['Api_Token']);
-$zaman_akisi = apiRequest('/zaman_akisi', 'GET', ["baslangictarihi" => date("Y-m-d", strtotime("-3 months")), "bitistarihi" => date("Y-m-d")], $_SESSION['Api_Token']);
+$zaman_akisi = apiRequest('/zaman_akisi', 'GET', [
+    "baslangictarihi" => date("Y-m-d", strtotime("-3 months")),
+    "bitistarihi" => date("Y-m-d")
+], $_SESSION['Api_Token']);
 
 $periods = [
     [
@@ -53,359 +55,455 @@ function sortByFieldDesc(array &$rows, string $field): void
     });
 }
 
-function renderReportCard(array $reportConfig, array $reportResponse, string $totalKey, string $catKey, string $catField, bool $isIncome, string $accentSoft, string $accentText, string $accentBg): void
+$totalKey = $isIncome ? "toplam_gelir" : "toplam_gider";
+$catKey = $isIncome ? "gelir_kategorileri" : "gider_kategorileri";
+$catField = $isIncome ? "ToplamGelir" : "ToplamGider";
+
+$accentText = $isIncome ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400";
+$accentBg = $isIncome ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-600 hover:bg-rose-700";
+$accentSoft = $isIncome ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400";
+$accentBorder = $isIncome ? "border-emerald-500" : "border-rose-500";
+$accentBarColor = $isIncome ? "bg-emerald-500" : "bg-rose-500";
+
+$grandTotal = (float)($rapor["data"][$totalKey] ?? 0);
+$grandCats = $rapor["data"][$catKey] ?? [];
+$grandCount = is_countable($grandCats) ? count($grandCats) : 0;
+sortByFieldDesc($grandCats, $catField);
+
+// Özel Tarih Aralığı Kontrolü
+$customStart = isset($_GET["custom_start"]) ? trim((string)$_GET["custom_start"]) : "";
+$customEnd = isset($_GET["custom_end"]) ? trim((string)$_GET["custom_end"]) : "";
+$customStartValue = $customStart !== "" ? $customStart : date('Y-m-01');
+$customEndValue = $customEnd !== "" ? $customEnd : date('Y-m-d');
+
+$customRangeCard = null;
+$customRangeResponse = null;
+
+if ($customStart !== "" && $customEnd !== "") {
+    $startDate = DateTime::createFromFormat('Y-m-d', $customStart);
+    $endDate = DateTime::createFromFormat('Y-m-d', $customEnd);
+    $startValid = $startDate && $startDate->format('Y-m-d') === $customStart;
+    $endValid = $endDate && $endDate->format('Y-m-d') === $customEnd;
+
+    if ($startValid && $endValid && $customStart <= $customEnd) {
+        $customRangeCard = [
+            "key" => "custom",
+            "title" => "Özel Tarih Aralığı",
+            "icon" => "ti ti-calendar-search",
+            "start" => $customStart,
+            "end" => $customEnd,
+        ];
+        $customRangeResponse = apiRequest('/rapor', 'GET', [
+            "baslangictarihi" => $customStart,
+            "bitistarihi" => $customEnd
+        ], $_SESSION['Api_Token']);
+    }
+}
+
+function renderReportCard(array $reportConfig, array $reportResponse, string $totalKey, string $catKey, string $catField, bool $isIncome, string $accentSoft, string $accentText, string $accentBarColor): void
 {
     $total = (float)($reportResponse["data"][$totalKey] ?? 0);
     $cats = $reportResponse["data"][$catKey] ?? [];
     sortByFieldDesc($cats, $catField);
     ?>
-    <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-        <div class="flex items-start justify-between gap-3">
-            <div>
-                <div class="flex items-center gap-2">
-                    <div class="grid h-9 w-9 place-items-center rounded-2xl <?php echo $accentSoft; ?>">
-                        <i class="<?php echo htmlspecialchars((string)($reportConfig["icon"] ?? ""), ENT_QUOTES, "UTF-8"); ?>"></i>
+    <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
+        <div>
+            <div class="flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="grid h-10 w-10 place-items-center rounded-2xl <?php echo $accentSoft; ?>">
+                        <i class="<?php echo htmlspecialchars((string)($reportConfig["icon"] ?? ""), ENT_QUOTES, "UTF-8"); ?> text-lg"></i>
                     </div>
                     <div>
-                        <div class="text-sm font-extrabold tracking-tight text-slate-900"><?php echo htmlspecialchars((string)($reportConfig["title"] ?? ""), ENT_QUOTES, "UTF-8"); ?></div>
-                        <div class="text-xs text-slate-500 tabular-nums"><?php echo htmlspecialchars((string)($reportConfig["start"] ?? ""), ENT_QUOTES, "UTF-8"); ?> - <?php echo htmlspecialchars((string)($reportConfig["end"] ?? ""), ENT_QUOTES, "UTF-8"); ?></div>
+                        <div class="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white"><?php echo htmlspecialchars((string)($reportConfig["title"] ?? ""), ENT_QUOTES, "UTF-8"); ?></div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 tabular-nums"><?php echo htmlspecialchars((string)($reportConfig["start"] ?? ""), ENT_QUOTES, "UTF-8"); ?> &mdash; <?php echo htmlspecialchars((string)($reportConfig["end"] ?? ""), ENT_QUOTES, "UTF-8"); ?></div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="mt-5">
-            <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Toplam</div>
-            <div class="mt-1 text-3xl font-extrabold tabular-nums <?php echo $accentText; ?>"><?php echo paraSpan($total); ?></div>
-        </div>
-
-        <div class="mt-4">
-            <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                <div class="text-xs font-semibold text-slate-700">Tüm Kategoriler</div>
-                <div class="text-[11px] text-slate-500"><?php echo count($cats); ?> kategori</div>
+            <div class="mt-4">
+                <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Toplam <?php echo $isIncome ? 'Gelir' : 'Gider'; ?></div>
+                <div class="mt-1 text-2xl sm:text-3xl font-black tabular-nums <?php echo $accentText; ?>">
+                    <?php echo paraSpan($total); ?>
+                </div>
             </div>
 
-            <div class="mt-3 max-h-96 space-y-3 overflow-y-auto pr-1">
-                <?php if (count($cats) === 0) { ?>
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">Bu dönemde veri yok.</div>
-                <?php } ?>
+            <div class="mt-4">
+                <div class="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/80 px-3 py-2 dark:border-slate-800 dark:bg-slate-800/50">
+                    <div class="text-xs font-bold text-slate-700 dark:text-slate-200">Kategori Dağılımı</div>
+                    <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400"><?php echo count($cats); ?> kategori</div>
+                </div>
 
-                <?php foreach ($cats as $c) { ?>
-                    <?php
+                <div class="mt-3 max-h-72 space-y-3 overflow-y-auto pr-1">
+                    <?php if (count($cats) === 0) { ?>
+                        <div class="rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-800/40 dark:text-slate-400">
+                            Bu dönemde herhangi bir hareket kaydı bulunmuyor.
+                        </div>
+                    <?php } ?>
+
+                    <?php foreach ($cats as $c) {
                         $name = (string)($c["CategoryName"] ?? "-");
                         $val = (float)($c[$catField] ?? 0);
                         $pct = ($total > 0) ? min(100.0, ($val / $total) * 100.0) : 0.0;
                         $catId = (int)($c["CategoryId"] ?? 0);
-                        $catHref = $isIncome
-                            ? ("hareketler.php?type=1&CategoryId=".$catId)
-                            : ("hareketler.php?type=2&CategoryId=".$catId);
                     ?>
-                    <div>
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="min-w-0">
-                                <a class="truncate text-sm font-semibold text-slate-900 hover:underline" href="<?php echo htmlspecialchars($catHref, ENT_QUOTES, "UTF-8"); ?>" title="<?php echo htmlspecialchars($name, ENT_QUOTES, "UTF-8"); ?>">
+                        <div class="rounded-xl border border-slate-100 bg-slate-50/40 p-2.5 transition hover:bg-slate-50 dark:border-slate-800/60 dark:bg-slate-800/30 dark:hover:bg-slate-800/60">
+                            <div class="flex items-center justify-between gap-2 text-xs">
+                                <a href="hareketler.php?type=<?php echo (int)($isIncome ? 1 : 2); ?>&CategoryId=<?php echo $catId; ?>" class="font-bold text-slate-800 hover:underline dark:text-slate-200 truncate">
                                     <?php echo htmlspecialchars($name, ENT_QUOTES, "UTF-8"); ?>
                                 </a>
+                                <div class="shrink-0 text-right font-black tabular-nums <?php echo $accentText; ?>">
+                                    <?php echo paraSpan($val); ?>
+                                </div>
                             </div>
-                            <div class="whitespace-nowrap text-sm font-extrabold tabular-nums text-slate-900"><?php echo paraSpan($val); ?></div>
+                            <div class="mt-1.5 flex items-center gap-2">
+                                <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                                    <div class="h-full rounded-full <?php echo $accentBarColor; ?>" style="width: <?php echo number_format($pct, 1, '.', ''); ?>%"></div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 tabular-nums shrink-0"><?php echo number_format($pct, 1, ',', '.'); ?>%</span>
+                            </div>
                         </div>
-                        <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                            <div class="h-1.5 rounded-full <?php echo $accentBg; ?>" style="width: <?php echo number_format($pct, 2, '.', ''); ?>%"></div>
-                        </div>
-                    </div>
-                <?php } ?>
+                    <?php } ?>
+                </div>
             </div>
         </div>
     </section>
     <?php
 }
-
 ?>
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Rapor</title>
-    <link href="https://fonts.googleapis.com/css?family=Manrope:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = { theme: { extend: { fontFamily: { sans: ["Manrope", "ui-sans-serif", "system-ui", "Segoe UI", "Arial"] } } } }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <style>
-      body { font-family: Manrope, ui-sans-serif, system-ui, Segoe UI, Arial, sans-serif; }
-      .app-bg {
-        background:
-          radial-gradient(900px 400px at 20% 0%, rgba(15, 23, 42, .08), transparent 60%),
-          radial-gradient(900px 400px at 80% 10%, rgba(2, 132, 199, .10), transparent 55%),
-          linear-gradient(#f8fafc, #f8fafc);
-      }
-    </style>
+    <title><?php echo $isIncome ? 'Gelir Raporları' : 'Gider Raporları'; ?> - Ultra Finans</title>
+    <?php include("head.php"); ?>
 </head>
-<body class="app-bg text-slate-900" id="top">
-    <div class="min-h-screen lg:pl-64 flex flex-col">
-        <?php include("menu.php"); ?>
-        <?php include("ustmenu.php"); ?>
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100" id="top">
+<div class="min-h-screen lg:pl-64 flex flex-col">
+    <?php include("menu.php"); ?>
+    <?php include("ustmenu.php"); ?>
 
-        <main class="w-full flex-1 px-4 py-6 lg:px-8">
-            <?php
-                $isIncome = ((int)$type === 1);
-                $accentText = $isIncome ? "text-emerald-700" : "text-rose-700";
-                $accentBg = $isIncome ? "bg-emerald-600" : "bg-rose-600";
-                $accentSoft = $isIncome ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700";
-                $totalKey = $isIncome ? "toplam_gelir" : "toplam_gider";
-                $catKey = $isIncome ? "gelir_kategorileri" : "gider_kategorileri";
-                $catField = $isIncome ? "ToplamGelir" : "ToplamGider";
+    <main class="w-full flex-1 px-4 py-6 lg:px-8 space-y-6">
 
-                $grandTotal = (float)($rapor["data"][$totalKey] ?? 0);
-                $grandCount = count($rapor["data"][$catKey] ?? []);
-                $customStart = trim((string)($_GET["custom_start"] ?? ""));
-                $customEnd = trim((string)($_GET["custom_end"] ?? ""));
-                $defaultCustomStart = date('Y-m-d', strtotime('-1 month'));
-                $defaultCustomEnd = date('Y-m-d');
-                $customStartValue = $customStart !== "" ? $customStart : $defaultCustomStart;
-                $customEndValue = $customEnd !== "" ? $customEnd : $defaultCustomEnd;
-                $customRangeCard = null;
-                $customRangeResponse = null;
+        <!-- Başlık ve Sekme Seçimi -->
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+                    <i class="<?php echo $isIncome ? 'ti ti-arrow-down-left text-emerald-600 dark:text-emerald-400' : 'ti ti-arrow-up-right text-rose-600 dark:text-rose-400'; ?>"></i>
+                    <span><?php echo $isIncome ? 'Gelir Raporları' : 'Gider Raporları'; ?></span>
+                </h1>
+                <p class="mt-0.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                    Haftalık, aylık, yıllık ve özel tarih filtreli enflasyon/asgari ücret karşılıklı detaylı döküm.
+                </p>
+            </div>
 
-                if ($customStart !== "" && $customEnd !== "") {
-                    $startDate = DateTime::createFromFormat('Y-m-d', $customStart);
-                    $endDate = DateTime::createFromFormat('Y-m-d', $customEnd);
-                    $startValid = $startDate && $startDate->format('Y-m-d') === $customStart;
-                    $endValid = $endDate && $endDate->format('Y-m-d') === $customEnd;
+            <!-- Gelir / Gider Sekme Butonları -->
+            <div class="flex items-center gap-1.5 rounded-2xl border border-slate-200/90 bg-white p-1 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <a href="rapor.php?type=1" class="rounded-xl px-4 py-2 text-xs font-bold transition flex items-center gap-1.5 <?php echo $isIncome ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'; ?>">
+                    <i class="ti ti-arrow-down-left text-sm"></i>
+                    <span>Gelir Raporları</span>
+                </a>
+                <a href="rapor.php?type=2" class="rounded-xl px-4 py-2 text-xs font-bold transition flex items-center gap-1.5 <?php echo !$isIncome ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'; ?>">
+                    <i class="ti ti-arrow-up-right text-sm"></i>
+                    <span>Gider Raporları</span>
+                </a>
+            </div>
+        </div>
 
-                    if ($startValid && $endValid && $customStart <= $customEnd) {
-                        $customRangeCard = [
-                            "key" => "custom",
-                            "title" => "Özel Tarih Aralığı",
-                            "icon" => "ti ti-calendar-search",
-                            "start" => $customStart,
-                            "end" => $customEnd,
-                        ];
-                        $customRangeResponse = apiRequest('/rapor', 'GET', [
-                            "baslangictarihi" => $customStart,
-                            "bitistarihi" => $customEnd
-                        ], $_SESSION['Api_Token']);
-                    }
-                }
-            ?>
-
-            <div class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                <div class="flex flex-wrap items-start justify-between gap-4">
-                    <div>
-                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Analiz</div>
-                        <div class="mt-1 text-2xl font-extrabold tracking-tight">
-                            <?php if ($isIncome) { ?>Gelir Raporları<?php } else { ?>Gider Raporları<?php } ?>
-                        </div>
-                        <div class="mt-1 text-sm text-slate-600">Aynı veriler, daha temiz bir rapor görünümü.</div>
+        <!-- Üst Metrikler Özeti -->
+        <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Genel Özet</div>
+                    <div class="mt-1 text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                        <?php echo $isIncome ? 'Tüm Zamanların Gelir Dökümü' : 'Tüm Zamanların Gider Dökümü'; ?>
                     </div>
+                </div>
 
-                    <div class="flex flex-wrap gap-3">
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Toplam</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo $accentText; ?>"><?php echo paraSpan($grandTotal); ?></div>
-                        </div>
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Kategori</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums text-slate-900"><?php echo (int)$grandCount; ?></div>
-                        </div>
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Mevcut Durum</div>
-                            <div class="mt-1 text-xl font-extrabold tabular-nums <?php echo (($rapor["data"]["mevcut_durum"] ?? 0) >= 0) ? "text-emerald-700" : "text-rose-700"; ?>"><?php echo paraSpan($rapor["data"]["mevcut_durum"] ?? 0); ?></div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-800/60">
+                        <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Toplam Tutar</div>
+                        <div class="mt-1 text-xl font-black tabular-nums <?php echo $accentText; ?>"><?php echo paraSpan($grandTotal); ?></div>
+                    </div>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-800/60">
+                        <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Kategori Sayısı</div>
+                        <div class="mt-1 text-xl font-black tabular-nums text-slate-900 dark:text-white"><?php echo (int)$grandCount; ?></div>
+                    </div>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-800/60">
+                        <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Net Durum</div>
+                        <div class="mt-1 text-xl font-black tabular-nums <?php echo (($rapor["data"]["mevcut_durum"] ?? 0) >= 0) ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"; ?>">
+                            <?php echo paraSpan($rapor["data"]["mevcut_durum"] ?? 0); ?>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur md:col-span-2 xl:col-span-2 2xl:col-span-4">
-                    <details class="group" <?php echo $customRangeCard ? "open" : ""; ?>>
-                        <summary class="flex cursor-pointer list-none items-start justify-between gap-4">
-                            <div class="flex items-center gap-3">
-                                <div class="grid h-11 w-11 place-items-center rounded-2xl <?php echo $accentSoft; ?>">
-                                    <i class="ti ti-calendar-search text-lg"></i>
-                                </div>
-                                <div>
-                                    <div class="text-sm font-extrabold tracking-tight text-slate-900">Özel Tarih Aralığı</div>
-                                    <div class="mt-1 text-xs text-slate-500">İki tarih seçildikten sonra aynı görünümde rapor kartı oluşur.</div>
-                                </div>
-                            </div>
-                            <div class="flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition group-open:rotate-180">
-                                <i class="ti ti-chevron-down"></i>
-                            </div>
-                        </summary>
+        <!-- İsteğe Bağlı Tarih Aralığı Filtresi -->
+        <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <details class="group" <?php if ($customStart !== "" || $customEnd !== "") { echo "open"; } ?>>
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-3 font-bold text-slate-900 dark:text-white">
+                    <div class="flex items-center gap-2.5">
+                        <div class="grid h-10 w-10 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
+                            <i class="ti ti-calendar-search text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-extrabold text-slate-900 dark:text-white">İsteğe Bağlı Tarih Aralığı İle Rapor Al</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">Belirlediğiniz iki tarih arasındaki gelir/gider dökümünü listeler.</div>
+                        </div>
+                    </div>
+                    <span class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 transition group-open:rotate-180 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                        <i class="ti ti-chevron-down"></i>
+                    </span>
+                </summary>
 
-                        <form method="GET" class="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end">
-                            <input type="hidden" name="type" value="<?php echo (int)$type; ?>">
+                <form method="GET" class="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end">
+                    <input type="hidden" name="type" value="<?php echo (int)$type; ?>">
 
-                            <label class="block flex-1">
-                                <div class="mb-2 text-[11px] font-semibold uppercase tracking-widest text-slate-500">Başlangıç</div>
-                                <input type="date" name="custom_start" value="<?php echo htmlspecialchars($customStartValue, ENT_QUOTES, "UTF-8"); ?>" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400">
-                            </label>
+                    <div class="flex-1">
+                        <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Başlangıç Tarihi</label>
+                        <input type="date" name="custom_start" value="<?php echo htmlspecialchars($customStartValue, ENT_QUOTES, "UTF-8"); ?>"
+                               class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                    </div>
 
-                            <label class="block flex-1">
-                                <div class="mb-2 text-[11px] font-semibold uppercase tracking-widest text-slate-500">Bitiş</div>
-                                <input type="date" name="custom_end" value="<?php echo htmlspecialchars($customEndValue, ENT_QUOTES, "UTF-8"); ?>" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400">
-                            </label>
+                    <div class="flex-1">
+                        <label class="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Bitiş Tarihi</label>
+                        <input type="date" name="custom_end" value="<?php echo htmlspecialchars($customEndValue, ENT_QUOTES, "UTF-8"); ?>"
+                               class="mt-1.5 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                    </div>
 
-                            <div class="flex gap-3">
-                                <button type="submit" class="rounded-2xl <?php echo $accentBg; ?> px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:opacity-95">Raporu Göster</button>
-                                <?php if ($customStart !== "" || $customEnd !== "") { ?>
-                                    <a href="rapor.php?type=<?php echo (int)$type; ?>" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Temizle</a>
-                                <?php } ?>
-                            </div>
-                        </form>
-
-                        <?php if ($customRangeCard && $customRangeResponse) { ?>
-                            <div class="mt-6 border-t border-slate-200 pt-6">
-                                <?php renderReportCard($customRangeCard, $customRangeResponse, $totalKey, $catKey, $catField, $isIncome, $accentSoft, $accentText, $accentBg); ?>
-                            </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="rounded-2xl <?php echo $accentBg; ?> px-6 py-3 text-sm font-extrabold text-white shadow-xs transition active:scale-[0.99]">
+                            Raporu Göster
+                        </button>
+                        <?php if ($customStart !== "" || $customEnd !== "") { ?>
+                            <a href="rapor.php?type=<?php echo (int)$type; ?>" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                Temizle
+                            </a>
                         <?php } ?>
-                    </details>
-                </section>
+                    </div>
+                </form>
 
-                <?php foreach ($periods as $p) { ?>
-                    <?php $resp = apiRequest('/rapor', 'GET', ["baslangictarihi" => $p["start"], "bitistarihi" => $p["end"]], $_SESSION['Api_Token']); ?>
-                    <?php renderReportCard($p, $resp, $totalKey, $catKey, $catField, $isIncome, $accentSoft, $accentText, $accentBg); ?>
+                <?php if ($customRangeCard && $customRangeResponse) { ?>
+                    <div class="mt-6 border-t border-slate-100 pt-6 dark:border-slate-800">
+                        <?php renderReportCard($customRangeCard, $customRangeResponse, $totalKey, $catKey, $catField, $isIncome, $accentSoft, $accentText, $accentBarColor); ?>
+                    </div>
                 <?php } ?>
-            </div>
+            </details>
+        </section>
 
-            <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Grafik</div>
-                                <div class="mt-1 text-sm font-semibold text-slate-900">Kategori Dağılımı (Tüm Zamanlar)</div>
-                            </div>
-                            <div class="grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                                <i class="ti ti-chart-bar"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <?php if ($isIncome) { ?>
-                                <canvas id="gelirBarGrafigi" height="320"></canvas>
-                            <?php } else { ?>
-                                <canvas id="giderBarGrafigi" height="320"></canvas>
-                            <?php } ?>
-                        </div>
-                </section>
+        <!-- 4 Dönemsel Rapor Kartı: Haftalık, Aylık, Yıllık, Tüm Zamanlar -->
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+            <?php foreach ($periods as $p) {
+                $resp = apiRequest('/rapor', 'GET', ["baslangictarihi" => $p["start"], "bitistarihi" => $p["end"]], $_SESSION['Api_Token']);
+                renderReportCard($p, $resp, $totalKey, $catKey, $catField, $isIncome, $accentSoft, $accentText, $accentBarColor);
+            } ?>
+        </div>
 
-                <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-widest text-slate-500">Anlık Durum</div>
-                                <div class="mt-1 text-sm font-semibold text-slate-900">Son 3 Ay Bakiye</div>
-                            </div>
-                            <div class="grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700">
-                                <i class="ti ti-chart-line"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <canvas id="anlikDurumGrafigi" width="400" height="200"></canvas>
-                        </div>
-                </section>
-            </div>
-        </main>
+        <!-- Grafikler Alanı: Kategori Dağılımı & Zaman Akışı -->
+        <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            
+            <!-- Kategori Dağılımı Çubuk Grafiği -->
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                    <div>
+                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Grafik Analizi</div>
+                        <div class="text-sm font-extrabold text-slate-900 dark:text-white">Kategori Dağılımı (Tüm Zamanlar)</div>
+                    </div>
+                    <div class="grid h-10 w-10 place-items-center rounded-2xl bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                        <i class="ti ti-chart-bar text-lg"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <?php if ($isIncome) { ?>
+                        <canvas id="gelirBarGrafigi" height="300"></canvas>
+                    <?php } else { ?>
+                        <canvas id="giderBarGrafigi" height="300"></canvas>
+                    <?php } ?>
+                </div>
+            </section>
 
-        <?php include("footer.php"); ?>
-    </div>
+            <!-- Zaman Akışı Çizgi Grafiği (Son 3 Ay) -->
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                    <div>
+                        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Grafik Analizi</div>
+                        <div class="text-sm font-extrabold text-slate-900 dark:text-white">Zaman Akışı (Son 3 Ay)</div>
+                    </div>
+                    <div class="grid h-10 w-10 place-items-center rounded-2xl bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                        <i class="ti ti-chart-line text-lg"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <canvas id="zamanAkisiGrafigi" height="300"></canvas>
+                </div>
+            </section>
+        </div>
 
-    <?php include("scripts.php"); ?>
+    </main>
 
-    <script>
-    function rastgeleRenk() { return `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`; }
+    <?php include("footer.php"); ?>
+</div>
 
-        <?php if($type == 2) { ?>
-        var giderBarGrafigi = document.getElementById("giderBarGrafigi").getContext("2d");
+<?php include("scripts.php"); ?>
 
-        var kategoriler = [<?php foreach(($rapor["data"]["gider_kategorileri"] ?? []) as $giderKategori) { ?>"<?php echo $giderKategori["CategoryName"]; ?>",<?php } ?>];
-        var fiyatlar = [<?php foreach(($rapor["data"]["gider_kategorileri"] ?? []) as $giderKategori) { ?>"<?php echo $giderKategori["ToplamGider"]; ?>",<?php } ?>];
-        var renkler = kategoriler.map(() => rastgeleRenk());
+<script>
+$(document).ready(function() {
+    var cColors = window.getChartColors();
 
-        new Chart(giderBarGrafigi, {
-            type: 'bar',
-            data: {
-                labels: kategoriler,
-                datasets: [{
-                    label: "Kategoriler",
-                    backgroundColor: renkler,
-                    data: fiyatlar
-                }]
-            },
-            options: {
-                legend: { display: false },
-                scales: {
-                    xAxes: [{ gridLines: { display: false } }],
-                    yAxes: [{ ticks: { beginAtZero: true } }]
-                }
-            }
-        });
-        <?php } ?>
+    <?php if ($isIncome) { ?>
+        // Gelir Bar Grafiği
+        var gelirData = <?php echo json_encode($rapor["data"]["gelir_kategorileri"] ?? [], JSON_UNESCAPED_UNICODE); ?>;
+        var gLabels = [];
+        var gValues = [];
+        for (var i = 0; i < gelirData.length; i++) {
+            gLabels.push(gelirData[i].CategoryName);
+            gValues.push(Number(gelirData[i].ToplamGelir || 0));
+        }
 
-        <?php if($type == 1) { ?>
-        var gelirBarGrafigi = document.getElementById("gelirBarGrafigi").getContext("2d");
-
-        var kategoriler = [<?php foreach(($rapor["data"]["gelir_kategorileri"] ?? []) as $gelirKategori) { ?>"<?php echo $gelirKategori["CategoryName"]; ?>",<?php } ?>];
-        var fiyatlar = [<?php foreach(($rapor["data"]["gelir_kategorileri"] ?? []) as $gelirKategori) { ?>"<?php echo $gelirKategori["ToplamGelir"]; ?>",<?php } ?>];
-        var renkler = kategoriler.map(() => rastgeleRenk());
-
-        new Chart(gelirBarGrafigi, {
-            type: 'bar',
-            data: {
-                labels: kategoriler,
-                datasets: [{
-                    label: "Kategoriler",
-                    backgroundColor: renkler,
-                    data: fiyatlar
-                }]
-            },
-            options: {
-                legend: { display: false },
-                scales: {
-                    xAxes: [{ gridLines: { display: false } }],
-                    yAxes: [{ ticks: { beginAtZero: true } }]
-                }
-            }
-        });
-        <?php } ?>
-
-        var anlikDurumGrafigi = document.getElementById("anlikDurumGrafigi").getContext("2d");
-        var tarihEtiketleri = [<?php foreach(($zaman_akisi["data"] ?? []) as $akisData) { ?>"<?php echo date("Y-m-d", strtotime($akisData["tarih"])); ?>",<?php } ?>];
-        var bakiye = [<?php foreach(($zaman_akisi["data"] ?? []) as $akisData) { ?>"<?php echo $akisData["bakiye"]; ?>",<?php } ?>];
-
-        new Chart(anlikDurumGrafigi, {
-            type: 'line',
-            data: {
-                labels: tarihEtiketleri,
-                datasets: [{
-                    label: "Bakiye",
-                    lineTension: 0.25,
-                    backgroundColor: "rgba(2, 132, 199, 0.06)",
-                    borderColor: "rgba(2, 132, 199, 1)",
-                    pointRadius: 2,
-                    pointBackgroundColor: "rgba(2, 132, 199, 1)",
-                    pointBorderColor: "rgba(2, 132, 199, 1)",
-                    fill: true,
-                    data: bakiye
-                }]
-            },
-            options: {
-                legend: { display: false },
-                scales: {
-                    xAxes: [{ gridLines: { display: false } }],
-                    yAxes: [{ ticks: { callback: function(v) { return v + ' ₺'; } } }]
+        var gCtx = document.getElementById('gelirBarGrafigi');
+        if (gCtx) {
+            new Chart(gCtx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: gLabels,
+                    datasets: [{
+                        label: 'Toplam Gelir',
+                        data: gValues,
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        borderRadius: 6
+                    }]
                 },
-                tooltips: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.yLabel + ' ₺';
-                        }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: { display: false },
+                    scales: {
+                        xAxes: [{
+                            gridLines: { display: false },
+                            ticks: { fontColor: cColors.textColor, fontSize: 11 }
+                        }],
+                        yAxes: [{
+                            gridLines: { color: cColors.gridColor },
+                            ticks: {
+                                fontColor: cColors.textColor,
+                                fontSize: 11,
+                                callback: function(v) { return Number(v).toLocaleString('tr-TR') + ' ₺'; }
+                            }
+                        }]
                     }
                 }
+            });
+        }
+    <?php } else { ?>
+        // Gider Bar Grafiği
+        var giderData = <?php echo json_encode($rapor["data"]["gider_kategorileri"] ?? [], JSON_UNESCAPED_UNICODE); ?>;
+        var giLabels = [];
+        var giValues = [];
+        for (var i = 0; i < giderData.length; i++) {
+            giLabels.push(giderData[i].CategoryName);
+            giValues.push(Number(giderData[i].ToplamGider || 0));
+        }
+
+        var giCtx = document.getElementById('giderBarGrafigi');
+        if (giCtx) {
+            new Chart(giCtx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: giLabels,
+                    datasets: [{
+                        label: 'Toplam Gider',
+                        data: giValues,
+                        backgroundColor: 'rgba(244, 63, 94, 0.8)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: { display: false },
+                    scales: {
+                        xAxes: [{
+                            gridLines: { display: false },
+                            ticks: { fontColor: cColors.textColor, fontSize: 11 }
+                        }],
+                        yAxes: [{
+                            gridLines: { color: cColors.gridColor },
+                            ticks: {
+                                fontColor: cColors.textColor,
+                                fontSize: 11,
+                                callback: function(v) { return Number(v).toLocaleString('tr-TR') + ' ₺'; }
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+    <?php } ?>
+
+    // Zaman Akışı Çizgi Grafiği
+    var zData = <?php echo json_encode($zaman_akisi["data"] ?? [], JSON_UNESCAPED_UNICODE); ?>;
+    var zLabels = [];
+    var zGelir = [];
+    var zGider = [];
+
+    if (zData && zData.length) {
+        for (var j = 0; j < zData.length; j++) {
+            zLabels.push(zData[j].Zaman || zData[j].Date || ('Gün ' + (j + 1)));
+            zGelir.push(Number(zData[j].ToplamGelir || 0));
+            zGider.push(Number(zData[j].ToplamGider || 0));
+        }
+    }
+
+    var zCtx = document.getElementById('zamanAkisiGrafigi');
+    if (zCtx) {
+        new Chart(zCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: zLabels,
+                datasets: [
+                    {
+                        label: 'Gelir',
+                        data: zGelir,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        fill: true
+                    },
+                    {
+                        label: 'Gider',
+                        data: zGider,
+                        borderColor: '#f43f5e',
+                        backgroundColor: 'rgba(244, 63, 94, 0.08)',
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                    labels: { fontColor: cColors.textColor, fontSize: 11 }
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: { display: false },
+                        ticks: { fontColor: cColors.textColor, fontSize: 10 }
+                    }],
+                    yAxes: [{
+                        gridLines: { color: cColors.gridColor },
+                        ticks: {
+                            fontColor: cColors.textColor,
+                            fontSize: 10,
+                            callback: function(v) { return Number(v).toLocaleString('tr-TR') + ' ₺'; }
+                        }
+                    }]
+                }
             }
         });
-    </script>
+    }
+});
+</script>
 </body>
 </html>
