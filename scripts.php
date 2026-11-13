@@ -94,6 +94,127 @@
 <script>
 // Global Theme & Mobile Navigation Controller
 (function() {
+  // Upload Overlay Controller (window.uxShowUploading / window.uxHideUploading)
+  var uploadOverlayEl = null;
+
+  function ensureUploadOverlayEl() {
+    if (uploadOverlayEl) return uploadOverlayEl;
+    uploadOverlayEl = document.createElement('div');
+    uploadOverlayEl.className = 'ux-upload-overlay hidden';
+    uploadOverlayEl.innerHTML = 
+      '<div class="ux-upload-overlay__card">' +
+        '<div class="flex items-center gap-3">' +
+          '<span class="ux-spin"></span>' +
+          '<div>' +
+            '<div class="ux-upload-overlay__title font-bold text-sm" id="uxUploadTitle">İşlem yapılıyor...</div>' +
+            '<div class="ux-upload-overlay__sub text-xs text-slate-500" id="uxUploadSub">Lütfen bekleyin...</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(uploadOverlayEl);
+    return uploadOverlayEl;
+  }
+
+  window.uxShowUploading = function(title, subtitle) {
+    var el = ensureUploadOverlayEl();
+    var tEl = document.getElementById('uxUploadTitle');
+    var sEl = document.getElementById('uxUploadSub');
+    if (tEl) tEl.textContent = title || 'İşlem yapılıyor...';
+    if (sEl) sEl.textContent = subtitle || 'Lütfen bekleyin...';
+    el.classList.remove('hidden');
+  };
+
+  window.uxHideUploading = function() {
+    if (uploadOverlayEl) {
+      uploadOverlayEl.classList.add('hidden');
+    }
+  };
+
+  // Lightbox Controller
+  var lightboxEl = null;
+  function ensureLightboxEl() {
+    if (lightboxEl) return lightboxEl;
+    lightboxEl = document.createElement('div');
+    lightboxEl.className = 'ux-lightbox hidden';
+    lightboxEl.innerHTML = 
+      '<div class="ux-lightbox__backdrop"></div>' +
+      '<div class="ux-lightbox__panel">' +
+        '<div class="ux-lightbox__bar">' +
+          '<button type="button" class="ux-lightbox__btn" id="uxLightboxClose">Kapat (ESC)</button>' +
+        '</div>' +
+        '<img class="ux-lightbox__img" id="uxLightboxImg" src="" alt="Önizleme">' +
+      '</div>';
+    document.body.appendChild(lightboxEl);
+
+    lightboxEl.querySelector('.ux-lightbox__backdrop').addEventListener('click', closeLightbox);
+    document.getElementById('uxLightboxClose').addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && lightboxEl && !lightboxEl.classList.contains('hidden')) {
+        closeLightbox();
+      }
+    });
+    return lightboxEl;
+  }
+
+  function openLightbox(src) {
+    var el = ensureLightboxEl();
+    var img = document.getElementById('uxLightboxImg');
+    if (img) img.src = src;
+    el.classList.remove('hidden');
+  }
+
+  function closeLightbox() {
+    if (lightboxEl) {
+      lightboxEl.classList.add('hidden');
+      var img = document.getElementById('uxLightboxImg');
+      if (img) img.src = '';
+    }
+  }
+
+  $(document).on('click', '[data-lightbox-src]', function(e) {
+    e.preventDefault();
+    var src = $(this).attr('data-lightbox-src');
+    if (src) openLightbox(src);
+  });
+
+  // Photo Uploader File Input Preview & Hint Handler
+  $(document).on('change', '[data-photo-input]', function() {
+    var uploader = $(this).closest('[data-photo-uploader]');
+    var hint = uploader.find('[data-photo-hint]');
+    var previews = uploader.find('[data-photo-previews]');
+    previews.empty();
+
+    var files = this.files;
+    if (!files || files.length === 0) {
+      hint.text('Dosya seçilmedi');
+      return;
+    }
+
+    hint.text(files.length + ' dosya seçildi');
+    for (var i = 0; i < files.length; i++) {
+      var file = files[i];
+      if (file.type.match('image.*')) {
+        (function(f) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            previews.append(
+              '<div class="relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 aspect-video flex items-center justify-center">' +
+                '<img src="' + e.target.result + '" class="h-full w-full object-cover">' +
+              '</div>'
+            );
+          };
+          reader.readAsDataURL(f);
+        })(file);
+      } else {
+        previews.append(
+          '<div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-2 text-[11px] truncate text-slate-600 dark:text-slate-300 flex items-center gap-1.5">' +
+            '<i class="ti ti-file text-base"></i><span class="truncate">' + file.name + '</span>' +
+          '</div>'
+        );
+      }
+    }
+  });
+
   // Theme Toggle Controller
   var toggleBtn = document.getElementById('themeToggleBtn');
   if (toggleBtn) {
